@@ -358,10 +358,9 @@ $tagline      = getSetting('platform_tagline', 'Platform IoT Modern');
 
 <!-- NAVBAR -->
 <nav class="navbar" id="navbar">
-  <div class="navbar-brand">
-    <div class="brand-icon"><i class="fas fa-wifi"></i></div>
-    <span class="brand-name"><?= $platformName ?></span>
-  </div>
+  <a href="index.php" class="navbar-brand" style="display:flex;align-items:center;text-decoration:none">
+    <img src="assets/img/logo.png" alt="<?= $platformName ?>" style="height:48px;max-width:210px;object-fit:contain">
+  </a>
   <div class="navbar-links">
     <a href="#features">Fitur</a>
     <a href="#how">Cara Kerja</a>
@@ -369,6 +368,9 @@ $tagline      = getSetting('platform_tagline', 'Platform IoT Modern');
     <a href="#plans">Paket</a>
   </div>
   <div class="navbar-cta">
+    <button type="button" class="theme-toggle-btn" onclick="toggleTheme()" title="Ubah Tema (Terang / Gelap)">
+      <i class="fas fa-moon theme-toggle-icon"></i>
+    </button>
     <a href="login.php" class="btn btn-secondary">Masuk</a>
     <a href="register.php" class="btn btn-primary"><i class="fas fa-rocket"></i> Daftar</a>
   </div>
@@ -378,6 +380,9 @@ $tagline      = getSetting('platform_tagline', 'Platform IoT Modern');
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="hero-content">
+    <div style="margin-bottom:1.5rem">
+      <img src="assets/img/logo.png" alt="<?= $platformName ?>" style="max-height:85px;max-width:320px;width:100%;object-fit:contain;filter:drop-shadow(0 6px 20px rgba(0,0,0,0.3))">
+    </div>
     <div class="hero-eyebrow"><i class="fas fa-bolt"></i> Platform IoT Next-Gen</div>
     <h1 class="hero-title">
       Kontrol Perangkat IoT<br>

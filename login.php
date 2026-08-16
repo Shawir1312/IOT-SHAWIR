@@ -35,10 +35,13 @@ $flash = getFlash();
 </head>
 <body>
 <div class="auth-page">
+  <button type="button" class="theme-toggle-btn" onclick="toggleTheme()" title="Ubah Tema (Terang / Gelap)" style="position:absolute;top:1.25rem;right:1.25rem;z-index:10">
+    <i class="fas fa-moon theme-toggle-icon"></i>
+  </button>
   <div class="auth-card">
     <div class="auth-logo" style="text-align:center;margin-bottom:1.5rem">
-      <img src="assets/img/logo.png" alt="<?= $platformName ?>" style="max-height:85px;max-width:280px;width:100%;margin:0 auto 0.75rem;display:block;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.35))">
-      <p style="font-size:0.9rem;color:var(--text-secondary)">Masuk ke Platform IoT Anda</p>
+      <img src="assets/img/logo.png" alt="<?= $platformName ?>" style="max-height:110px;max-width:320px;width:100%;margin:0 auto 0.75rem;display:block;object-fit:contain;filter:drop-shadow(0 4px 16px rgba(0,0,0,0.25))">
+      <p style="font-size:0.92rem;color:var(--text-secondary)">Masuk ke Platform IoT Anda</p>
     </div>
 
     <?php if ($flash): ?>
