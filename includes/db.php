@@ -21,7 +21,11 @@ class DB {
             } catch (PDOException $e) {
                 http_response_code(500);
                 error_log('Database connection failed: ' . $e->getMessage());
-                die(json_encode(['success' => false, 'message' => 'Koneksi database gagal. Periksa konfigurasi.']));
+                die(json_encode([
+                    'success' => false,
+                    'message' => 'Koneksi database gagal. Periksa konfigurasi di includes/config.php.',
+                    'error_detail' => $e->getMessage()
+                ], JSON_UNESCAPED_UNICODE));
             }
         }
         return self::$instance;
