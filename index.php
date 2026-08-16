@@ -14,11 +14,13 @@ $tagline      = getSetting('platform_tagline', 'Platform IoT Modern');
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title><?= $platformName ?> — Platform IoT Modern</title>
   <meta name="description" content="<?= $platformName ?> adalah platform IoT berbasis web untuk monitoring dan kontrol perangkat mikrokontroler Anda secara real-time.">
+  <link rel="icon" type="image/png" href="assets/img/logo.png">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="assets/js/theme.js"></script>
   <style>
     /* LANDING PAGE SPECIFIC */
     .landing { min-height: 100vh; overflow-x: hidden; }
@@ -28,40 +30,26 @@ $tagline      = getSetting('platform_tagline', 'Platform IoT Modern');
       position: fixed;
       top: 0; left: 0; right: 0;
       z-index: 100;
-      padding: 1rem 2rem;
+      padding: 0.85rem 1.5rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(7,11,20,0.8);
+      background: var(--bg-surface);
       backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid var(--border-light);
       transition: all 0.3s ease;
     }
 
     .navbar-brand {
       display: flex;
       align-items: center;
-      gap: 0.65rem;
-      font-size: 1.35rem;
-      font-weight: 900;
+      text-decoration: none;
     }
 
-    .brand-icon {
-      width: 36px; height: 36px;
-      background: var(--grad-primary);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      box-shadow: var(--shadow-glow);
-    }
-
-    .brand-name {
-      background: var(--grad-primary);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .navbar-brand img {
+      height: 42px;
+      max-width: 200px;
+      object-fit: contain;
     }
 
     .navbar-links { display: flex; align-items: center; gap: 2rem; }

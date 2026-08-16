@@ -36,9 +36,9 @@ $platformName = getSetting('platform_name', 'ShawirIOT');
 <body>
 <div class="auth-page">
   <div class="auth-card">
-    <div class="auth-logo">
-      <img src="assets/img/logo.png" alt="<?= $platformName ?>" style="max-height:60px;margin:0 auto 0.75rem;display:block;object-fit:contain">
-      <p>Buat akun gratis IoT Anda</p>
+    <div class="auth-logo" style="text-align:center;margin-bottom:1.5rem">
+      <img src="assets/img/logo.png" alt="<?= $platformName ?>" style="max-height:85px;max-width:280px;width:100%;margin:0 auto 0.75rem;display:block;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.35))">
+      <p style="font-size:0.9rem;color:var(--text-secondary)">Buat Akun Gratis IoT Anda</p>
     </div>
 
     <?php if ($error): ?>

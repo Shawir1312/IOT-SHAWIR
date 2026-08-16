@@ -84,6 +84,18 @@ $transactions = DB::rows(
         </div>
       <?php endif; ?>
 
+      <!-- WELCOME HERO BANNER -->
+      <div class="card mb-3" style="background:var(--grad-card);border-color:var(--border-focus);padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem">
+        <div style="display:flex;align-items:center;gap:1rem">
+          <img src="assets/img/logo.png" alt="ShawirIOT" style="height:48px;max-width:180px;object-fit:contain">
+          <div>
+            <h2 style="font-size:1.15rem;font-weight:800;margin:0">Platform IoT ShawirIOT</h2>
+            <p style="font-size:0.82rem;color:var(--text-secondary);margin:2px 0 0">Monitoring & kontrol perangkat pintar Anda secara realtime.</p>
+          </div>
+        </div>
+        <a href="device.php" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Tambah Perangkat</a>
+      </div>
+
       <!-- STAT CARDS -->
       <div class="stat-grid">
         <div class="stat-card">
