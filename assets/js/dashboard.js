@@ -298,23 +298,27 @@ function onResizeEnd(e) {
 }
 
 // ============================================================
-// QUICK REORDER (Up / Down Buttons)
+// QUICK REORDER (Up / Down Buttons with Auto-Save)
 // ============================================================
 function moveWidgetUp(id) {
   const el = document.getElementById('widget-' + id);
-  if (!el || !el.previousElementSibling) return;
-  el.parentNode.insertBefore(el, el.previousElementSibling);
-  reorderWidgetsFromDOM();
+  if (!el) return;
+  const prev = el.previousElementSibling;
+  if (!prev || !prev.classList.contains('widget')) return;
+  el.parentNode.insertBefore(el, prev);
+  reorderWidgetsFromDOM(true);
 }
 
 function moveWidgetDown(id) {
   const el = document.getElementById('widget-' + id);
-  if (!el || !el.nextElementSibling) return;
-  el.parentNode.insertBefore(el.nextElementSibling, el);
-  reorderWidgetsFromDOM();
+  if (!el) return;
+  const next = el.nextElementSibling;
+  if (!next || !next.classList.contains('widget')) return;
+  el.parentNode.insertBefore(next, el);
+  reorderWidgetsFromDOM(true);
 }
 
-function reorderWidgetsFromDOM() {
+function reorderWidgetsFromDOM(autoSave = false) {
   const grid = document.getElementById('widget-grid');
   if (!grid) return;
   const domWidgets = Array.from(grid.querySelectorAll('.widget'));
@@ -343,23 +347,30 @@ function reorderWidgetsFromDOM() {
       curX += w;
     });
   } else {
+    // Mobile mode: clear inline styles to prevent height/width stretching
     domWidgets.forEach((wEl, idx) => {
       wEl.dataset.y = idx;
       wEl.dataset.x = 0;
+      wEl.style.gridColumn = '';
+      wEl.style.gridRow = '';
+      wEl.style.height = '';
+      wEl.style.width = '';
       const wObj = widgets.find(w => w.id == wEl.dataset.id);
       if (wObj) { wObj.pos_y = idx; wObj.pos_x = 0; }
     });
   }
 
-  showToast('Posisi diubah. Jangan lupa klik "Simpan Tata Letak".', 'info');
+  if (autoSave) {
+    saveLayout(true);
+  }
 }
 
 // ============================================================
 // SAVE LAYOUT
 // ============================================================
-async function saveLayout() {
+async function saveLayout(silent = false) {
   const btn = document.getElementById('btn-save-layout');
-  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Menyimpan...'; }
+  if (btn && !silent) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Menyimpan...'; }
 
   // Collect positions from DOM
   const layout = [];
@@ -368,7 +379,7 @@ async function saveLayout() {
     const style = el.style;
     const colMatch = (style.gridColumn || '').match(/(\d+)\s*\/\s*span\s*(\d+)/);
     const rowMatch = (style.gridRow || '').match(/(\d+)\s*\/\s*span\s*(\d+)/);
-    if (colMatch && rowMatch) {
+    if (colMatch && rowMatch && window.innerWidth > 768) {
       layout.push({
         id:    parseInt(wid),
         pos_x: parseInt(colMatch[1]) - 1,
@@ -379,8 +390,8 @@ async function saveLayout() {
     } else {
       layout.push({
         id:    parseInt(wid),
-        pos_x: parseInt(el.dataset.x || 0),
-        pos_y: parseInt(el.dataset.y || idx),
+        pos_x: 0,
+        pos_y: idx,
         width: parseInt(el.dataset.w || 4),
         height:parseInt(el.dataset.h || 2),
       });
@@ -400,14 +411,14 @@ async function saveLayout() {
     });
     const data = await resp.json();
     if (data.success) {
-      showToast('Tata letak berhasil disimpan!', 'success');
+      if (!silent) showToast('Tata letak berhasil disimpan!', 'success');
     } else {
-      showToast(data.message || 'Gagal menyimpan.', 'danger');
+      if (!silent) showToast(data.message || 'Gagal menyimpan.', 'danger');
     }
   } catch (err) {
-    showToast('Error: ' + err.message, 'danger');
+    if (!silent) showToast('Error: ' + err.message, 'danger');
   } finally {
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan Tata Letak'; }
+    if (btn && !silent) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan Tata Letak'; }
   }
 }
 
