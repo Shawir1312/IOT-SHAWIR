@@ -298,7 +298,7 @@ function onResizeEnd(e) {
 }
 
 // ============================================================
-// QUICK REORDER (Up / Down Buttons with Auto-Save)
+// QUICK REORDER & SIZE TOGGLE (Blynk-Style Mobile Controls)
 // ============================================================
 function moveWidgetUp(id) {
   const el = document.getElementById('widget-' + id);
@@ -316,6 +316,42 @@ function moveWidgetDown(id) {
   if (!next || !next.classList.contains('widget')) return;
   el.parentNode.insertBefore(next, el);
   reorderWidgetsFromDOM(true);
+}
+
+function toggleWidgetSize(id) {
+  const wEl = document.getElementById('widget-' + id);
+  if (!wEl) return;
+  const wObj = widgets.find(w => w.id == id);
+  const currentW = parseInt(wEl.dataset.w || wObj?.width || 6);
+
+  // Toggle between 12 (100% full width) and 6 (50% half width)
+  const newW = currentW >= 12 ? 6 : 12;
+  
+  wEl.dataset.w = newW;
+  if (wObj) wObj.width = newW;
+
+  if (newW >= 12) {
+    wEl.classList.add('w-full');
+    wEl.classList.remove('w-half');
+  } else {
+    wEl.classList.add('w-half');
+    wEl.classList.remove('w-full');
+  }
+
+  if (window.innerWidth > 768) {
+    const x = parseInt(wEl.dataset.x || 0);
+    const y = parseInt(wEl.dataset.y || 0);
+    const h = parseInt(wEl.dataset.h || 2);
+    wEl.style.gridColumn = `${x + 1} / span ${newW}`;
+    wEl.style.gridRow = `${y + 1} / span ${h}`;
+  } else {
+    wEl.style.gridColumn = '';
+    wEl.style.gridRow = '';
+  }
+
+  setTimeout(initCharts, 150);
+  saveLayout(true);
+  showToast(newW >= 12 ? 'Ukuran diubah ke Layar Penuh (100%)' : 'Ukuran diubah ke Setengah Layar (50%)', 'success');
 }
 
 function reorderWidgetsFromDOM(autoSave = false) {

@@ -680,6 +680,8 @@ input:checked + .toggle-track::before { transform: translateX(24px); }
   }
 
   /* Full-width widgets across the 2-column grid */
+  #widget-grid .widget[data-w="12"],
+  #widget-grid .widget.w-full,
   #widget-grid .widget.w-line_chart,
   #widget-grid .widget.w-line-chart,
   #widget-grid .widget.w-bar_chart,
@@ -694,6 +696,21 @@ input:checked + .toggle-track::before { transform: translateX(24px); }
     grid-row: auto !important;
     min-height: 220px !important;
   }
+
+  /* Half-width widgets across the 2-column grid */
+  #widget-grid .widget[data-w="6"],
+  #widget-grid .widget.w-half {
+    grid-column: span 1 !important;
+    grid-column-start: auto !important;
+    grid-column-end: span 1 !important;
+  }
+
+  /* Height tiers */
+  #widget-grid .widget[data-h="1"] { min-height: 80px !important; }
+  #widget-grid .widget[data-h="2"] { min-height: 115px !important; }
+  #widget-grid .widget[data-h="3"] { min-height: 160px !important; }
+  #widget-grid .widget[data-h="4"] { min-height: 220px !important; }
+  #widget-grid .widget[data-h="5"] { min-height: 290px !important; }
 
   #widget-grid .widget.w-slider {
     min-height: 110px !important;

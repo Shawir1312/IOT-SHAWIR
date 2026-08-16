@@ -115,12 +115,22 @@ function showWidgetConfigForm(type, existing) {
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div class="form-group">
-          <label class="form-label">Lebar Grid (1-12)</label>
-          <input type="number" id="cfg-w" class="form-control" value="${v.width || WIDGET_TYPES[type]?.defaultW || 4}" min="1" max="12">
+          <label class="form-label">Lebar Tampilan</label>
+          <select id="cfg-w" class="form-control">
+            <option value="6" ${(v.width || WIDGET_TYPES[type]?.defaultW || 4) <= 6 ? 'selected' : ''}>Setengah Layar (50% / 2 Kolom)</option>
+            <option value="12" ${(v.width || WIDGET_TYPES[type]?.defaultW || 4) > 6 ? 'selected' : ''}>Layar Penuh (100% / 1 Kolom)</option>
+            <option value="4" ${(v.width == 4) ? 'selected' : ''}>Sepertiga Layar (33%)</option>
+          </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Tinggi Grid</label>
-          <input type="number" id="cfg-h" class="form-control" value="${v.height || WIDGET_TYPES[type]?.defaultH || 2}" min="1" max="20">
+          <label class="form-label">Tinggi Tampilan</label>
+          <select id="cfg-h" class="form-control">
+            <option value="1" ${v.height == 1 ? 'selected' : ''}>1x (Ringkas)</option>
+            <option value="2" ${(v.height == 2 || !v.height) ? 'selected' : ''}>2x (Standar)</option>
+            <option value="3" ${v.height == 3 ? 'selected' : ''}>3x (Sedang)</option>
+            <option value="4" ${v.height == 4 ? 'selected' : ''}>4x (Tinggi / Grafik)</option>
+            <option value="5" ${v.height == 5 ? 'selected' : ''}>5x (Ekstra Besar)</option>
+          </select>
         </div>
       </div>
 

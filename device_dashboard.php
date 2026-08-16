@@ -130,9 +130,10 @@ checkOfflineDevices();
             </div>
             <!-- Edit controls (hidden unless edit mode) -->
             <div class="widget-edit-btn">
-              <button type="button" class="widget-action-btn move-btn" onclick="moveWidgetUp(<?= $w['id'] ?>)" title="Pindah ke Atas / Kiri"><i class="fas fa-chevron-up"></i></button>
-              <button type="button" class="widget-action-btn move-btn" onclick="moveWidgetDown(<?= $w['id'] ?>)" title="Pindah ke Bawah / Kanan"><i class="fas fa-chevron-down"></i></button>
-              <button type="button" class="widget-action-btn" onclick="editWidget(<?= $w['id'] ?>)" title="Pengaturan Widget"><i class="fas fa-cog"></i></button>
+              <button type="button" class="widget-action-btn move-btn" onclick="moveWidgetUp(<?= $w['id'] ?>)" title="Pindah ke Atas / Kiri"><i class="fas fa-arrow-up"></i></button>
+              <button type="button" class="widget-action-btn move-btn" onclick="moveWidgetDown(<?= $w['id'] ?>)" title="Pindah ke Bawah / Kanan"><i class="fas fa-arrow-down"></i></button>
+              <button type="button" class="widget-action-btn size-btn" onclick="toggleWidgetSize(<?= $w['id'] ?>)" title="Ganti Ukuran (Penuh 100% / Setengah 50%)"><i class="fas fa-expand-alt"></i></button>
+              <button type="button" class="widget-action-btn" onclick="editWidget(<?= $w['id'] ?>)" title="Pengaturan Lengkap"><i class="fas fa-cog"></i></button>
               <button type="button" class="widget-action-btn delete" onclick="deleteWidget(<?= $w['id'] ?>)" title="Hapus Widget"><i class="fas fa-trash"></i></button>
             </div>
             <div class="widget-drag-handle" title="Geser Widget"><i class="fas fa-grip-vertical"></i></div>
