@@ -47,12 +47,25 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================================
 // DRAG AND DROP (native HTML5)
 // ============================================================
+// ============================================================
+// DRAG AND DROP (Unified Mouse & Touch for Mobile/Desktop)
+// ============================================================
 let draggedWidget = null;
 let dragOffsetX   = 0;
 let dragOffsetY   = 0;
 let gridEl        = null;
 let cellW         = 0;
 let cellH         = 0;
+
+function getEventXY(e) {
+  if (e.touches && e.touches.length > 0) {
+    return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
+  }
+  if (e.changedTouches && e.changedTouches.length > 0) {
+    return { clientX: e.changedTouches[0].clientX, clientY: e.changedTouches[0].clientY };
+  }
+  return { clientX: e.clientX, clientY: e.clientY };
+}
 
 function initDragAndDrop() {
   gridEl = document.getElementById('widget-grid');
@@ -65,103 +78,137 @@ function initDragAndDrop() {
 
 function destroyDragAndDrop() {
   document.querySelectorAll('.widget').forEach(w => {
-    w.removeAttribute('draggable');
     const handle = w.querySelector('.widget-drag-handle');
-    if (handle) handle.removeEventListener('mousedown', onDragHandleDown);
+    if (handle) {
+      handle.removeEventListener('mousedown', onDragStart);
+      handle.removeEventListener('touchstart', onDragStart);
+    }
   });
 }
 
 function recalcGridDims() {
   if (!gridEl) return;
   const rect = gridEl.getBoundingClientRect();
-  const cols  = 12;
-  const gap   = 12;
+  const cols = window.innerWidth > 768 ? 12 : 2;
+  const gap  = 10;
   cellW = (rect.width - gap * (cols - 1)) / cols;
-  cellH = 80; // matches CSS grid-auto-rows
+  cellH = window.innerWidth > 768 ? 80 : 105;
 }
 
 function initWidgetDrag(widget) {
   const handle = widget.querySelector('.widget-drag-handle');
   if (!handle) return;
 
-  handle.addEventListener('mousedown', onDragHandleDown);
+  handle.addEventListener('mousedown', onDragStart);
+  handle.addEventListener('touchstart', onDragStart, { passive: false });
 }
 
-function onDragHandleDown(e) {
+function onDragStart(e) {
   e.preventDefault();
+  e.stopPropagation();
+  if (window.getSelection) {
+    window.getSelection().removeAllRanges();
+  }
+
   const widget = e.target.closest('.widget');
   if (!widget || !editMode) return;
 
   draggedWidget = widget;
+  const pos  = getEventXY(e);
   const rect = widget.getBoundingClientRect();
-  dragOffsetX = e.clientX - rect.left;
-  dragOffsetY = e.clientY - rect.top;
+  dragOffsetX = pos.clientX - rect.left;
+  dragOffsetY = pos.clientY - rect.top;
 
-  widget.style.opacity    = '0.6';
-  widget.style.zIndex     = '1000';
-  widget.style.position   = 'fixed';
-  widget.style.width      = rect.width + 'px';
-  widget.style.height     = rect.height + 'px';
-  widget.style.left       = rect.left + 'px';
-  widget.style.top        = rect.top + 'px';
+  widget.style.opacity       = '0.7';
+  widget.style.zIndex        = '1000';
+  widget.style.position      = 'fixed';
+  widget.style.width         = rect.width + 'px';
+  widget.style.height        = rect.height + 'px';
+  widget.style.left          = rect.left + 'px';
+  widget.style.top           = rect.top + 'px';
   widget.style.pointerEvents = 'none';
 
   document.addEventListener('mousemove', onDragMove);
   document.addEventListener('mouseup',   onDragEnd);
+  document.addEventListener('touchmove', onDragMove, { passive: false });
+  document.addEventListener('touchend',  onDragEnd, { passive: false });
+  document.addEventListener('touchcancel', onDragEnd, { passive: false });
 }
 
 function onDragMove(e) {
   if (!draggedWidget) return;
-  draggedWidget.style.left = (e.clientX - dragOffsetX) + 'px';
-  draggedWidget.style.top  = (e.clientY - dragOffsetY) + 'px';
+  e.preventDefault();
+  const pos = getEventXY(e);
+  draggedWidget.style.left = (pos.clientX - dragOffsetX) + 'px';
+  draggedWidget.style.top  = (pos.clientY - dragOffsetY) + 'px';
 }
 
 function onDragEnd(e) {
   if (!draggedWidget || !gridEl) return;
+  e.preventDefault();
 
-  const gridRect = gridEl.getBoundingClientRect();
-  const gap = 12;
+  const pos  = getEventXY(e);
+  const isMobile = window.innerWidth <= 768;
 
-  // Calculate grid position
-  const relX = (e.clientX - dragOffsetX) - gridRect.left;
-  const relY = (e.clientY - dragOffsetY) - gridRect.top;
-
-  const col = Math.max(0, Math.min(11, Math.round(relX / (cellW + gap))));
-  const row = Math.max(0, Math.round(relY / (cellH + gap)));
-
-  const wid = draggedWidget.dataset.id;
-  const w   = widgets.find(w => w.id == wid);
-  const wWidth = w ? w.width : 4;
-  const finalCol = Math.min(col, 12 - wWidth);
-
-  // Snap back to grid
-  draggedWidget.style.position = '';
-  draggedWidget.style.width    = '';
-  draggedWidget.style.height   = '';
-  draggedWidget.style.left     = '';
-  draggedWidget.style.top      = '';
-  draggedWidget.style.opacity  = '';
-  draggedWidget.style.zIndex   = '';
+  // Restore dragged widget styles first
+  draggedWidget.style.position      = '';
+  draggedWidget.style.width         = '';
+  draggedWidget.style.height        = '';
+  draggedWidget.style.left          = '';
+  draggedWidget.style.top           = '';
+  draggedWidget.style.opacity       = '';
+  draggedWidget.style.zIndex        = '';
   draggedWidget.style.pointerEvents = '';
 
-  draggedWidget.style.gridColumn = `${finalCol + 1} / span ${wWidth}`;
-  draggedWidget.style.gridRow    = `${row + 1} / span ${w ? w.height : 2}`;
+  if (isMobile) {
+    // Mobile mode: reorder DOM elements based on drop position
+    const targetEl = document.elementFromPoint(pos.clientX, pos.clientY)?.closest('.widget');
+    if (targetEl && targetEl !== draggedWidget && targetEl.parentElement === gridEl) {
+      const allWidgets = Array.from(gridEl.querySelectorAll('.widget'));
+      const draggedIdx = allWidgets.indexOf(draggedWidget);
+      const targetIdx  = allWidgets.indexOf(targetEl);
+      if (draggedIdx < targetIdx) {
+        gridEl.insertBefore(draggedWidget, targetEl.nextSibling);
+      } else {
+        gridEl.insertBefore(draggedWidget, targetEl);
+      }
+    }
+  } else {
+    // Desktop mode: 12-column coordinate grid snap
+    const gridRect = gridEl.getBoundingClientRect();
+    const gap = 12;
+    const relX = (pos.clientX - dragOffsetX) - gridRect.left;
+    const relY = (pos.clientY - dragOffsetY) - gridRect.top;
 
-  // Update widget data
-  if (w) {
-    w.pos_x = finalCol;
-    w.pos_y = row;
-    draggedWidget.dataset.x = finalCol;
-    draggedWidget.dataset.y = row;
+    const col = Math.max(0, Math.min(11, Math.round(relX / (cellW + gap))));
+    const row = Math.max(0, Math.round(relY / (cellH + gap)));
+
+    const wid = draggedWidget.dataset.id;
+    const w   = widgets.find(w => w.id == wid);
+    const wWidth = w ? w.width : 4;
+    const finalCol = Math.min(col, 12 - wWidth);
+
+    draggedWidget.style.gridColumn = `${finalCol + 1} / span ${wWidth}`;
+    draggedWidget.style.gridRow    = `${row + 1} / span ${w ? w.height : 2}`;
+
+    if (w) {
+      w.pos_x = finalCol;
+      w.pos_y = row;
+      draggedWidget.dataset.x = finalCol;
+      draggedWidget.dataset.y = row;
+    }
   }
 
   document.removeEventListener('mousemove', onDragMove);
   document.removeEventListener('mouseup',   onDragEnd);
+  document.removeEventListener('touchmove', onDragMove);
+  document.removeEventListener('touchend',  onDragEnd);
+  document.removeEventListener('touchcancel', onDragEnd);
   draggedWidget = null;
 }
 
 // ============================================================
-// RESIZE HANDLES
+// RESIZE HANDLES (Unified Mouse & Touch)
 // ============================================================
 function initResizeHandles() {
   document.querySelectorAll('.widget.edit-mode').forEach(widget => {
@@ -169,6 +216,7 @@ function initResizeHandles() {
     if (!handle) return;
 
     handle.addEventListener('mousedown', onResizeStart);
+    handle.addEventListener('touchstart', onResizeStart, { passive: false });
   });
 }
 
@@ -181,11 +229,16 @@ let resizeStartH = 0;
 function onResizeStart(e) {
   e.preventDefault();
   e.stopPropagation();
+  if (window.getSelection) {
+    window.getSelection().removeAllRanges();
+  }
+
   resizingWidget = e.target.closest('.widget');
   if (!resizingWidget) return;
 
-  resizeStartX = e.clientX;
-  resizeStartY = e.clientY;
+  const pos = getEventXY(e);
+  resizeStartX = pos.clientX;
+  resizeStartY = pos.clientY;
 
   const wid = resizingWidget.dataset.id;
   const w   = widgets.find(w => w.id == wid);
@@ -194,26 +247,33 @@ function onResizeStart(e) {
 
   document.addEventListener('mousemove', onResizeMove);
   document.addEventListener('mouseup',   onResizeEnd);
+  document.addEventListener('touchmove', onResizeMove, { passive: false });
+  document.addEventListener('touchend',  onResizeEnd, { passive: false });
+  document.addEventListener('touchcancel', onResizeEnd, { passive: false });
 }
 
 function onResizeMove(e) {
   if (!resizingWidget || !gridEl) return;
+  e.preventDefault();
+  const pos = getEventXY(e);
   const gap = 12;
-  const dx = e.clientX - resizeStartX;
-  const dy = e.clientY - resizeStartY;
+  const dx = pos.clientX - resizeStartX;
+  const dy = pos.clientY - resizeStartY;
 
   const newW = Math.max(1, Math.min(12, resizeStartW + Math.round(dx / (cellW + gap))));
   const newH = Math.max(1, resizeStartH + Math.round(dy / (cellH + gap)));
 
-  resizingWidget.style.gridColumn = resizingWidget.style.gridColumn.split('/')[0] + `/ span ${newW}`;
-  resizingWidget.style.gridRow    = resizingWidget.style.gridRow.split('/')[0]    + `/ span ${newH}`;
+  resizingWidget.style.gridColumn = (resizingWidget.style.gridColumn || '1').split('/')[0] + `/ span ${newW}`;
+  resizingWidget.style.gridRow    = (resizingWidget.style.gridRow || '1').split('/')[0]    + `/ span ${newH}`;
 }
 
 function onResizeEnd(e) {
   if (!resizingWidget) return;
+  e.preventDefault();
+  const pos = getEventXY(e);
   const gap = 12;
-  const dx = e.clientX - resizeStartX;
-  const dy = e.clientY - resizeStartY;
+  const dx = pos.clientX - resizeStartX;
+  const dy = pos.clientY - resizeStartY;
 
   const wid = resizingWidget.dataset.id;
   const w   = widgets.find(w => w.id == wid);
@@ -228,6 +288,9 @@ function onResizeEnd(e) {
 
   document.removeEventListener('mousemove', onResizeMove);
   document.removeEventListener('mouseup',   onResizeEnd);
+  document.removeEventListener('touchmove', onResizeMove);
+  document.removeEventListener('touchend',  onResizeEnd);
+  document.removeEventListener('touchcancel', onResizeEnd);
   resizingWidget = null;
 
   // Reinit charts if resized
