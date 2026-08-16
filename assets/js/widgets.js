@@ -291,11 +291,12 @@ function updateWidgetValue(pin, value) {
       case 'line_chart':
       case 'bar_chart': {
         const chart = charts[w.id];
-        if (chart) {
+        const numVal = parseFloat(value);
+        if (chart && !isNaN(numVal) && value !== '' && value !== '—' && value !== null) {
           const now = new Date().toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
           chart.data.labels.push(now);
-          chart.data.datasets[0].data.push(parseFloat(value) || 0);
-          if (chart.data.labels.length > 30) {
+          chart.data.datasets[0].data.push(numVal);
+          if (chart.data.labels.length > 20) {
             chart.data.labels.shift();
             chart.data.datasets[0].data.shift();
           }
@@ -341,14 +342,18 @@ function initCharts() {
     const color = canvas.dataset.color || '#6366f1';
     const pin   = canvas.dataset.pin;
 
+    if (charts[wid]) {
+      charts[wid].destroy();
+    }
+
     // Load last 20 history points
     fetch(`api/data.php?token=${DEVICE_TOKEN}&history=${pin}&n=20`)
       .then(r => r.json())
       .then(data => {
         const labels = [], values = [];
-        if (data.success && data.data) {
+        if (data.success && Array.isArray(data.data)) {
           data.data.forEach(d => {
-            labels.push(new Date(d.recorded_at).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}));
+            labels.push(new Date(d.recorded_at).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'}));
             values.push(parseFloat(d.value) || 0);
           });
         }
@@ -367,37 +372,37 @@ function initCharts() {
                 : hexToRgba(color, 0.6),
               borderWidth: 2,
               fill: type === 'line',
-              tension: 0.4,
-              pointRadius: 2,
+              tension: 0.3,
+              pointRadius: 3,
               pointHoverRadius: 5,
             }]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            animation: { duration: 300 },
-            plugins: { legend: { display: false } },
+            animation: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (ctx) => ` ${pin}: ${ctx.parsed.y}`
+                }
+              }
+            },
             scales: {
               x: {
-                ticks: { color: '#475569', maxTicksLimit: 8, font: { size: 10 } },
+                ticks: { color: '#475569', maxTicksLimit: 6, font: { size: 9 } },
                 grid:  { color: 'rgba(255,255,255,0.04)' }
               },
               y: {
-                ticks: { color: '#475569', font: { size: 10 } },
+                ticks: { color: '#475569', font: { size: 9 } },
                 grid:  { color: 'rgba(255,255,255,0.04)' }
               }
             }
           }
         });
       })
-      .catch(() => {
-        const ctx = canvas.getContext('2d');
-        charts[wid] = new Chart(ctx, {
-          type,
-          data: { labels: [], datasets: [{ data: [], borderColor: color, borderWidth: 2 }] },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-        });
-      });
+      .catch(() => {});
   });
 }
 

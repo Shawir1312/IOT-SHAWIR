@@ -601,10 +601,14 @@ input:checked + .toggle-track::before { transform: translateX(24px); }
     box-sizing: border-box !important;
   }
 
-  /* Force override inline desktop grid coordinates */
+  /* Force override any desktop grid coordinates */
   #widget-grid .widget {
     grid-column: span 1 !important;
+    grid-column-start: auto !important;
+    grid-column-end: span 1 !important;
     grid-row: auto !important;
+    grid-row-start: auto !important;
+    grid-row-end: auto !important;
     width: 100% !important;
     max-width: 100% !important;
     min-height: 105px !important;
@@ -622,6 +626,8 @@ input:checked + .toggle-track::before { transform: translateX(24px); }
   #widget-grid .widget.w-slider,
   #widget-grid .widget.w-label {
     grid-column: 1 / -1 !important;
+    grid-column-start: 1 !important;
+    grid-column-end: -1 !important;
     grid-row: auto !important;
     min-height: 220px !important;
   }
@@ -642,6 +648,8 @@ input:checked + .toggle-track::before { transform: translateX(24px); }
   #widget-grid .widget.w-switch,
   #widget-grid .widget.w-led {
     grid-column: span 1 !important;
+    grid-column-start: auto !important;
+    grid-column-end: span 1 !important;
     grid-row: auto !important;
     min-height: 105px !important;
   }

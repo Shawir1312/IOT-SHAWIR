@@ -148,7 +148,12 @@ function onDragEnd(e) {
   draggedWidget.style.gridRow    = `${row + 1} / span ${w ? w.height : 2}`;
 
   // Update widget data
-  if (w) { w.pos_x = finalCol; w.pos_y = row; }
+  if (w) {
+    w.pos_x = finalCol;
+    w.pos_y = row;
+    draggedWidget.dataset.x = finalCol;
+    draggedWidget.dataset.y = row;
+  }
 
   document.removeEventListener('mousemove', onDragMove);
   document.removeEventListener('mouseup',   onDragEnd);
@@ -212,9 +217,13 @@ function onResizeEnd(e) {
 
   const wid = resizingWidget.dataset.id;
   const w   = widgets.find(w => w.id == wid);
+  const finalW = Math.max(1, Math.min(12, resizeStartW + Math.round(dx / (cellW + gap))));
+  const finalH = Math.max(1, resizeStartH + Math.round(dy / (cellH + gap)));
   if (w) {
-    w.width  = Math.max(1, Math.min(12, resizeStartW + Math.round(dx / (cellW + gap))));
-    w.height = Math.max(1, resizeStartH + Math.round(dy / (cellH + gap)));
+    w.width  = finalW;
+    w.height = finalH;
+    resizingWidget.dataset.w = finalW;
+    resizingWidget.dataset.h = finalH;
   }
 
   document.removeEventListener('mousemove', onResizeMove);
@@ -237,8 +246,8 @@ async function saveLayout() {
   document.querySelectorAll('.widget').forEach(el => {
     const wid = el.dataset.id;
     const style = el.style;
-    const colMatch = style.gridColumn.match(/(\d+)\s*\/\s*span\s*(\d+)/);
-    const rowMatch = style.gridRow.match(/(\d+)\s*\/\s*span\s*(\d+)/);
+    const colMatch = (style.gridColumn || '').match(/(\d+)\s*\/\s*span\s*(\d+)/);
+    const rowMatch = (style.gridRow || '').match(/(\d+)\s*\/\s*span\s*(\d+)/);
     if (colMatch && rowMatch) {
       layout.push({
         id:    parseInt(wid),
@@ -246,6 +255,14 @@ async function saveLayout() {
         pos_y: parseInt(rowMatch[1]) - 1,
         width: parseInt(colMatch[2]),
         height:parseInt(rowMatch[2]),
+      });
+    } else {
+      layout.push({
+        id:    parseInt(wid),
+        pos_x: parseInt(el.dataset.x || 0),
+        pos_y: parseInt(el.dataset.y || 0),
+        width: parseInt(el.dataset.w || 4),
+        height:parseInt(el.dataset.h || 2),
       });
     }
   });
@@ -263,19 +280,45 @@ async function saveLayout() {
     });
     const data = await resp.json();
     if (data.success) {
-      showToast('Layout berhasil disimpan!', 'success');
+      showToast('Tata letak berhasil disimpan!', 'success');
     } else {
       showToast(data.message || 'Gagal menyimpan.', 'danger');
     }
   } catch (err) {
     showToast('Error: ' + err.message, 'danger');
   } finally {
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan Layout'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan Tata Letak'; }
   }
 }
 
-// Handle window resize
+// ============================================================
+// RESPONSIVE COORDINATE APPLIER
+// ============================================================
+function applyDesktopCoordinates() {
+  if (window.innerWidth > 768) {
+    document.querySelectorAll('.widget').forEach(w => {
+      const x = parseInt(w.dataset.x || 0);
+      const y = parseInt(w.dataset.y || 0);
+      const width = parseInt(w.dataset.w || 4);
+      const height = parseInt(w.dataset.h || 2);
+      w.style.gridColumn = `${x + 1} / span ${width}`;
+      w.style.gridRow = `${y + 1} / span ${height}`;
+    });
+  } else {
+    document.querySelectorAll('.widget').forEach(w => {
+      w.style.gridColumn = '';
+      w.style.gridRow = '';
+    });
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  applyDesktopCoordinates();
+  recalcGridDims();
+});
+
 window.addEventListener('resize', () => {
+  applyDesktopCoordinates();
   recalcGridDims();
   setTimeout(initCharts, 200);
 });

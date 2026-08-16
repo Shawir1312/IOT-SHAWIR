@@ -57,10 +57,7 @@ checkOfflineDevices();
     <!-- TOPBAR -->
     <header class="topbar">
       <div class="topbar-left">
-        <button type="button" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Buka Menu">
-          <i class="fas fa-bars"></i>
-        </button>
-        <a href="device.php" class="btn btn-secondary btn-sm btn-icon" title="Kembali ke Daftar Perangkat"><i class="fas fa-arrow-left"></i></a>
+        <a href="device.php" class="btn btn-secondary btn-sm btn-icon" style="flex-shrink:0" title="Kembali ke Daftar Perangkat"><i class="fas fa-arrow-left"></i></a>
         <div style="min-width:0">
           <h1 class="topbar-title" style="font-size:0.95rem;line-height:1.2;margin:0"><?= sanitize($device['name']) ?></h1>
           <div style="font-size:0.72rem;color:var(--text-muted);display:flex;align-items:center;gap:0.4rem;margin-top:2px">
@@ -115,10 +112,10 @@ checkOfflineDevices();
                data-max="<?= $w['max_value'] ?>"
                data-on="<?= sanitize($w['on_value']) ?>"
                data-off="<?= sanitize($w['off_value']) ?>"
-               style="
-                 grid-column: <?= $w['pos_x'] + 1 ?> / span <?= $w['width'] ?>;
-                 grid-row:    <?= $w['pos_y'] + 1 ?> / span <?= $w['height'] ?>;
-               ">
+               data-x="<?= (int)$w['pos_x'] ?>"
+               data-y="<?= (int)$w['pos_y'] ?>"
+               data-w="<?= (int)$w['width'] ?>"
+               data-h="<?= (int)$w['height'] ?>">
             <div class="widget-header">
               <span class="widget-label"><?= sanitize($w['label']) ?></span>
               <?php if ($w['pin']): ?>

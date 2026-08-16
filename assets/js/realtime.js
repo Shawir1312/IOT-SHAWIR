@@ -109,7 +109,7 @@ function stopPolling() {
   }
 }
 
-let lastPollValues = {};
+let lastPollValues = (typeof PIN_VALUES === 'object' && PIN_VALUES !== null) ? Object.assign({}, PIN_VALUES) : {};
 
 async function pollPinValues() {
   try {
@@ -124,7 +124,10 @@ async function pollPinValues() {
     pins.forEach(item => {
       const pin = item.pin;
       const val = String(item.value ?? '');
-      if (lastPollValues[pin] !== val) {
+      if (typeof lastPollValues[pin] === 'undefined') {
+        // Initial setup - do not trigger fake chart update
+        lastPollValues[pin] = val;
+      } else if (lastPollValues[pin] !== val) {
         lastPollValues[pin] = val;
         updateWidgetValue(pin, val);
       }
