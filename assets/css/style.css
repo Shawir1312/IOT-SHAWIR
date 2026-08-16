@@ -857,21 +857,48 @@ tbody tr:hover td { background: rgba(99,102,241,0.04); }
   html { font-size: 15px; }
   
   .topbar {
-    padding: 0.5rem 0.75rem;
-    min-height: 56px;
+    padding: 0.5rem 0.65rem;
+    min-height: 54px;
+    gap: 0.4rem;
+    flex-wrap: nowrap;
   }
   
+  .topbar-left {
+    gap: 0.45rem;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+
   .topbar-title {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .topbar-actions {
+    gap: 0.35rem;
+    flex-shrink: 0;
+  }
+
+  .topbar-actions .btn {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.8rem;
+  }
+
+  .rt-status-bar {
+    padding: 3px 8px;
+    font-size: 0.7rem;
   }
 
   .credit-badge {
-    padding: 0.2rem 0.6rem;
-    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.72rem;
   }
 
   .page-content {
-    padding: 0.75rem;
+    padding: 0.65rem 0.5rem;
   }
 
   .card {

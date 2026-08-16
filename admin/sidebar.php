@@ -33,16 +33,16 @@ function adminNavItem(string $href, string $icon, string $label, string $current
 
   <nav class="sidebar-nav">
     <div class="nav-section-label">Panel Admin</div>
-    <?= adminNavItem('index.php', 'chart-pie', 'Overview', $currentPage, 'index.php') ?>
-    <?= adminNavItem('users.php', 'users', 'Kelola User', $currentPage, 'users.php') ?>
+    <?= adminNavItem('index.php', 'chart-pie', 'Ringkasan', $currentPage, 'index.php') ?>
+    <?= adminNavItem('users.php', 'users', 'Manajemen Pengguna', $currentPage, 'users.php') ?>
     <?= adminNavItem('credits.php', 'coins', 'Sistem Kredit', $currentPage, 'credits.php') ?>
-    <?= adminNavItem('devices.php', 'server', 'Monitor Device', $currentPage, 'devices.php') ?>
+    <?= adminNavItem('devices.php', 'server', 'Monitor Perangkat', $currentPage, 'devices.php') ?>
     <?= adminNavItem('settings.php', 'cog', 'Pengaturan Platform', $currentPage, 'settings.php') ?>
 
-    <div class="nav-section-label" style="margin-top:1rem">Navigasi User</div>
+    <div class="nav-section-label" style="margin-top:1rem">Navigasi Pengguna</div>
     <a href="../dashboard.php" class="nav-item">
       <span class="nav-icon"><i class="fas fa-arrow-left"></i></span>
-      <span>Ke Dashboard User</span>
+      <span>Ke Dashboard Pengguna</span>
     </a>
     <a href="../logout.php" class="nav-item" style="color:var(--danger)">
       <span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span>

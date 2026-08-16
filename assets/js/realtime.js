@@ -115,10 +115,13 @@ async function pollPinValues() {
   try {
     const resp = await fetch(`api/data.php?token=${DEVICE_TOKEN}&all=1`);
     if (!resp.ok) return;
-    const data = await resp.json();
-    if (!data.success || !data.data) return;
+    const json = await resp.json();
+    if (!json.success || !json.data) return;
 
-    data.data.forEach(item => {
+    const payload = json.data;
+    const pins = Array.isArray(payload) ? payload : (payload.pins || []);
+
+    pins.forEach(item => {
       const pin = item.pin;
       const val = String(item.value ?? '');
       if (lastPollValues[pin] !== val) {
@@ -128,8 +131,8 @@ async function pollPinValues() {
     });
 
     // Check device online status
-    if (typeof data.is_online !== 'undefined') {
-      updateDeviceStatusBadge(data.is_online);
+    if (typeof payload.is_online !== 'undefined') {
+      updateDeviceStatusBadge(Boolean(payload.is_online));
     }
 
     setLastUpdate();
@@ -158,32 +161,32 @@ function setWsStatus(connected, polling = false) {
 
   if (connected) {
     indicator.classList.add('connected');
-    statusEl.textContent = 'WebSocket Terhubung';
+    statusEl.textContent = 'Realtime Aktif';
     statusEl.style.color = 'var(--success)';
   } else if (polling) {
     indicator.classList.remove('connected');
     indicator.style.background = 'var(--accent)';
-    statusEl.textContent = 'Polling Mode';
+    statusEl.textContent = 'HTTP Polling';
     statusEl.style.color = 'var(--accent)';
   } else {
     indicator.classList.remove('connected');
     indicator.style.background = '';
-    statusEl.textContent = 'Menghubungkan kembali...';
+    statusEl.textContent = 'Menghubungkan...';
     statusEl.style.color = 'var(--text-muted)';
   }
 }
 
 function setLastUpdate() {
   const el = document.getElementById('last-update');
-  if (el) el.textContent = 'Update: ' + new Date().toLocaleTimeString('id-ID');
+  if (el) el.textContent = 'Pembaruan: ' + new Date().toLocaleTimeString('id-ID');
 }
 
 function updateDeviceStatusBadge(online) {
   const el = document.getElementById('device-status-label');
   if (el) {
     el.innerHTML = online
-      ? '<span style="color:var(--success)">● Online</span>'
-      : '<span style="color:var(--text-muted)">● Offline</span>';
+      ? '<span style="color:var(--success);font-weight:600">● Terhubung</span>'
+      : '<span style="color:var(--text-muted)">● Terputus</span>';
   }
 }
 

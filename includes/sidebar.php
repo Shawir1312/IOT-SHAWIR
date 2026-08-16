@@ -29,16 +29,16 @@ function navItem(string $href, string $icon, string $label, string $current, str
   <nav class="sidebar-nav">
     <div class="nav-section-label">Utama</div>
     <?= navItem($baseUrl . '/dashboard.php', 'home', 'Beranda', $currentPage, 'dashboard.php') ?>
-    <?= navItem($baseUrl . '/device.php', 'microchip', 'Device Saya', $currentPage, 'device.php') ?>
+    <?= navItem($baseUrl . '/device.php', 'microchip', 'Perangkat Saya', $currentPage, 'device.php') ?>
     <?= navItem($baseUrl . '/profile.php', 'user-circle', 'Profil & Kredit', $currentPage, 'profile.php') ?>
 
     <?php if (isAdmin()): ?>
     <div class="nav-section-label" style="margin-top:1rem">Admin</div>
     <?= navItem($baseUrl . '/admin/index.php', 'chart-pie', 'Dashboard Admin', $currentPage, 'index.php') ?>
-    <?= navItem($baseUrl . '/admin/users.php', 'users', 'Manajemen User', $currentPage, 'users.php') ?>
+    <?= navItem($baseUrl . '/admin/users.php', 'users', 'Manajemen Pengguna', $currentPage, 'users.php') ?>
     <?= navItem($baseUrl . '/admin/credits.php', 'coins', 'Kelola Kredit', $currentPage, 'credits.php') ?>
-    <?= navItem($baseUrl . '/admin/devices.php', 'server', 'Monitor Device', $currentPage, 'devices.php') ?>
-    <?= navItem($baseUrl . '/admin/settings.php', 'cog', 'Pengaturan', $currentPage, 'settings.php') ?>
+    <?= navItem($baseUrl . '/admin/devices.php', 'server', 'Monitor Perangkat', $currentPage, 'devices.php') ?>
+    <?= navItem($baseUrl . '/admin/settings.php', 'cog', 'Pengaturan Platform', $currentPage, 'settings.php') ?>
     <?php endif; ?>
 
     <div class="nav-section-label" style="margin-top:1rem">Lainnya</div>

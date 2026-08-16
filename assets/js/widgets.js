@@ -7,17 +7,17 @@
 // WIDGET TYPE DEFINITIONS
 // ============================================================
 const WIDGET_TYPES = {
-  value_display: { label: 'Value Display', icon: 'fa-tachometer-alt', defaultW: 3, defaultH: 2 },
-  line_chart:    { label: 'Line Chart',    icon: 'fa-chart-line',     defaultW: 6, defaultH: 4 },
-  bar_chart:     { label: 'Bar Chart',     icon: 'fa-chart-bar',      defaultW: 6, defaultH: 4 },
-  gauge:         { label: 'Gauge',         icon: 'fa-gauge-high',      defaultW: 3, defaultH: 3 },
-  button:        { label: 'Button',        icon: 'fa-hand-pointer',   defaultW: 3, defaultH: 2 },
-  slider:        { label: 'Slider',        icon: 'fa-sliders-h',      defaultW: 4, defaultH: 2 },
-  switch:        { label: 'Switch',        icon: 'fa-toggle-on',      defaultW: 2, defaultH: 2 },
-  led:           { label: 'LED',           icon: 'fa-circle-dot',     defaultW: 2, defaultH: 2 },
-  terminal:      { label: 'Terminal',      icon: 'fa-terminal',       defaultW: 6, defaultH: 4 },
-  label:         { label: 'Label Teks',    icon: 'fa-font',           defaultW: 4, defaultH: 1 },
-  map:           { label: 'GPS Map',       icon: 'fa-map-marker-alt', defaultW: 6, defaultH: 5 },
+  value_display: { label: 'Tampilan Nilai', icon: 'fa-tachometer-alt', defaultW: 3, defaultH: 2 },
+  line_chart:    { label: 'Grafik Garis',    icon: 'fa-chart-line',     defaultW: 6, defaultH: 4 },
+  bar_chart:     { label: 'Grafik Batang',   icon: 'fa-chart-bar',      defaultW: 6, defaultH: 4 },
+  gauge:         { label: 'Speedometer (Gauge)', icon: 'fa-gauge-high', defaultW: 3, defaultH: 3 },
+  button:        { label: 'Tombol Tekan',   icon: 'fa-hand-pointer',   defaultW: 3, defaultH: 2 },
+  slider:        { label: 'Pengatur Nilai (Slider)', icon: 'fa-sliders-h', defaultW: 4, defaultH: 2 },
+  switch:        { label: 'Saklar ON/OFF',  icon: 'fa-toggle-on',      defaultW: 2, defaultH: 2 },
+  led:           { label: 'Indikator LED',  icon: 'fa-circle-dot',     defaultW: 2, defaultH: 2 },
+  terminal:      { label: 'Terminal Log',   icon: 'fa-terminal',       defaultW: 6, defaultH: 4 },
+  label:         { label: 'Label Teks',     icon: 'fa-font',           defaultW: 4, defaultH: 1 },
+  map:           { label: 'Peta Lokasi GPS',icon: 'fa-map-marker-alt', defaultW: 6, defaultH: 5 },
 };
 
 let selectedWidgetType = null;
@@ -44,7 +44,7 @@ function editWidget(id) {
 // CONFIG FORM GENERATOR
 // ============================================================
 function showWidgetConfigForm(type, existing) {
-  const title  = existing ? 'Edit Widget' : `Tambah ${WIDGET_TYPES[type]?.label || type}`;
+  const title  = existing ? 'Edit Pengaturan Widget' : `Tambah ${WIDGET_TYPES[type]?.label || type}`;
   document.getElementById('widget-config-title').textContent = title;
 
   const isChart  = type === 'line_chart' || type === 'bar_chart';
@@ -58,51 +58,51 @@ function showWidgetConfigForm(type, existing) {
   const html = `
     <form id="widget-config-form" style="display:flex;flex-direction:column;gap:1rem">
       <div class="form-group">
-        <label class="form-label">Label Widget</label>
+        <label class="form-label">Nama / Label Widget</label>
         <input type="text" id="cfg-label" class="form-control" value="${escHtml(v.label || WIDGET_TYPES[type]?.label || '')}" placeholder="Nama Widget" required>
       </div>
 
       ${hasPin ? `
       <div class="form-group">
-        <label class="form-label">Virtual Pin</label>
+        <label class="form-label">Virtual Pin (Arduino/ESP)</label>
         <select id="cfg-pin" class="form-control">
           ${Array.from({length:256},(_,i)=>`<option value="V${i}" ${v.pin==='V'+i?'selected':''}>V${i}</option>`).join('')}
         </select>
-        <div class="form-hint">Pin yang digunakan di kode Arduino</div>
+        <div class="form-hint">Pin virtual yang digunakan pada sketch Arduino Anda</div>
       </div>` : ''}
 
       ${hasRange ? `
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div class="form-group">
-          <label class="form-label">Nilai Minimum</label>
+          <label class="form-label">Batas Minimum</label>
           <input type="number" id="cfg-min" class="form-control" value="${v.min_value ?? 0}" step="any">
         </div>
         <div class="form-group">
-          <label class="form-label">Nilai Maksimum</label>
+          <label class="form-label">Batas Maksimum</label>
           <input type="number" id="cfg-max" class="form-control" value="${v.max_value ?? 100}" step="any">
         </div>
       </div>` : ''}
 
       ${hasUnit ? `
       <div class="form-group">
-        <label class="form-label">Satuan</label>
-        <input type="text" id="cfg-unit" class="form-control" value="${escHtml(v.unit || '')}" placeholder="cth: °C, %, V, A">
+        <label class="form-label">Satuan Nilai</label>
+        <input type="text" id="cfg-unit" class="form-control" value="${escHtml(v.unit || '')}" placeholder="Contoh: °C, %, Watt, Volt">
       </div>` : ''}
 
       ${hasOnOff ? `
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div class="form-group">
-          <label class="form-label">Nilai ON</label>
+          <label class="form-label">Nilai Saat ON (Aktif)</label>
           <input type="text" id="cfg-on" class="form-control" value="${escHtml(v.on_value || '1')}">
         </div>
         <div class="form-group">
-          <label class="form-label">Nilai OFF</label>
+          <label class="form-label">Nilai Saat OFF (Mati)</label>
           <input type="text" id="cfg-off" class="form-control" value="${escHtml(v.off_value || '0')}">
         </div>
       </div>` : ''}
 
       <div class="form-group">
-        <label class="form-label">Warna Utama</label>
+        <label class="form-label">Warna Utama Widget</label>
         <div class="color-picker-row">
           <div class="color-swatch" id="color-swatch-main">
             <input type="color" id="cfg-color" value="${v.color || '#6366f1'}" oninput="document.getElementById('color-swatch-main').style.background=this.value">
@@ -115,11 +115,11 @@ function showWidgetConfigForm(type, existing) {
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div class="form-group">
-          <label class="form-label">Lebar (1-12)</label>
+          <label class="form-label">Lebar Grid (1-12)</label>
           <input type="number" id="cfg-w" class="form-control" value="${v.width || WIDGET_TYPES[type]?.defaultW || 4}" min="1" max="12">
         </div>
         <div class="form-group">
-          <label class="form-label">Tinggi (baris)</label>
+          <label class="form-label">Tinggi Grid</label>
           <input type="number" id="cfg-h" class="form-control" value="${v.height || WIDGET_TYPES[type]?.defaultH || 2}" min="1" max="20">
         </div>
       </div>
@@ -127,7 +127,7 @@ function showWidgetConfigForm(type, existing) {
       <div class="modal-footer" style="padding:0;margin:0">
         <button type="button" class="btn btn-secondary" onclick="closeModal('modal-widget-config')">Batal</button>
         <button type="button" class="btn btn-primary" onclick="submitWidgetConfig()">
-          ${existing ? '<i class="fas fa-save"></i> Simpan' : '<i class="fas fa-plus"></i> Tambah Widget'}
+          ${existing ? '<i class="fas fa-save"></i> Simpan Perubahan' : '<i class="fas fa-plus"></i> Tambah Widget'}
         </button>
       </div>
     </form>
@@ -198,7 +198,7 @@ async function submitWidgetConfig() {
 // DELETE WIDGET
 // ============================================================
 async function deleteWidget(id) {
-  if (!confirm('Hapus widget ini?')) return;
+  if (!confirm('Yakin ingin menghapus widget ini?')) return;
   try {
     const resp = await fetch('api/widget.php', {
       method: 'POST',
@@ -209,7 +209,7 @@ async function deleteWidget(id) {
     if (data.success) {
       document.getElementById('widget-' + id)?.remove();
       widgets = widgets.filter(w => w.id != id);
-      showToast('Widget dihapus.', 'success');
+      showToast('Widget berhasil dihapus.', 'success');
     }
   } catch (err) {
     showToast('Gagal menghapus widget.', 'danger');

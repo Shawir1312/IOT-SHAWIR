@@ -145,9 +145,10 @@ function deviceHeartbeat(int $deviceId): void {
  * Cek device offline (dipanggil via cron atau lazy check)
  */
 function checkOfflineDevices(): void {
+    $timeout = defined('DEVICE_OFFLINE_TIMEOUT') ? (int)DEVICE_OFFLINE_TIMEOUT : 60;
     DB::query(
-        "UPDATE devices SET is_online = 0 WHERE is_online = 1 AND last_seen < DATE_SUB(NOW(), INTERVAL ? SECOND)",
-        [DEVICE_OFFLINE_TIMEOUT]
+        "UPDATE devices SET is_online = 0 WHERE is_online = 1 AND (last_seen IS NULL OR last_seen < DATE_SUB(NOW(), INTERVAL ? SECOND))",
+        [$timeout]
     );
 }
 

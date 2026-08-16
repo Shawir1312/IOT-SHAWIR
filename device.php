@@ -87,15 +87,15 @@ $devices = DB::rows(
     <!-- TOPBAR -->
     <header class="topbar">
       <div class="topbar-left">
-        <button type="button" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
+        <button type="button" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Buka Menu">
           <i class="fas fa-bars"></i>
         </button>
-        <h1 class="topbar-title"><i class="fas fa-microchip" style="color:var(--primary-light);margin-right:0.4rem"></i>Device Saya</h1>
+        <h1 class="topbar-title"><i class="fas fa-microchip" style="color:var(--primary-light);margin-right:0.4rem"></i>Perangkat Saya</h1>
       </div>
       <div class="topbar-actions">
         <div class="credit-badge"><i class="fas fa-coins"></i> <?= number_format($user['credits']) ?> kredit</div>
         <button class="btn btn-primary" id="btn-add-device">
-          <i class="fas fa-plus"></i> <span>Tambah Device</span>
+          <i class="fas fa-plus"></i> <span>Tambah Perangkat</span>
         </button>
       </div>
     </header>
@@ -112,7 +112,7 @@ $devices = DB::rows(
       <div class="card mb-2" style="margin-bottom:1.25rem">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem">
           <div>
-            <div style="font-weight:700;font-size:0.95rem">Kuota Device</div>
+            <div style="font-weight:700;font-size:0.95rem">Kuota Perangkat</div>
             <div style="font-size:0.8rem;color:var(--text-muted)">Paket: <strong style="color:var(--primary-light)"><?= $plan['name'] ?></strong></div>
           </div>
           <div style="font-size:0.875rem;color:var(--text-muted)">
@@ -128,10 +128,10 @@ $devices = DB::rows(
       <?php if (empty($devices)): ?>
         <div class="empty-state">
           <div class="empty-icon"><i class="fas fa-microchip"></i></div>
-          <h3>Belum Ada Device</h3>
-          <p>Tambah device pertama Anda dan mulai monitoring IoT.</p>
+          <h3>Belum Ada Perangkat</h3>
+          <p>Tambah perangkat pertama Anda dan mulai monitoring IoT.</p>
           <button class="btn btn-primary mt-2" id="btn-add-device-2">
-            <i class="fas fa-plus"></i> Tambah Device Pertama
+            <i class="fas fa-plus"></i> Tambah Perangkat Pertama
           </button>
         </div>
       <?php else: ?>
@@ -145,7 +145,7 @@ $devices = DB::rows(
                 </div>
                 <span class="badge <?= $dev['is_online'] ? 'badge-online' : 'badge-offline' ?>">
                   <span class="dot"></span>
-                  <?= $dev['is_online'] ? 'Online' : 'Offline' ?>
+                  <?= $dev['is_online'] ? 'Terhubung' : 'Terputus' ?>
                 </span>
               </div>
 
@@ -168,13 +168,13 @@ $devices = DB::rows(
               </div>
 
               <div class="device-card-actions">
-                <a href="dashboard.php?device=<?= $dev['id'] ?>" class="btn btn-primary btn-sm" style="flex:1">
-                  <i class="fas fa-th-large"></i> Dashboard
+                <a href="device_dashboard.php?device=<?= $dev['id'] ?>" class="btn btn-primary btn-sm" style="flex:1">
+                  <i class="fas fa-th-large"></i> Buka Dashboard
                 </a>
-                <button class="btn btn-secondary btn-sm" onclick="regenToken(<?= $dev['id'] ?>, '<?= sanitize($dev['name']) ?>')" title="Regenerate Token">
+                <button class="btn btn-secondary btn-sm" onclick="regenToken(<?= $dev['id'] ?>, '<?= sanitize($dev['name']) ?>')" title="Buat Ulang Token">
                   <i class="fas fa-sync-alt"></i>
                 </button>
-                <button class="btn btn-danger btn-sm" onclick="deleteDevice(<?= $dev['id'] ?>, '<?= sanitize($dev['name']) ?>')" title="Hapus Device">
+                <button class="btn btn-danger btn-sm" onclick="deleteDevice(<?= $dev['id'] ?>, '<?= sanitize($dev['name']) ?>')" title="Hapus Perangkat">
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
@@ -190,7 +190,7 @@ $devices = DB::rows(
 <div class="modal-overlay" id="modal-add">
   <div class="modal">
     <div class="modal-header">
-      <h3 class="modal-title"><i class="fas fa-plus-circle" style="color:var(--primary-light)"></i> Tambah Device Baru</h3>
+      <h3 class="modal-title"><i class="fas fa-plus-circle" style="color:var(--primary-light)"></i> Tambah Perangkat Baru</h3>
       <button class="modal-close" onclick="closeModal('modal-add')">&times;</button>
     </div>
     <form method="POST" action="">

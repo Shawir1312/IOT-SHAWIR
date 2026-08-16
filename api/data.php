@@ -30,18 +30,23 @@ if (!$device) {
 $deviceId = $device['id'];
 $userId   = $device['user_id'];
 
-// Update heartbeat
-deviceHeartbeat($deviceId);
-
 // ============================================================
-// GET: Baca nilai pin
+// GET: Baca nilai pin / Heartbeat
 // ============================================================
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
-    // ALL PINS
+    // HEARTBEAT DARI DEVICE (ESP/Arduino)
+    if (isset($_GET['heartbeat'])) {
+        deviceHeartbeat($deviceId);
+        jsonResponse(true, 'Heartbeat OK', ['is_online' => true]);
+    }
+
+    // ALL PINS (Cek status dari dashboard atau device)
     if (isset($_GET['all'])) {
+        // Cek offline devices terlebih dahulu agar akurat
+        checkOfflineDevices();
         $pins    = DB::rows("SELECT pin, value, updated_at FROM virtual_pins WHERE device_id = ?", [$deviceId]);
-        $online  = DB::value("SELECT is_online FROM devices WHERE id = ?", [$deviceId]);
+        $online  = (int)DB::value("SELECT is_online FROM devices WHERE id = ?", [$deviceId]);
         jsonResponse(true, 'OK', ['pins' => $pins, 'is_online' => (bool)$online]);
     }
 
@@ -52,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         jsonResponse(true, 'OK', ['pin' => $pin, 'value' => $row ? $row['value'] : null]);
     }
 
-    // HISTORY
+    // HISTORY (Request dari Dashboard untuk grafik)
     if (isset($_GET['history'])) {
         $pin  = strtoupper(sanitize($_GET['history']));
         $n    = min(1000, max(1, (int)($_GET['n'] ?? 50)));
@@ -70,11 +75,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 // POST: Set nilai pin
 // ============================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $pin   = strtoupper(sanitize($_POST['pin'] ?? ''));
-    $value = $_POST['value'] ?? '';
+    $pin    = strtoupper(sanitize($_POST['pin'] ?? ''));
+    $value  = $_POST['value'] ?? '';
     $source = $_POST['source'] ?? 'device'; // 'device' | 'dashboard'
 
     if (empty($pin)) jsonResponse(false, 'Parameter pin diperlukan.', null, 400);
+
+    // Update heartbeat HANYA jika data dikirim langsung oleh perangkat IoT fisik
+    if ($source !== 'dashboard') {
+        deviceHeartbeat($deviceId);
+    }
 
     // Get user plan for history
     $plan = DB::row("SELECT p.* FROM plans p JOIN users u ON u.plan_id = p.id WHERE u.id = ?", [$userId]);
@@ -83,8 +93,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Save current value
     savePinValue($deviceId, $pin, $value);
 
-    // Save to history
-    savePinHistory($deviceId, $pin, $value);
+    // Save to history (hanya data dari device fisik yang disimpan ke histori)
+    if ($source !== 'dashboard') {
+        savePinHistory($deviceId, $pin, $value);
+    }
 
     // Clean old history based on plan
     DB::query(

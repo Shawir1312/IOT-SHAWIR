@@ -57,27 +57,27 @@ checkOfflineDevices();
     <!-- TOPBAR -->
     <header class="topbar">
       <div class="topbar-left">
-        <button type="button" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
+        <button type="button" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Buka Menu">
           <i class="fas fa-bars"></i>
         </button>
-        <a href="device.php" class="btn btn-secondary btn-sm btn-icon" title="Kembali ke Device"><i class="fas fa-arrow-left"></i></a>
-        <div style="min-width:0;flex:1">
-          <h1 class="topbar-title" style="font-size:0.98rem"><?= sanitize($device['name']) ?></h1>
-          <div style="font-size:0.72rem;color:var(--text-muted);display:flex;align-items:center;gap:0.4rem">
+        <a href="device.php" class="btn btn-secondary btn-sm btn-icon" title="Kembali ke Daftar Perangkat"><i class="fas fa-arrow-left"></i></a>
+        <div style="min-width:0">
+          <h1 class="topbar-title" style="font-size:0.95rem;line-height:1.2;margin:0"><?= sanitize($device['name']) ?></h1>
+          <div style="font-size:0.72rem;color:var(--text-muted);display:flex;align-items:center;gap:0.4rem;margin-top:2px">
             <span><?= sanitize($device['hardware']) ?></span> &middot;
             <span id="device-status-label">
-              <?= $device['is_online'] ? '<span style="color:var(--success)">● Online</span>' : '<span style="color:var(--text-muted)">● Offline</span>' ?>
+              <?= $device['is_online'] ? '<span style="color:var(--success);font-weight:600">● Terhubung</span>' : '<span style="color:var(--text-muted)">● Terputus</span>' ?>
             </span>
           </div>
         </div>
       </div>
       <div class="topbar-actions">
-        <div class="rt-status-bar">
+        <div class="rt-status-bar" id="ws-status-bar">
           <div class="rt-indicator" id="ws-indicator"></div>
-          <span id="ws-status" style="font-size:0.75rem">Menghubungkan...</span>
+          <span id="ws-status" style="font-size:0.75rem">Realtime</span>
         </div>
-        <button class="btn btn-secondary btn-sm" id="btn-edit-toggle">
-          <i class="fas fa-edit"></i> <span>Edit Dashboard</span>
+        <button class="btn btn-primary btn-sm" id="btn-edit-toggle">
+          <i class="fas fa-pencil-alt"></i> <span>Edit Dashboard</span>
         </button>
       </div>
     </header>
@@ -86,17 +86,17 @@ checkOfflineDevices();
     <div class="dashboard-toolbar d-none" id="edit-toolbar">
       <div class="dashboard-toolbar-left">
         <div class="edit-mode-badge"><i class="fas fa-pencil-alt"></i> Mode Edit Aktif</div>
-        <span style="font-size:0.8rem;color:var(--text-muted)">Seret widget untuk memindahkan, sudut kanan bawah untuk mengubah ukuran</span>
+        <span style="font-size:0.8rem;color:var(--text-muted)">Geser posisi widget atau ubah ukuran widget</span>
       </div>
       <div class="dashboard-toolbar-right">
         <button class="btn btn-secondary btn-sm" id="btn-add-widget">
           <i class="fas fa-plus"></i> Tambah Widget
         </button>
         <button class="btn btn-success btn-sm" id="btn-save-layout">
-          <i class="fas fa-save"></i> Simpan Layout
+          <i class="fas fa-save"></i> Simpan Tata Letak
         </button>
         <button class="btn btn-secondary btn-sm" id="btn-cancel-edit">
-          <i class="fas fa-times"></i> Selesai Edit
+          <i class="fas fa-times"></i> Selesai
         </button>
       </div>
     </div>
@@ -106,7 +106,7 @@ checkOfflineDevices();
          style="background-color:<?= sanitize($dashboard['bg_color']) ?>">
       <div id="widget-grid">
         <?php foreach ($widgets as $w): ?>
-          <div class="widget w-<?= $w['type'] ?>"
+          <div class="widget w-<?= $w['type'] ?> w-<?= str_replace('_', '-', $w['type']) ?>"
                id="widget-<?= $w['id'] ?>"
                data-id="<?= $w['id'] ?>"
                data-type="<?= $w['type'] ?>"
@@ -133,8 +133,8 @@ checkOfflineDevices();
             </div>
             <!-- Edit controls (hidden unless edit mode) -->
             <div class="widget-edit-btn">
-              <button class="widget-action-btn" onclick="editWidget(<?= $w['id'] ?>)" title="Edit"><i class="fas fa-cog"></i></button>
-              <button class="widget-action-btn delete" onclick="deleteWidget(<?= $w['id'] ?>)" title="Hapus"><i class="fas fa-trash"></i></button>
+              <button class="widget-action-btn" onclick="editWidget(<?= $w['id'] ?>)" title="Pengaturan Widget"><i class="fas fa-cog"></i></button>
+              <button class="widget-action-btn delete" onclick="deleteWidget(<?= $w['id'] ?>)" title="Hapus Widget"><i class="fas fa-trash"></i></button>
             </div>
             <div class="widget-drag-handle"><i class="fas fa-grip-vertical"></i></div>
             <div class="widget-resize-handle"></div>
@@ -153,22 +153,22 @@ checkOfflineDevices();
   </div>
   <div class="widget-panel-scroll">
     <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.75rem">
-      Pilih tipe widget. Maks <?= $plan['max_widgets_per_device'] === 9999 ? '∞' : $plan['max_widgets_per_device'] ?> per device.
+      Pilih tipe widget yang diinginkan.
     </div>
     <div class="widget-type-grid">
       <?php
         $widgetTypes = [
-          'value_display' => ['icon' => 'fas fa-tachometer-alt', 'label' => 'Value Display'],
-          'line_chart'    => ['icon' => 'fas fa-chart-line',     'label' => 'Line Chart'],
-          'bar_chart'     => ['icon' => 'fas fa-chart-bar',      'label' => 'Bar Chart'],
-          'gauge'         => ['icon' => 'fas fa-gauge-high',      'label' => 'Gauge'],
-          'button'        => ['icon' => 'fas fa-hand-pointer',   'label' => 'Button'],
-          'slider'        => ['icon' => 'fas fa-sliders-h',      'label' => 'Slider'],
-          'switch'        => ['icon' => 'fas fa-toggle-on',      'label' => 'Switch'],
-          'led'           => ['icon' => 'fas fa-circle-dot',     'label' => 'LED'],
-          'terminal'      => ['icon' => 'fas fa-terminal',       'label' => 'Terminal'],
+          'value_display' => ['icon' => 'fas fa-tachometer-alt', 'label' => 'Tampilan Nilai'],
+          'line_chart'    => ['icon' => 'fas fa-chart-line',     'label' => 'Grafik Garis'],
+          'bar_chart'     => ['icon' => 'fas fa-chart-bar',      'label' => 'Grafik Batang'],
+          'gauge'         => ['icon' => 'fas fa-gauge-high',      'label' => 'Speedometer'],
+          'button'        => ['icon' => 'fas fa-hand-pointer',   'label' => 'Tombol Tekan'],
+          'slider'        => ['icon' => 'fas fa-sliders-h',      'label' => 'Slider Nilai'],
+          'switch'        => ['icon' => 'fas fa-toggle-on',      'label' => 'Saklar ON/OFF'],
+          'led'           => ['icon' => 'fas fa-circle-dot',     'label' => 'Indikator LED'],
+          'terminal'      => ['icon' => 'fas fa-terminal',       'label' => 'Terminal Log'],
           'label'         => ['icon' => 'fas fa-font',           'label' => 'Label Teks'],
-          'map'           => ['icon' => 'fas fa-map-marker-alt', 'label' => 'GPS Map'],
+          'map'           => ['icon' => 'fas fa-map-marker-alt', 'label' => 'Peta Lokasi GPS'],
         ];
         foreach ($widgetTypes as $type => $info):
       ?>
@@ -228,7 +228,7 @@ function renderWidgetBody(array $w, string $val): string {
 
     switch ($type) {
         case 'value_display':
-            return "<div class='w-value-display' style='width:100%;text-align:center'>
+            return "<div class='w-value-display w-value_display' style='width:100%;text-align:center'>
                       <div class='val-number' style='color:{$color}'>{$val}</div>
                       <div class='val-unit'>{$unit}</div>
                     </div>";
@@ -237,7 +237,7 @@ function renderWidgetBody(array $w, string $val): string {
             $on  = $val === $w['on_value'];
             $cls = $on ? 'on' : '';
             return "<div class='led-bulb {$cls}' style='" . ($on ? "background:{$color};box-shadow:0 0 20px {$color}88,0 0 40px {$color}44" : '') . "'></div>
-                    <div class='led-label'>" . ($on ? 'ON' : 'OFF') . "</div>";
+                    <div class='led-label'>" . ($on ? 'HIDUP' : 'MATI') . "</div>";
 
         case 'button':
             return "<button class='widget-btn' style='background:{$color}' onclick='sendPinValue(\"{$w['pin']}\", \"{$w['on_value']}\")'>
@@ -250,7 +250,7 @@ function renderWidgetBody(array $w, string $val): string {
                       <input type='checkbox' {$checked} onchange='sendPinValue(\"{$w['pin']}\", this.checked ? \"{$w['on_value']}\" : \"{$w['off_value']}\")'>
                       <div class='toggle-track'></div>
                     </label>
-                    <div style='font-size:0.8rem;color:var(--text-secondary)'>" . ($val === $w['on_value'] ? 'ON' : 'OFF') . "</div>";
+                    <div style='font-size:0.8rem;color:var(--text-secondary)'>" . ($val === $w['on_value'] ? 'HIDUP' : 'MATI') . "</div>";
 
         case 'slider':
             $numVal = is_numeric($val) ? (float)$val : $min;
@@ -278,7 +278,7 @@ function renderWidgetBody(array $w, string $val): string {
             return "<div class='chart-canvas-wrap'><canvas id='chart-{$w['id']}' data-type='{$chartType}' data-color='{$color}' data-pin='{$w['pin']}'></canvas></div>";
 
         case 'terminal':
-            return "<div class='terminal-output' id='terminal-{$w['id']}'><span class='t-time'>[" . date('H:i:s') . "]</span> Terminal siap...\n</div>";
+            return "<div class='terminal-output' id='terminal-{$w['id']}'><span class='t-time'>[" . date('H:i:s') . "]</span> Terminal siap menerima data...\n</div>";
 
         case 'label':
             return "<div class='label-text' style='color:{$color}'>{$w['label']}</div>";

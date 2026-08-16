@@ -67,7 +67,7 @@ $transactions = DB::rows(
       </div>
       <div class="topbar-actions">
         <div class="credit-badge"><i class="fas fa-coins"></i> <?= number_format($user['credits']) ?> kredit</div>
-        <a href="device.php" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Device Baru</a>
+        <a href="device.php" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Tambah Perangkat</a>
       </div>
     </header>
 
@@ -84,7 +84,7 @@ $transactions = DB::rows(
         <div class="stat-card">
           <div class="stat-icon purple"><i class="fas fa-microchip"></i></div>
           <div class="stat-info">
-            <div class="label">Total Device</div>
+            <div class="label">Total Perangkat</div>
             <div class="value"><?= $totalDevices ?></div>
             <div class="sub">Maks: <?= $plan['max_devices'] === 9999 ? '∞' : $plan['max_devices'] ?></div>
           </div>
@@ -92,9 +92,9 @@ $transactions = DB::rows(
         <div class="stat-card">
           <div class="stat-icon green"><i class="fas fa-signal"></i></div>
           <div class="stat-info">
-            <div class="label">Device Online</div>
+            <div class="label">Perangkat Online</div>
             <div class="value"><?= $onlineDevices ?></div>
-            <div class="sub">dari <?= $totalDevices ?> device</div>
+            <div class="sub">dari <?= $totalDevices ?> perangkat</div>
           </div>
         </div>
         <div class="stat-card">
@@ -102,13 +102,13 @@ $transactions = DB::rows(
           <div class="stat-info">
             <div class="label">Total Widget</div>
             <div class="value"><?= $totalWidgets ?></div>
-            <div class="sub">di semua device</div>
+            <div class="sub">di seluruh perangkat</div>
           </div>
         </div>
         <div class="stat-card">
           <div class="stat-icon amber"><i class="fas fa-coins"></i></div>
           <div class="stat-info">
-            <div class="label">Kredit Tersisa</div>
+            <div class="label">Sisa Saldo Kredit</div>
             <div class="value"><?= number_format($user['credits']) ?></div>
             <div class="sub">Paket: <?= $plan['name'] ?></div>
           </div>
@@ -121,12 +121,12 @@ $transactions = DB::rows(
         <div class="card">
           <div class="card-header">
             <h3 class="card-title"><i class="fas fa-layer-group"></i> Paket Aktif</h3>
-            <a href="profile.php" class="btn btn-secondary btn-sm">Upgrade</a>
+            <a href="profile.php" class="btn btn-secondary btn-sm">Upgrade Paket</a>
           </div>
           <div style="text-align:center;padding:1rem 0">
             <div style="font-size:2rem;font-weight:900;color:var(--primary-light)"><?= $plan['name'] ?></div>
             <div style="font-size:0.875rem;color:var(--text-muted);margin:0.5rem 0">
-              <?= $plan['max_devices'] === 9999 ? 'Unlimited' : $plan['max_devices'] ?> Device &middot;
+              <?= $plan['max_devices'] === 9999 ? 'Unlimited' : $plan['max_devices'] ?> Perangkat &middot;
               <?= $plan['max_widgets_per_device'] === 9999 ? 'Unlimited' : $plan['max_widgets_per_device'] ?> Widget &middot;
               Histori <?= $plan['history_days'] ?> Hari
             </div>
@@ -134,8 +134,8 @@ $transactions = DB::rows(
           <!-- Device quota bar -->
           <?php $pct = $plan['max_devices'] === 9999 ? 5 : min(100, ($totalDevices / $plan['max_devices']) * 100); ?>
           <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.4rem;display:flex;justify-content:space-between">
-            <span>Penggunaan Device</span>
-            <span><?= $totalDevices ?>/<?= $plan['max_devices'] === 9999 ? '∞' : $plan['max_devices'] ?></span>
+            <span>Penggunaan Kuota Perangkat</span>
+            <span><?= $totalDevices ?> / <?= $plan['max_devices'] === 9999 ? '∞' : $plan['max_devices'] ?></span>
           </div>
           <div style="height:8px;background:var(--bg-input);border-radius:99px;overflow:hidden">
             <div style="height:100%;width:<?= $pct ?>%;background:var(--grad-primary);border-radius:99px;transition:width 1s ease"></div>
@@ -145,13 +145,13 @@ $transactions = DB::rows(
         <!-- Recent Transactions -->
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title"><i class="fas fa-history"></i> Transaksi Kredit</h3>
+            <h3 class="card-title"><i class="fas fa-history"></i> Riwayat Kredit</h3>
             <a href="profile.php#transactions" class="btn btn-secondary btn-sm">Lihat Semua</a>
           </div>
           <?php if (empty($transactions)): ?>
             <div style="text-align:center;padding:1.5rem;color:var(--text-muted)">
               <i class="fas fa-coins" style="font-size:2rem;opacity:0.3"></i>
-              <p style="margin-top:0.5rem;font-size:0.85rem">Belum ada transaksi</p>
+              <p style="margin-top:0.5rem;font-size:0.85rem">Belum ada riwayat transaksi</p>
             </div>
           <?php else: ?>
             <div style="display:flex;flex-direction:column;gap:0.4rem">
