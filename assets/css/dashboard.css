@@ -261,26 +261,27 @@
 
 .widget-drag-handle {
   position: absolute;
-  top: 3px;
-  right: 4px;
+  top: 0;
+  right: 0;
   width: 36px;
-  height: 30px;
+  height: 32px;
   background: rgba(99, 102, 241, 0.35);
-  border: 1px solid var(--border-focus);
-  border-radius: 6px;
+  border-left: 1px solid var(--border-focus);
+  border-bottom: 1px solid var(--border-focus);
+  border-radius: 0 var(--radius-lg) 0 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: var(--primary-light);
   cursor: grab;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
-  z-index: 35;
+  z-index: 25;
   opacity: 0;
-  transition: opacity var(--transition), transform 0.15s ease;
+  transition: opacity var(--transition);
 }
 
 .widget.edit-mode .widget-drag-handle {
@@ -290,7 +291,6 @@
 
 .widget-drag-handle:active {
   cursor: grabbing;
-  transform: scale(1.1);
   background: var(--primary);
   color: #fff;
 }
@@ -337,25 +337,25 @@
 
 /* WIDGET EDIT TOOLBAR (Mobile & Desktop Blynk-Style Controls) */
 .widget.edit-mode {
-  padding-top: 38px !important;
+  padding-top: 34px !important;
 }
 
 .widget-edit-toolbar {
   position: absolute;
   top: 0;
   left: 0;
-  right: 44px;
-  height: 36px;
+  right: 36px;
+  height: 32px;
   background: rgba(15, 23, 42, 0.95);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border-focus);
-  padding: 3px 6px;
+  padding: 3px 4px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 3px;
-  z-index: 30;
+  gap: 2px;
+  z-index: 20;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;
@@ -370,22 +370,22 @@
 .edit-toolbar-group {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
 }
 
 .w-btn-ctrl {
-  height: 28px;
-  padding: 0 6px;
+  height: 24px;
+  width: 24px;
+  padding: 0;
   background: var(--bg-card);
   border: 1px solid var(--border-light);
-  border-radius: 6px;
+  border-radius: 5px;
   color: var(--text-secondary);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
   cursor: pointer;
   touch-action: manipulation;
   user-select: none;
@@ -394,17 +394,7 @@
 }
 
 .w-btn-ctrl:active {
-  transform: scale(0.92);
-}
-
-.w-btn-ctrl.move {
-  background: rgba(99, 102, 241, 0.18);
-  color: var(--primary-light);
-  border-color: rgba(99, 102, 241, 0.35);
-}
-.w-btn-ctrl.move:active {
-  background: var(--primary);
-  color: #fff;
+  transform: scale(0.9);
 }
 
 .w-btn-ctrl.size {

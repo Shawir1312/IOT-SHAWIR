@@ -72,7 +72,10 @@ function initDragAndDrop() {
       sortableInstance.destroy();
     }
     sortableInstance = new Sortable(gridEl, {
-      animation: 200,
+      animation: 180,
+      fallbackOnBody: true,
+      swapThreshold: 0.6,
+      invertSwap: true,
       ghostClass: 'sortable-ghost',
       chosenClass: 'sortable-chosen',
       dragClass: 'sortable-drag',
@@ -80,7 +83,7 @@ function initDragAndDrop() {
       filter: '.w-btn-ctrl, input, button, select, .widget-resize-handle',
       preventOnFilter: false,
       delay: 0,
-      touchStartThreshold: 3,
+      touchStartThreshold: 2,
       onEnd: function() {
         reorderWidgetsFromDOM(true);
       }

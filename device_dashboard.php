@@ -132,7 +132,7 @@ checkOfflineDevices();
             <!-- Quick Edit Toolbar (Blynk-Style Mobile & Desktop Controls) -->
             <div class="widget-edit-toolbar">
               <div class="edit-toolbar-group">
-                <button type="button" class="w-btn-ctrl size" onclick="toggleWidgetWidth(<?= $w['id'] ?>)" title="Ganti Lebar (50% ⇄ 100%)"><i class="fas fa-arrows-alt-h"></i> <span>Lebar</span></button>
+                <button type="button" class="w-btn-ctrl size" onclick="toggleWidgetWidth(<?= $w['id'] ?>)" title="Ganti Lebar (50% ⇄ 100%)"><i class="fas fa-arrows-alt-h"></i></button>
                 <button type="button" class="w-btn-ctrl size" onclick="increaseWidgetHeight(<?= $w['id'] ?>)" title="Tambah Tinggi"><i class="fas fa-plus"></i></button>
                 <button type="button" class="w-btn-ctrl size" onclick="decreaseWidgetHeight(<?= $w['id'] ?>)" title="Kurangi Tinggi"><i class="fas fa-minus"></i></button>
               </div>
