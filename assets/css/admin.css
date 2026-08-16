@@ -1,0 +1,257 @@
+/* ============================================================
+   ShawirIOT - Admin Panel CSS
+   ============================================================ */
+
+/* Admin uses same sidebar layout but with orange accent */
+.admin-layout { --primary: #f97316; --primary-dark: #ea580c; --primary-light: #fb923c; }
+
+/* Admin topbar */
+.admin-topbar {
+  background: linear-gradient(135deg, rgba(249,115,22,0.12) 0%, var(--bg-surface) 40%);
+  border-bottom: 1px solid rgba(249,115,22,0.15);
+}
+
+.admin-badge {
+  background: rgba(249,115,22,0.15);
+  color: #fb923c;
+  border: 1px solid rgba(249,115,22,0.3);
+  border-radius: 99px;
+  padding: 3px 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ============================================================
+   ADMIN STAT CARDS
+   ============================================================ */
+.admin-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-stat {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition);
+}
+
+.admin-stat::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+
+.admin-stat.s-users::before  { background: linear-gradient(90deg, #6366f1, #818cf8); }
+.admin-stat.s-devices::before { background: linear-gradient(90deg, #06b6d4, #38bdf8); }
+.admin-stat.s-online::before  { background: linear-gradient(90deg, #10b981, #34d399); }
+.admin-stat.s-credits::before { background: linear-gradient(90deg, #f59e0b, #fcd34d); }
+.admin-stat.s-data::before    { background: linear-gradient(90deg, #f97316, #fb923c); }
+
+.admin-stat:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+.admin-stat .stat-num { font-size: 2rem; font-weight: 900; color: var(--text-primary); }
+.admin-stat .stat-lbl { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.admin-stat .stat-trend { font-size: 0.75rem; color: var(--success); margin-top: 0.25rem; }
+.admin-stat .stat-trend.down { color: var(--danger); }
+
+/* ============================================================
+   USER MANAGEMENT TABLE
+   ============================================================ */
+.user-row td { vertical-align: middle; }
+
+.user-info-cell { display: flex; align-items: center; gap: 0.75rem; }
+.user-avatar-sm {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--grad-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.user-name { font-weight: 600; font-size: 0.875rem; }
+.user-email { font-size: 0.75rem; color: var(--text-muted); }
+
+/* Plan badge */
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.plan-free       { background: rgba(71,85,105,0.3);  color: #94a3b8; }
+.plan-basic      { background: rgba(6,182,212,0.15); color: var(--secondary); }
+.plan-pro        { background: rgba(99,102,241,0.15); color: var(--primary-light); }
+.plan-enterprise { background: rgba(245,158,11,0.15); color: var(--accent); }
+
+/* Role badge */
+.role-superadmin { background: rgba(239,68,68,0.12); color: #f87171; }
+.role-admin      { background: rgba(249,115,22,0.15); color: #fb923c; }
+.role-user       { background: rgba(71,85,105,0.3);  color: #94a3b8; }
+
+/* ============================================================
+   CREDIT MANAGEMENT
+   ============================================================ */
+.credit-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.credit-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.credit-amount-input {
+  width: 100px;
+}
+
+/* Credit transaction table */
+.txn-amount.positive { color: var(--success); font-weight: 700; }
+.txn-amount.negative { color: var(--danger);  font-weight: 700; }
+
+.txn-type {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.txn-topup       { background: rgba(16,185,129,0.1);  color: var(--success); }
+.txn-spend       { background: rgba(239,68,68,0.1);   color: var(--danger); }
+.txn-admin_grant { background: rgba(99,102,241,0.1);  color: var(--primary-light); }
+.txn-plan_upgrade{ background: rgba(245,158,11,0.1);  color: var(--accent); }
+
+/* ============================================================
+   DEVICE MONITOR TABLE
+   ============================================================ */
+.device-token-small {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: var(--primary-light);
+  background: rgba(99,102,241,0.08);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* ============================================================
+   ADMIN QUICK ACTION CARDS
+   ============================================================ */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.quick-action-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition);
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quick-action-btn:hover {
+  border-color: var(--border-focus);
+  color: var(--primary-light);
+  transform: translateY(-2px);
+  background: rgba(99,102,241,0.05);
+}
+
+.quick-action-btn .qa-icon { font-size: 1.5rem; }
+.quick-action-btn .qa-label { font-size: 0.78rem; font-weight: 600; }
+
+/* ============================================================
+   PLATFORM SETTINGS
+   ============================================================ */
+.settings-section {
+  margin-bottom: 2rem;
+}
+
+.settings-section-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+/* ============================================================
+   ACTIVITY LOG
+   ============================================================ */
+.activity-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(255,255,255,0.02);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  transition: background var(--transition);
+}
+
+.activity-item:hover { background: rgba(99,102,241,0.05); }
+
+.activity-icon {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.activity-text { flex: 1; }
+.activity-text .actor { font-weight: 600; color: var(--text-primary); }
+.activity-time { font-size: 0.7rem; color: var(--text-muted); flex-shrink: 0; }
+
+/* ============================================================
+   CHART AREA (admin dashboard)
+   ============================================================ */
+.admin-chart-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .admin-chart-row { grid-template-columns: 1fr; }
+  .admin-stat-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .admin-stat-grid { grid-template-columns: repeat(2, 1fr); }
+}
