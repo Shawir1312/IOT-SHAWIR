@@ -112,13 +112,24 @@
   background-size: calc(100% / 12) 80px;
 }
 
-/* Widget Grid using CSS Grid */
+/* Widget Grid using CSS Grid - Mobile-first 2-column */
 #widget-grid {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  grid-auto-rows: 80px;
-  gap: 12px;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: minmax(105px, auto);
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
   position: relative;
+}
+
+/* Desktop overrides: 12-column grid */
+@media (min-width: 769px) {
+  #widget-grid {
+    grid-template-columns: repeat(12, 1fr);
+    grid-auto-rows: 80px;
+    gap: 12px;
+  }
 }
 
 /* ============================================================
@@ -133,7 +144,28 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  grid-column: span 1;
+  grid-row: auto;
+  width: 100%;
+  min-height: 105px;
+  box-sizing: border-box;
 }
+
+/* Full-width widgets across mobile & tablet */
+.widget.w-line_chart,
+.widget.w-line-chart,
+.widget.w-bar_chart,
+.widget.w-bar-chart,
+.widget.w-terminal,
+.widget.w-map,
+.widget.w-slider,
+.widget.w-label {
+  grid-column: 1 / -1;
+  min-height: 220px;
+}
+
+.widget.w-slider { min-height: 110px; }
+.widget.w-label  { min-height: 50px; }
 
 .widget:hover { border-color: var(--border); }
 

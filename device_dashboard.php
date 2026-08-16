@@ -45,8 +45,8 @@ checkOfflineDevices();
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?= sanitize($device['name']) ?> — <?= $platformName ?></title>
-  <link rel="stylesheet" href="assets/css/style.css">
-  <link rel="stylesheet" href="assets/css/dashboard.css">
+  <link rel="stylesheet" href="assets/css/style.css?v=<?= time() ?>">
+  <link rel="stylesheet" href="assets/css/dashboard.css?v=<?= time() ?>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
@@ -207,9 +207,9 @@ let editMode      = false;
 let ws            = null;
 let charts        = {};
 </script>
-<script src="assets/js/widgets.js"></script>
-<script src="assets/js/dashboard.js"></script>
-<script src="assets/js/realtime.js"></script>
+<script src="assets/js/widgets.js?v=<?= time() ?>"></script>
+<script src="assets/js/dashboard.js?v=<?= time() ?>"></script>
+<script src="assets/js/realtime.js?v=<?= time() ?>"></script>
 </body>
 </html>
 <?php
