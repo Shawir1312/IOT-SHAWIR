@@ -2,8 +2,6 @@
  * ShawirIOT - Dashboard Edit & Freeform Drag-and-Drop
  */
 
-let editMode = false;
-
 // ============================================================
 // EDIT MODE TOGGLE
 // ============================================================
