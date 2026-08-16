@@ -140,26 +140,18 @@ function onDragEnd(e) {
   const gridRect = gridEl ? gridEl.getBoundingClientRect() : { width: 360 };
   
   const cols = isMobile ? 6 : 12;
-  const rowHeight = isMobile ? 60 : 75;
-  const gap = isMobile ? 8 : 12;
+  const rowHeight = isMobile ? 50 : 75;
+  const gap = isMobile ? 6 : 12;
   const cellW = (gridRect.width - gap * (cols - 1)) / cols;
 
-  const w = parseInt(draggedWidget.dataset.w || 6);
-  const colSpan = isMobile ? (w >= 12 ? 6 : 3) : w;
+  const w = parseInt(draggedWidget.dataset.w || (isMobile ? 3 : 4));
+  const colSpan = Math.max(1, Math.min(cols, w));
 
   const deltaCols = Math.round(dx / (cellW + gap));
   const deltaRows = Math.round(dy / (rowHeight + gap));
 
   let newY = Math.max(0, startWidgetY + deltaRows);
   let newX = Math.max(0, Math.min(cols - colSpan, startWidgetX + deltaCols));
-
-  if (isMobile) {
-    if (colSpan >= 6) {
-      newX = 0;
-    } else {
-      newX = (newX >= 2) ? 3 : 0;
-    }
-  }
 
   draggedWidget.dataset.x = newX;
   draggedWidget.dataset.y = newY;
@@ -188,7 +180,7 @@ function onDragEnd(e) {
 }
 
 // ============================================================
-// RESIZE HANDLES (Drag-to-Resize on Corner Handle)
+// RESIZE HANDLES (Drag-to-Resize on Corner Handle - 1 Grid per step)
 // ============================================================
 function initResizeHandles() {
   document.querySelectorAll('.widget.edit-mode').forEach(widget => {
@@ -220,9 +212,10 @@ function onResizeStart(e) {
   resizeStartX = pos.clientX;
   resizeStartY = pos.clientY;
 
+  const isMobile = window.innerWidth <= 768;
   const wid = resizingWidget.dataset.id;
   const w = widgets.find(wItem => wItem.id == wid);
-  resizeStartW = parseInt(resizingWidget.dataset.w || w?.width  || 6);
+  resizeStartW = parseInt(resizingWidget.dataset.w || w?.width  || (isMobile ? 3 : 4));
   resizeStartH = parseInt(resizingWidget.dataset.h || w?.height || 2);
 
   document.addEventListener('mousemove', onResizeMove);
@@ -240,19 +233,22 @@ function onResizeMove(e) {
   const dy = pos.clientY - resizeStartY;
 
   const isMobile = window.innerWidth <= 768;
+  const gridEl = document.getElementById('widget-grid');
+  const gridRect = gridEl ? gridEl.getBoundingClientRect() : { width: 360 };
+  const cols = isMobile ? 6 : 12;
+  const gap = isMobile ? 6 : 12;
+  const rowHeight = isMobile ? 50 : 75;
+  const cellW = (gridRect.width - gap * (cols - 1)) / cols;
 
-  if (isMobile) {
-    if (dx > 40) resizingWidget.dataset.w = 12;
-    else if (dx < -40) resizingWidget.dataset.w = 6;
+  // Calculate EXACT step per grid cell for both width and height!
+  const wSteps = Math.round(dx / (cellW + gap));
+  const hSteps = Math.round(dy / (rowHeight + gap));
 
-    const hSteps = Math.round(dy / 55);
-    resizingWidget.dataset.h = Math.max(1, Math.min(8, resizeStartH + hSteps));
-  } else {
-    const wSteps = Math.round(dx / 80);
-    const hSteps = Math.round(dy / 75);
-    resizingWidget.dataset.w = Math.max(2, Math.min(12, resizeStartW + wSteps));
-    resizingWidget.dataset.h = Math.max(1, Math.min(10, resizeStartH + hSteps));
-  }
+  const minW = 1;
+  const maxW = cols;
+
+  resizingWidget.dataset.w = Math.max(minW, Math.min(maxW, resizeStartW + wSteps));
+  resizingWidget.dataset.h = Math.max(1, Math.min(isMobile ? 8 : 10, resizeStartH + hSteps));
 
   applyGridCoordinates();
 }
@@ -286,21 +282,25 @@ function onResizeEnd(e) {
 function toggleWidgetWidth(id) {
   const wEl = document.getElementById('widget-' + id);
   if (!wEl) return;
+  const isMobile = window.innerWidth <= 768;
   const wObj = widgets.find(w => w.id == id);
-  const currentW = parseInt(wEl.dataset.w || wObj?.width || 6);
+  const currentW = parseInt(wEl.dataset.w || wObj?.width || (isMobile ? 3 : 4));
 
-  // Cycle through sizes: 6 (50%) -> 12 (100%) -> 4 (33%) -> 6 (50%)
-  let newW = 12;
-  let label = 'Layar Penuh (100%)';
-  if (currentW >= 12) {
-    newW = 4; // 1/3 screen (fits 3 per row)
-    label = '1/3 Layar (Muat 3 Sebaris)';
-  } else if (currentW <= 4) {
-    newW = 6; // 1/2 screen (fits 2 per row)
-    label = 'Setengah Layar (50%)';
+  // Cycle width: 2 (33% / 2 grid) -> 3 (50% / 3 grid) -> 6 (100% / 6 grid) -> 2
+  let newW = 3;
+  let label = '3 Kolom (Setengah Layar)';
+  if (currentW <= 2) {
+    newW = 3;
+    label = '3 Kolom (Setengah Layar)';
+  } else if (currentW <= 3) {
+    newW = 6;
+    label = '6 Kolom (Layar Penuh)';
+  } else if (currentW >= 6) {
+    newW = 2;
+    label = '2 Kolom (Sepertiga Layar - Muat 3 Sebaris)';
   } else {
-    newW = 12; // Full width
-    label = 'Layar Penuh (100%)';
+    newW = 3;
+    label = '3 Kolom (Setengah Layar)';
   }
   
   wEl.dataset.w = newW;
@@ -309,7 +309,7 @@ function toggleWidgetWidth(id) {
   applyGridCoordinates();
   setTimeout(initCharts, 150);
   saveLayout(true);
-  showToast('Lebar diubah: ' + label, 'success');
+  showToast('Lebar: ' + label, 'success');
 }
 
 function increaseWidgetHeight(id) {
@@ -349,43 +349,21 @@ function decreaseWidgetHeight(id) {
 // ============================================================
 function applyGridCoordinates() {
   const isMobile = window.innerWidth <= 768;
+  const cols = isMobile ? 6 : 12;
+
   document.querySelectorAll('.widget').forEach(wEl => {
     const wid = wEl.dataset.id;
     const wObj = widgets.find(w => w.id == wid);
     const x = parseInt(wEl.dataset.x ?? wObj?.pos_x ?? 0);
     const y = parseInt(wEl.dataset.y ?? wObj?.pos_y ?? 0);
-    const w = parseInt(wEl.dataset.w ?? wObj?.width ?? 6);
+    const w = parseInt(wEl.dataset.w ?? wObj?.width ?? (isMobile ? 3 : 4));
     const h = parseInt(wEl.dataset.h ?? wObj?.height ?? 2);
 
-    if (isMobile) {
-      // Mobile 6-column grid:
-      // w >= 10 -> span 6 (100% full width)
-      // w <= 4  -> span 2 (33% one-third - fits 3 widgets per row!)
-      // w in between -> span 3 (50% half width - fits 2 widgets per row)
-      let colSpan = 3;
-      if (w >= 10) colSpan = 6;
-      else if (w <= 4) colSpan = 2;
-      else colSpan = 3;
+    const colSpan = Math.max(1, Math.min(cols, w));
+    const colX = Math.max(0, Math.min(cols - colSpan, x));
 
-      let colX = Math.max(0, Math.min(6 - colSpan, x));
-      if (colSpan === 6) {
-        colX = 0;
-      } else if (colSpan === 3) {
-        colX = colX >= 2 ? 3 : 0;
-      } else if (colSpan === 2) {
-        if (colX <= 1) colX = 0;
-        else if (colX <= 3) colX = 2;
-        else colX = 4;
-      }
-
-      wEl.style.gridColumn = `${colX + 1} / span ${colSpan}`;
-      wEl.style.gridRow = `${y + 1} / span ${h}`;
-    } else {
-      // Desktop 12-column grid:
-      const colX = Math.max(0, Math.min(12 - w, x));
-      wEl.style.gridColumn = `${colX + 1} / span ${w}`;
-      wEl.style.gridRow = `${y + 1} / span ${h}`;
-    }
+    wEl.style.gridColumn = `${colX + 1} / span ${colSpan}`;
+    wEl.style.gridRow = `${y + 1} / span ${h}`;
   });
 }
 
