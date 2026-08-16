@@ -298,6 +298,63 @@ function onResizeEnd(e) {
 }
 
 // ============================================================
+// QUICK REORDER (Up / Down Buttons)
+// ============================================================
+function moveWidgetUp(id) {
+  const el = document.getElementById('widget-' + id);
+  if (!el || !el.previousElementSibling) return;
+  el.parentNode.insertBefore(el, el.previousElementSibling);
+  reorderWidgetsFromDOM();
+}
+
+function moveWidgetDown(id) {
+  const el = document.getElementById('widget-' + id);
+  if (!el || !el.nextElementSibling) return;
+  el.parentNode.insertBefore(el.nextElementSibling, el);
+  reorderWidgetsFromDOM();
+}
+
+function reorderWidgetsFromDOM() {
+  const grid = document.getElementById('widget-grid');
+  if (!grid) return;
+  const domWidgets = Array.from(grid.querySelectorAll('.widget'));
+  
+  if (window.innerWidth > 768) {
+    let curX = 0, curY = 0, maxRowH = 0;
+    domWidgets.forEach(wEl => {
+      const wid = wEl.dataset.id;
+      const wObj = widgets.find(w => w.id == wid);
+      const w = parseInt(wEl.dataset.w || wObj?.width || 4);
+      const h = parseInt(wEl.dataset.h || wObj?.height || 2);
+
+      if (curX + w > 12) {
+        curX = 0;
+        curY += (maxRowH || 2);
+        maxRowH = h;
+      } else {
+        maxRowH = Math.max(maxRowH, h);
+      }
+
+      wEl.dataset.x = curX;
+      wEl.dataset.y = curY;
+      wEl.style.gridColumn = `${curX + 1} / span ${w}`;
+      wEl.style.gridRow = `${curY + 1} / span ${h}`;
+      if (wObj) { wObj.pos_x = curX; wObj.pos_y = curY; }
+      curX += w;
+    });
+  } else {
+    domWidgets.forEach((wEl, idx) => {
+      wEl.dataset.y = idx;
+      wEl.dataset.x = 0;
+      const wObj = widgets.find(w => w.id == wEl.dataset.id);
+      if (wObj) { wObj.pos_y = idx; wObj.pos_x = 0; }
+    });
+  }
+
+  showToast('Posisi diubah. Jangan lupa klik "Simpan Tata Letak".', 'info');
+}
+
+// ============================================================
 // SAVE LAYOUT
 // ============================================================
 async function saveLayout() {
@@ -306,7 +363,7 @@ async function saveLayout() {
 
   // Collect positions from DOM
   const layout = [];
-  document.querySelectorAll('.widget').forEach(el => {
+  document.querySelectorAll('.widget').forEach((el, idx) => {
     const wid = el.dataset.id;
     const style = el.style;
     const colMatch = (style.gridColumn || '').match(/(\d+)\s*\/\s*span\s*(\d+)/);
@@ -323,7 +380,7 @@ async function saveLayout() {
       layout.push({
         id:    parseInt(wid),
         pos_x: parseInt(el.dataset.x || 0),
-        pos_y: parseInt(el.dataset.y || 0),
+        pos_y: parseInt(el.dataset.y || idx),
         width: parseInt(el.dataset.w || 4),
         height:parseInt(el.dataset.h || 2),
       });
