@@ -289,8 +289,19 @@ function toggleWidgetWidth(id) {
   const wObj = widgets.find(w => w.id == id);
   const currentW = parseInt(wEl.dataset.w || wObj?.width || 6);
 
-  // Toggle between 12 (100% full width) and 6 (50% half width)
-  const newW = currentW >= 12 ? 6 : 12;
+  // Cycle through sizes: 6 (50%) -> 12 (100%) -> 4 (33%) -> 6 (50%)
+  let newW = 12;
+  let label = 'Layar Penuh (100%)';
+  if (currentW >= 12) {
+    newW = 4; // 1/3 screen (fits 3 per row)
+    label = '1/3 Layar (Muat 3 Sebaris)';
+  } else if (currentW <= 4) {
+    newW = 6; // 1/2 screen (fits 2 per row)
+    label = 'Setengah Layar (50%)';
+  } else {
+    newW = 12; // Full width
+    label = 'Layar Penuh (100%)';
+  }
   
   wEl.dataset.w = newW;
   if (wObj) wObj.width = newW;
@@ -298,7 +309,7 @@ function toggleWidgetWidth(id) {
   applyGridCoordinates();
   setTimeout(initCharts, 150);
   saveLayout(true);
-  showToast(newW >= 12 ? 'Lebar diubah: Layar Penuh (100%)' : 'Lebar diubah: Setengah Layar (50%)', 'success');
+  showToast('Lebar diubah: ' + label, 'success');
 }
 
 function increaseWidgetHeight(id) {
@@ -348,8 +359,25 @@ function applyGridCoordinates() {
 
     if (isMobile) {
       // Mobile 6-column grid:
-      const colSpan = w >= 12 ? 6 : 3;
-      const colX = colSpan >= 6 ? 0 : (x >= 3 ? 3 : 0);
+      // w >= 10 -> span 6 (100% full width)
+      // w <= 4  -> span 2 (33% one-third - fits 3 widgets per row!)
+      // w in between -> span 3 (50% half width - fits 2 widgets per row)
+      let colSpan = 3;
+      if (w >= 10) colSpan = 6;
+      else if (w <= 4) colSpan = 2;
+      else colSpan = 3;
+
+      let colX = Math.max(0, Math.min(6 - colSpan, x));
+      if (colSpan === 6) {
+        colX = 0;
+      } else if (colSpan === 3) {
+        colX = colX >= 2 ? 3 : 0;
+      } else if (colSpan === 2) {
+        if (colX <= 1) colX = 0;
+        else if (colX <= 3) colX = 2;
+        else colX = 4;
+      }
+
       wEl.style.gridColumn = `${colX + 1} / span ${colSpan}`;
       wEl.style.gridRow = `${y + 1} / span ${h}`;
     } else {
