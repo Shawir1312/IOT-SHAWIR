@@ -739,105 +739,43 @@ input:checked + .toggle-track::before { transform: translateX(24px); }
 
 @media (max-width: 768px) {
   .dashboard-canvas {
-    padding: 0.6rem 0.5rem !important;
+    padding: 0.5rem 0.5rem !important;
     overflow-x: hidden !important;
     width: 100% !important;
-    max-width: 100% !important;
     box-sizing: border-box !important;
-    min-height: auto;
+    min-height: calc(100vh - 120px);
   }
 
-  /* Reset grid on mobile to clean 2-column layout */
+  .dashboard-canvas.edit-mode {
+    background-size: calc(100% / 6) 60px;
+  }
+
+  /* 6-column Coordinate Grid on Mobile */
   #widget-grid {
     display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    grid-auto-rows: minmax(105px, auto) !important;
-    gap: 10px !important;
+    grid-template-columns: repeat(6, 1fr) !important;
+    grid-auto-rows: 60px !important;
+    gap: 8px !important;
     width: 100% !important;
-    max-width: 100% !important;
+    min-height: 650px !important;
     box-sizing: border-box !important;
   }
 
-  /* Force override any desktop grid coordinates */
   #widget-grid .widget {
-    grid-column: span 1 !important;
-    grid-column-start: auto !important;
-    grid-column-end: span 1 !important;
-    grid-row: auto !important;
-    grid-row-start: auto !important;
-    grid-row-end: auto !important;
     width: 100% !important;
-    max-width: 100% !important;
-    min-height: 105px !important;
-    height: auto !important;
+    height: 100% !important;
     margin: 0 !important;
     box-sizing: border-box !important;
   }
 
-
-
-  /* Full-width widgets across the 2-column grid */
-  #widget-grid .widget[data-w="12"],
-  #widget-grid .widget.w-full,
-  #widget-grid .widget.w-line_chart,
-  #widget-grid .widget.w-line-chart,
-  #widget-grid .widget.w-bar_chart,
-  #widget-grid .widget.w-bar-chart,
-  #widget-grid .widget.w-terminal,
-  #widget-grid .widget.w-map,
-  #widget-grid .widget.w-slider,
-  #widget-grid .widget.w-label {
-    grid-column: 1 / -1 !important;
-    grid-column-start: 1 !important;
-    grid-column-end: -1 !important;
-    grid-row: auto !important;
-    min-height: 220px !important;
-  }
-
-  /* Half-width widgets across the 2-column grid */
-  #widget-grid .widget[data-w="6"],
-  #widget-grid .widget.w-half {
-    grid-column: span 1 !important;
-    grid-column-start: auto !important;
-    grid-column-end: span 1 !important;
-  }
-
-  /* Height tiers */
-  #widget-grid .widget[data-h="1"] { min-height: 80px !important; }
-  #widget-grid .widget[data-h="2"] { min-height: 115px !important; }
-  #widget-grid .widget[data-h="3"] { min-height: 160px !important; }
-  #widget-grid .widget[data-h="4"] { min-height: 220px !important; }
-  #widget-grid .widget[data-h="5"] { min-height: 290px !important; }
-
-  #widget-grid .widget.w-slider {
-    min-height: 110px !important;
-  }
-
-  #widget-grid .widget.w-label {
-    min-height: 50px !important;
-  }
-
-  /* 2-column compact widgets side by side */
-  #widget-grid .widget.w-value_display,
-  #widget-grid .widget.w-value-display,
-  #widget-grid .widget.w-gauge,
-  #widget-grid .widget.w-button,
-  #widget-grid .widget.w-switch,
-  #widget-grid .widget.w-led {
-    grid-column: span 1 !important;
-    grid-column-start: auto !important;
-    grid-column-end: span 1 !important;
-    grid-row: auto !important;
-    min-height: 105px !important;
-  }
-
   .w-value-display .val-number,
   .w-value_display .val-number {
-    font-size: 1.75rem !important;
+    font-size: 1.6rem !important;
   }
 
   .chart-canvas-wrap {
-    height: 160px !important;
+    height: 100% !important;
+    min-height: 120px !important;
     width: 100% !important;
   }
 

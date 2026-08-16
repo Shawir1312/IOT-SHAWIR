@@ -1,6 +1,8 @@
 /**
- * ShawirIOT - Dashboard Edit & Drag-and-Drop
+ * ShawirIOT - Dashboard Edit & Freeform Drag-and-Drop
  */
+
+let editMode = false;
 
 // ============================================================
 // EDIT MODE TOGGLE
@@ -32,26 +34,30 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.widget').forEach(w => w.classList.remove('edit-mode'));
       btnEdit?.classList.remove('d-none');
       destroyDragAndDrop();
+      applyGridCoordinates();
     });
   }
 
-  if (btnSave) btnSave.addEventListener('click', saveLayout);
+  if (btnSave) btnSave.addEventListener('click', () => saveLayout(false));
 
   if (btnAddWgt) {
     btnAddWgt.addEventListener('click', () => {
       document.getElementById('widget-panel')?.classList.add('open');
     });
   }
+
+  applyGridCoordinates();
+  initResizeHandles();
 });
 
 // ============================================================
-// DRAG AND DROP (native HTML5)
+// FREEFORM DRAG AND DROP (Unified Touch & Mouse for Mobile/Desktop)
 // ============================================================
-// ============================================================
-// DRAG AND DROP (SortableJS - Fluid Touch & Mouse Drag)
-// ============================================================
-let sortableInstance = null;
-let gridEl = null;
+let draggedWidget = null;
+let startTouchX = 0;
+let startTouchY = 0;
+let startWidgetX = 0;
+let startWidgetY = 0;
 
 function getEventXY(e) {
   if (e.touches && e.touches.length > 0) {
@@ -64,50 +70,135 @@ function getEventXY(e) {
 }
 
 function initDragAndDrop() {
-  gridEl = document.getElementById('widget-grid');
-  if (!gridEl) return;
-
-  if (typeof Sortable !== 'undefined') {
-    if (sortableInstance) {
-      sortableInstance.destroy();
+  document.querySelectorAll('.widget.edit-mode').forEach(w => {
+    const handle = w.querySelector('.widget-drag-handle');
+    if (handle) {
+      handle.removeEventListener('mousedown', onDragStart);
+      handle.removeEventListener('touchstart', onDragStart);
+      handle.addEventListener('mousedown', onDragStart);
+      handle.addEventListener('touchstart', onDragStart, { passive: false });
     }
-    sortableInstance = new Sortable(gridEl, {
-      animation: 180,
-      fallbackOnBody: true,
-      swapThreshold: 0.6,
-      invertSwap: true,
-      ghostClass: 'sortable-ghost',
-      chosenClass: 'sortable-chosen',
-      dragClass: 'sortable-drag',
-      handle: '.widget-drag-handle',
-      filter: '.w-btn-ctrl, input, button, select, .widget-resize-handle',
-      preventOnFilter: false,
-      delay: 0,
-      touchStartThreshold: 2,
-      onEnd: function() {
-        reorderWidgetsFromDOM(true);
-      }
-    });
-  }
-
+  });
   initResizeHandles();
 }
 
 function destroyDragAndDrop() {
-  if (sortableInstance) {
-    sortableInstance.destroy();
-    sortableInstance = null;
+  document.querySelectorAll('.widget').forEach(w => {
+    const handle = w.querySelector('.widget-drag-handle');
+    if (handle) {
+      handle.removeEventListener('mousedown', onDragStart);
+      handle.removeEventListener('touchstart', onDragStart);
+    }
+  });
+}
+
+function onDragStart(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  if (window.getSelection) window.getSelection().removeAllRanges();
+
+  const widget = e.target.closest('.widget');
+  if (!widget || !editMode) return;
+
+  draggedWidget = widget;
+  const pos = getEventXY(e);
+  startTouchX = pos.clientX;
+  startTouchY = pos.clientY;
+
+  startWidgetX = parseInt(widget.dataset.x || 0);
+  startWidgetY = parseInt(widget.dataset.y || 0);
+
+  widget.classList.add('sortable-chosen');
+  widget.style.zIndex = '1000';
+  widget.style.transition = 'none';
+
+  document.addEventListener('mousemove', onDragMove);
+  document.addEventListener('mouseup',   onDragEnd);
+  document.addEventListener('touchmove', onDragMove, { passive: false });
+  document.addEventListener('touchend',  onDragEnd, { passive: false });
+  document.addEventListener('touchcancel', onDragEnd, { passive: false });
+}
+
+function onDragMove(e) {
+  if (!draggedWidget) return;
+  e.preventDefault();
+  const pos = getEventXY(e);
+  const dx = pos.clientX - startTouchX;
+  const dy = pos.clientY - startTouchY;
+
+  draggedWidget.style.transform = `translate3d(${dx}px, ${dy}px, 0) scale(1.03)`;
+}
+
+function onDragEnd(e) {
+  if (!draggedWidget) return;
+  e.preventDefault();
+
+  const pos = getEventXY(e);
+  const dx = pos.clientX - startTouchX;
+  const dy = pos.clientY - startTouchY;
+
+  const isMobile = window.innerWidth <= 768;
+  const gridEl = document.getElementById('widget-grid');
+  const gridRect = gridEl ? gridEl.getBoundingClientRect() : { width: 360 };
+  
+  const cols = isMobile ? 6 : 12;
+  const rowHeight = isMobile ? 60 : 75;
+  const gap = isMobile ? 8 : 12;
+  const cellW = (gridRect.width - gap * (cols - 1)) / cols;
+
+  const w = parseInt(draggedWidget.dataset.w || 6);
+  const colSpan = isMobile ? (w >= 12 ? 6 : 3) : w;
+
+  const deltaCols = Math.round(dx / (cellW + gap));
+  const deltaRows = Math.round(dy / (rowHeight + gap));
+
+  let newY = Math.max(0, startWidgetY + deltaRows);
+  let newX = Math.max(0, Math.min(cols - colSpan, startWidgetX + deltaCols));
+
+  if (isMobile) {
+    if (colSpan >= 6) {
+      newX = 0;
+    } else {
+      newX = (newX >= 2) ? 3 : 0;
+    }
   }
+
+  draggedWidget.dataset.x = newX;
+  draggedWidget.dataset.y = newY;
+
+  const wid = draggedWidget.dataset.id;
+  const wObj = widgets.find(wItem => wItem.id == wid);
+  if (wObj) {
+    wObj.pos_x = newX;
+    wObj.pos_y = newY;
+  }
+
+  draggedWidget.classList.remove('sortable-chosen');
+  draggedWidget.style.transform = '';
+  draggedWidget.style.zIndex = '';
+  draggedWidget.style.transition = '';
+
+  document.removeEventListener('mousemove', onDragMove);
+  document.removeEventListener('mouseup',   onDragEnd);
+  document.removeEventListener('touchmove', onDragMove);
+  document.removeEventListener('touchend',  onDragEnd);
+  document.removeEventListener('touchcancel', onDragEnd);
+  draggedWidget = null;
+
+  applyGridCoordinates();
+  saveLayout(true);
 }
 
 // ============================================================
-// RESIZE HANDLES (Drag-to-Resize on Mobile and Desktop)
+// RESIZE HANDLES (Drag-to-Resize on Corner Handle)
 // ============================================================
 function initResizeHandles() {
   document.querySelectorAll('.widget.edit-mode').forEach(widget => {
     const handle = widget.querySelector('.widget-resize-handle');
     if (!handle) return;
 
+    handle.removeEventListener('mousedown', onResizeStart);
+    handle.removeEventListener('touchstart', onResizeStart);
     handle.addEventListener('mousedown', onResizeStart);
     handle.addEventListener('touchstart', onResizeStart, { passive: false });
   });
@@ -122,9 +213,7 @@ let resizeStartH = 0;
 function onResizeStart(e) {
   e.preventDefault();
   e.stopPropagation();
-  if (window.getSelection) {
-    window.getSelection().removeAllRanges();
-  }
+  if (window.getSelection) window.getSelection().removeAllRanges();
 
   resizingWidget = e.target.closest('.widget');
   if (!resizingWidget) return;
@@ -134,7 +223,7 @@ function onResizeStart(e) {
   resizeStartY = pos.clientY;
 
   const wid = resizingWidget.dataset.id;
-  const w   = widgets.find(w => w.id == wid);
+  const w = widgets.find(wItem => wItem.id == wid);
   resizeStartW = parseInt(resizingWidget.dataset.w || w?.width  || 6);
   resizeStartH = parseInt(resizingWidget.dataset.h || w?.height || 2);
 
@@ -146,66 +235,39 @@ function onResizeStart(e) {
 }
 
 function onResizeMove(e) {
-  if (!resizingWidget || !gridEl) return;
-  e.preventDefault();
-  const pos = getEventXY(e);
-  const dx = pos.clientX - resizeStartX;
-  const dy = pos.clientY - resizeStartY;
-
-  if (window.innerWidth <= 768) {
-    // Mobile Resize: horizontal drag toggles width, vertical drag changes height tier
-    if (dx > 40) {
-      resizingWidget.dataset.w = 12;
-      resizingWidget.classList.add('w-full');
-      resizingWidget.classList.remove('w-half');
-    } else if (dx < -40) {
-      resizingWidget.dataset.w = 6;
-      resizingWidget.classList.add('w-half');
-      resizingWidget.classList.remove('w-full');
-    }
-
-    const hSteps = Math.round(dy / 45);
-    const newH = Math.max(1, Math.min(5, resizeStartH + hSteps));
-    resizingWidget.dataset.h = newH;
-  } else {
-    // Desktop Resize: 12-column grid
-    const gap = 12;
-    const newW = Math.max(1, Math.min(12, resizeStartW + Math.round(dx / (cellW + gap))));
-    const newH = Math.max(1, resizeStartH + Math.round(dy / (cellH + gap)));
-    resizingWidget.style.gridColumn = (resizingWidget.style.gridColumn || '1').split('/')[0] + `/ span ${newW}`;
-    resizingWidget.style.gridRow    = (resizingWidget.style.gridRow || '1').split('/')[0]    + `/ span ${newH}`;
-    resizingWidget.dataset.w = newW;
-    resizingWidget.dataset.h = newH;
-  }
-}
-
-function onResizeEnd(e) {
   if (!resizingWidget) return;
   e.preventDefault();
   const pos = getEventXY(e);
   const dx = pos.clientX - resizeStartX;
   const dy = pos.clientY - resizeStartY;
 
-  const wid = resizingWidget.dataset.id;
-  const w   = widgets.find(w => w.id == wid);
+  const isMobile = window.innerWidth <= 768;
 
-  if (window.innerWidth <= 768) {
-    const finalW = parseInt(resizingWidget.dataset.w || 6);
-    const finalH = parseInt(resizingWidget.dataset.h || 2);
-    if (w) {
-      w.width  = finalW;
-      w.height = finalH;
-    }
+  if (isMobile) {
+    if (dx > 40) resizingWidget.dataset.w = 12;
+    else if (dx < -40) resizingWidget.dataset.w = 6;
+
+    const hSteps = Math.round(dy / 55);
+    resizingWidget.dataset.h = Math.max(1, Math.min(8, resizeStartH + hSteps));
   } else {
-    const gap = 12;
-    const finalW = Math.max(1, Math.min(12, resizeStartW + Math.round(dx / (cellW + gap))));
-    const finalH = Math.max(1, resizeStartH + Math.round(dy / (cellH + gap)));
-    if (w) {
-      w.width  = finalW;
-      w.height = finalH;
-      resizingWidget.dataset.w = finalW;
-      resizingWidget.dataset.h = finalH;
-    }
+    const wSteps = Math.round(dx / 80);
+    const hSteps = Math.round(dy / 75);
+    resizingWidget.dataset.w = Math.max(2, Math.min(12, resizeStartW + wSteps));
+    resizingWidget.dataset.h = Math.max(1, Math.min(10, resizeStartH + hSteps));
+  }
+
+  applyGridCoordinates();
+}
+
+function onResizeEnd(e) {
+  if (!resizingWidget) return;
+  e.preventDefault();
+
+  const wid = resizingWidget.dataset.id;
+  const wObj = widgets.find(wItem => wItem.id == wid);
+  if (wObj) {
+    wObj.width  = parseInt(resizingWidget.dataset.w);
+    wObj.height = parseInt(resizingWidget.dataset.h);
   }
 
   document.removeEventListener('mousemove', onResizeMove);
@@ -215,31 +277,14 @@ function onResizeEnd(e) {
   document.removeEventListener('touchcancel', onResizeEnd);
   resizingWidget = null;
 
+  applyGridCoordinates();
   setTimeout(initCharts, 150);
   saveLayout(true);
 }
 
 // ============================================================
-// QUICK REORDER & SIZE TOGGLE (Blynk-Style Mobile Controls)
+// QUICK BUTTON CONTROLS (Width & Height Toggles)
 // ============================================================
-function moveWidgetUp(id) {
-  const el = document.getElementById('widget-' + id);
-  if (!el) return;
-  const prev = el.previousElementSibling;
-  if (!prev || !prev.classList.contains('widget')) return;
-  el.parentNode.insertBefore(el, prev);
-  reorderWidgetsFromDOM(true);
-}
-
-function moveWidgetDown(id) {
-  const el = document.getElementById('widget-' + id);
-  if (!el) return;
-  const next = el.nextElementSibling;
-  if (!next || !next.classList.contains('widget')) return;
-  el.parentNode.insertBefore(next, el);
-  reorderWidgetsFromDOM(true);
-}
-
 function toggleWidgetWidth(id) {
   const wEl = document.getElementById('widget-' + id);
   if (!wEl) return;
@@ -252,28 +297,10 @@ function toggleWidgetWidth(id) {
   wEl.dataset.w = newW;
   if (wObj) wObj.width = newW;
 
-  if (newW >= 12) {
-    wEl.classList.add('w-full');
-    wEl.classList.remove('w-half');
-  } else {
-    wEl.classList.add('w-half');
-    wEl.classList.remove('w-full');
-  }
-
-  if (window.innerWidth > 768) {
-    const x = parseInt(wEl.dataset.x || 0);
-    const y = parseInt(wEl.dataset.y || 0);
-    const h = parseInt(wEl.dataset.h || 2);
-    wEl.style.gridColumn = `${x + 1} / span ${newW}`;
-    wEl.style.gridRow = `${y + 1} / span ${h}`;
-  } else {
-    wEl.style.gridColumn = '';
-    wEl.style.gridRow = '';
-  }
-
+  applyGridCoordinates();
   setTimeout(initCharts, 150);
   saveLayout(true);
-  showToast(newW >= 12 ? 'Lebar diubah ke Layar Penuh (100%)' : 'Lebar diubah ke Setengah Layar (50%)', 'success');
+  showToast(newW >= 12 ? 'Lebar diubah: Layar Penuh (100%)' : 'Lebar diubah: Setengah Layar (50%)', 'success');
 }
 
 function increaseWidgetHeight(id) {
@@ -281,19 +308,15 @@ function increaseWidgetHeight(id) {
   if (!wEl) return;
   const wObj = widgets.find(w => w.id == id);
   const currentH = parseInt(wEl.dataset.h || wObj?.height || 2);
-  const newH = Math.min(5, currentH + 1);
+  const newH = Math.min(8, currentH + 1);
 
   wEl.dataset.h = newH;
   if (wObj) wObj.height = newH;
 
-  if (window.innerWidth > 768) {
-    const y = parseInt(wEl.dataset.y || 0);
-    wEl.style.gridRow = `${y + 1} / span ${newH}`;
-  }
-
+  applyGridCoordinates();
   setTimeout(initCharts, 150);
   saveLayout(true);
-  showToast(`Tinggi diatur: ${newH}x`, 'info');
+  showToast(`Tinggi ditambah (${newH} baris)`, 'info');
 }
 
 function decreaseWidgetHeight(id) {
@@ -306,98 +329,62 @@ function decreaseWidgetHeight(id) {
   wEl.dataset.h = newH;
   if (wObj) wObj.height = newH;
 
-  if (window.innerWidth > 768) {
-    const y = parseInt(wEl.dataset.y || 0);
-    wEl.style.gridRow = `${y + 1} / span ${newH}`;
-  }
-
+  applyGridCoordinates();
   setTimeout(initCharts, 150);
   saveLayout(true);
-  showToast(`Tinggi diatur: ${newH}x`, 'info');
-}
-
-function toggleWidgetSize(id) {
-  toggleWidgetWidth(id);
-}
-
-function reorderWidgetsFromDOM(autoSave = false) {
-  const grid = document.getElementById('widget-grid');
-  if (!grid) return;
-  const domWidgets = Array.from(grid.querySelectorAll('.widget'));
-  
-  if (window.innerWidth > 768) {
-    let curX = 0, curY = 0, maxRowH = 0;
-    domWidgets.forEach(wEl => {
-      const wid = wEl.dataset.id;
-      const wObj = widgets.find(w => w.id == wid);
-      const w = parseInt(wEl.dataset.w || wObj?.width || 4);
-      const h = parseInt(wEl.dataset.h || wObj?.height || 2);
-
-      if (curX + w > 12) {
-        curX = 0;
-        curY += (maxRowH || 2);
-        maxRowH = h;
-      } else {
-        maxRowH = Math.max(maxRowH, h);
-      }
-
-      wEl.dataset.x = curX;
-      wEl.dataset.y = curY;
-      wEl.style.gridColumn = `${curX + 1} / span ${w}`;
-      wEl.style.gridRow = `${curY + 1} / span ${h}`;
-      if (wObj) { wObj.pos_x = curX; wObj.pos_y = curY; }
-      curX += w;
-    });
-  } else {
-    // Mobile mode: clear inline styles to prevent height/width stretching
-    domWidgets.forEach((wEl, idx) => {
-      wEl.dataset.y = idx;
-      wEl.dataset.x = 0;
-      wEl.style.gridColumn = '';
-      wEl.style.gridRow = '';
-      wEl.style.height = '';
-      wEl.style.width = '';
-      const wObj = widgets.find(w => w.id == wEl.dataset.id);
-      if (wObj) { wObj.pos_y = idx; wObj.pos_x = 0; }
-    });
-  }
-
-  if (autoSave) {
-    saveLayout(true);
-  }
+  showToast(`Tinggi dikurangi (${newH} baris)`, 'info');
 }
 
 // ============================================================
-// SAVE LAYOUT
+// APPLY GRID COORDINATES (Universal Mobile & Desktop Positioner)
+// ============================================================
+function applyGridCoordinates() {
+  const isMobile = window.innerWidth <= 768;
+  document.querySelectorAll('.widget').forEach(wEl => {
+    const wid = wEl.dataset.id;
+    const wObj = widgets.find(w => w.id == wid);
+    const x = parseInt(wEl.dataset.x ?? wObj?.pos_x ?? 0);
+    const y = parseInt(wEl.dataset.y ?? wObj?.pos_y ?? 0);
+    const w = parseInt(wEl.dataset.w ?? wObj?.width ?? 6);
+    const h = parseInt(wEl.dataset.h ?? wObj?.height ?? 2);
+
+    if (isMobile) {
+      // Mobile 6-column grid:
+      const colSpan = w >= 12 ? 6 : 3;
+      const colX = colSpan >= 6 ? 0 : (x >= 3 ? 3 : 0);
+      wEl.style.gridColumn = `${colX + 1} / span ${colSpan}`;
+      wEl.style.gridRow = `${y + 1} / span ${h}`;
+    } else {
+      // Desktop 12-column grid:
+      const colX = Math.max(0, Math.min(12 - w, x));
+      wEl.style.gridColumn = `${colX + 1} / span ${w}`;
+      wEl.style.gridRow = `${y + 1} / span ${h}`;
+    }
+  });
+}
+
+// ============================================================
+// SAVE LAYOUT (Save Coordinates to Database)
 // ============================================================
 async function saveLayout(silent = false) {
   const btn = document.getElementById('btn-save-layout');
   if (btn && !silent) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Menyimpan...'; }
 
-  // Collect positions from DOM
   const layout = [];
-  document.querySelectorAll('.widget').forEach((el, idx) => {
-    const wid = el.dataset.id;
-    const style = el.style;
-    const colMatch = (style.gridColumn || '').match(/(\d+)\s*\/\s*span\s*(\d+)/);
-    const rowMatch = (style.gridRow || '').match(/(\d+)\s*\/\s*span\s*(\d+)/);
-    if (colMatch && rowMatch && window.innerWidth > 768) {
-      layout.push({
-        id:    parseInt(wid),
-        pos_x: parseInt(colMatch[1]) - 1,
-        pos_y: parseInt(rowMatch[1]) - 1,
-        width: parseInt(colMatch[2]),
-        height:parseInt(rowMatch[2]),
-      });
-    } else {
-      layout.push({
-        id:    parseInt(wid),
-        pos_x: 0,
-        pos_y: idx,
-        width: parseInt(el.dataset.w || 4),
-        height:parseInt(el.dataset.h || 2),
-      });
-    }
+  document.querySelectorAll('.widget').forEach(el => {
+    const wid = parseInt(el.dataset.id);
+    const x = parseInt(el.dataset.x || 0);
+    const y = parseInt(el.dataset.y || 0);
+    const w = parseInt(el.dataset.w || 6);
+    const h = parseInt(el.dataset.h || 2);
+
+    layout.push({
+      id:     wid,
+      pos_x:  x,
+      pos_y:  y,
+      width:  w,
+      height: h,
+    });
   });
 
   try {
@@ -424,34 +411,7 @@ async function saveLayout(silent = false) {
   }
 }
 
-// ============================================================
-// RESPONSIVE COORDINATE APPLIER
-// ============================================================
-function applyDesktopCoordinates() {
-  if (window.innerWidth > 768) {
-    document.querySelectorAll('.widget').forEach(w => {
-      const x = parseInt(w.dataset.x || 0);
-      const y = parseInt(w.dataset.y || 0);
-      const width = parseInt(w.dataset.w || 4);
-      const height = parseInt(w.dataset.h || 2);
-      w.style.gridColumn = `${x + 1} / span ${width}`;
-      w.style.gridRow = `${y + 1} / span ${height}`;
-    });
-  } else {
-    document.querySelectorAll('.widget').forEach(w => {
-      w.style.gridColumn = '';
-      w.style.gridRow = '';
-    });
-  }
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  applyDesktopCoordinates();
-  recalcGridDims();
-});
-
 window.addEventListener('resize', () => {
-  applyDesktopCoordinates();
-  recalcGridDims();
+  applyGridCoordinates();
   setTimeout(initCharts, 200);
 });
