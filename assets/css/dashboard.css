@@ -238,30 +238,62 @@
   z-index: 10;
 }
 
+/* SortableJS drag & drop visual states */
+.sortable-ghost {
+  opacity: 0.3 !important;
+  background: rgba(99, 102, 241, 0.15) !important;
+  border: 2px dashed var(--primary) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.3) !important;
+}
+
+.sortable-chosen {
+  cursor: grabbing !important;
+  transform: scale(1.02);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 0 2px var(--primary) !important;
+  z-index: 100 !important;
+}
+
+.sortable-drag {
+  opacity: 0.95 !important;
+  cursor: grabbing !important;
+}
+
 .widget-drag-handle {
   position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 32px; height: 32px;
-  background: rgba(99,102,241,0.25);
+  top: 3px;
+  right: 4px;
+  width: 36px;
+  height: 30px;
+  background: rgba(99, 102, 241, 0.35);
   border: 1px solid var(--border-focus);
-  border-radius: 8px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--primary-light);
   cursor: grab;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
-  z-index: 20;
+  z-index: 35;
   opacity: 0;
-  transition: opacity var(--transition);
+  transition: opacity var(--transition), transform 0.15s ease;
 }
 
-.widget.edit-mode .widget-drag-handle { opacity: 1; }
+.widget.edit-mode .widget-drag-handle {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.widget-drag-handle:active {
+  cursor: grabbing;
+  transform: scale(1.1);
+  background: var(--primary);
+  color: #fff;
+}
 
 .widget-resize-handle {
   position: absolute;
@@ -305,14 +337,14 @@
 
 /* WIDGET EDIT TOOLBAR (Mobile & Desktop Blynk-Style Controls) */
 .widget.edit-mode {
-  padding-top: 36px !important;
+  padding-top: 38px !important;
 }
 
 .widget-edit-toolbar {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
+  right: 44px;
   height: 36px;
   background: rgba(15, 23, 42, 0.95);
   backdrop-filter: blur(8px);
@@ -327,7 +359,7 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-radius: var(--radius-lg) 0 0 0;
 }
 
 .widget.edit-mode .widget-edit-toolbar {

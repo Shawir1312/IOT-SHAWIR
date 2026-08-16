@@ -49,6 +49,7 @@ checkOfflineDevices();
   <link rel="stylesheet" href="assets/css/dashboard.css?v=<?= time() ?>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 </head>
 <body>
 <div class="app-layout">
@@ -131,10 +132,6 @@ checkOfflineDevices();
             <!-- Quick Edit Toolbar (Blynk-Style Mobile & Desktop Controls) -->
             <div class="widget-edit-toolbar">
               <div class="edit-toolbar-group">
-                <button type="button" class="w-btn-ctrl move" onclick="moveWidgetUp(<?= $w['id'] ?>)" title="Pindah ke Atas / Kiri"><i class="fas fa-arrow-up"></i></button>
-                <button type="button" class="w-btn-ctrl move" onclick="moveWidgetDown(<?= $w['id'] ?>)" title="Pindah ke Bawah / Kanan"><i class="fas fa-arrow-down"></i></button>
-              </div>
-              <div class="edit-toolbar-group">
                 <button type="button" class="w-btn-ctrl size" onclick="toggleWidgetWidth(<?= $w['id'] ?>)" title="Ganti Lebar (50% ⇄ 100%)"><i class="fas fa-arrows-alt-h"></i> <span>Lebar</span></button>
                 <button type="button" class="w-btn-ctrl size" onclick="increaseWidgetHeight(<?= $w['id'] ?>)" title="Tambah Tinggi"><i class="fas fa-plus"></i></button>
                 <button type="button" class="w-btn-ctrl size" onclick="decreaseWidgetHeight(<?= $w['id'] ?>)" title="Kurangi Tinggi"><i class="fas fa-minus"></i></button>
@@ -144,7 +141,7 @@ checkOfflineDevices();
                 <button type="button" class="w-btn-ctrl del" onclick="deleteWidget(<?= $w['id'] ?>)" title="Hapus Widget"><i class="fas fa-trash"></i></button>
               </div>
             </div>
-            <div class="widget-drag-handle" title="Geser Widget"><i class="fas fa-grip-vertical"></i></div>
+            <div class="widget-drag-handle" title="Tahan & Geser untuk Pindah Posisi"><i class="fas fa-grip-vertical"></i></div>
             <div class="widget-resize-handle" title="Ubah Ukuran"></div>
           </div>
         <?php endforeach; ?>

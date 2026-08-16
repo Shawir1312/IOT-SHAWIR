@@ -48,14 +48,10 @@ document.addEventListener('DOMContentLoaded', () => {
 // DRAG AND DROP (native HTML5)
 // ============================================================
 // ============================================================
-// DRAG AND DROP (Unified Mouse & Touch for Mobile/Desktop)
+// DRAG AND DROP (SortableJS - Fluid Touch & Mouse Drag)
 // ============================================================
-let draggedWidget = null;
-let dragOffsetX   = 0;
-let dragOffsetY   = 0;
-let gridEl        = null;
-let cellW         = 0;
-let cellH         = 0;
+let sortableInstance = null;
+let gridEl = null;
 
 function getEventXY(e) {
   if (e.touches && e.touches.length > 0) {
@@ -70,147 +66,35 @@ function getEventXY(e) {
 function initDragAndDrop() {
   gridEl = document.getElementById('widget-grid');
   if (!gridEl) return;
-  recalcGridDims();
 
-  document.querySelectorAll('.widget.edit-mode').forEach(initWidgetDrag);
+  if (typeof Sortable !== 'undefined') {
+    if (sortableInstance) {
+      sortableInstance.destroy();
+    }
+    sortableInstance = new Sortable(gridEl, {
+      animation: 200,
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      dragClass: 'sortable-drag',
+      handle: '.widget-drag-handle',
+      filter: '.w-btn-ctrl, input, button, select, .widget-resize-handle',
+      preventOnFilter: false,
+      delay: 0,
+      touchStartThreshold: 3,
+      onEnd: function() {
+        reorderWidgetsFromDOM(true);
+      }
+    });
+  }
+
   initResizeHandles();
 }
 
 function destroyDragAndDrop() {
-  document.querySelectorAll('.widget').forEach(w => {
-    const handle = w.querySelector('.widget-drag-handle');
-    if (handle) {
-      handle.removeEventListener('mousedown', onDragStart);
-      handle.removeEventListener('touchstart', onDragStart);
-    }
-  });
-}
-
-function recalcGridDims() {
-  if (!gridEl) return;
-  const rect = gridEl.getBoundingClientRect();
-  const cols = window.innerWidth > 768 ? 12 : 2;
-  const gap  = 10;
-  cellW = (rect.width - gap * (cols - 1)) / cols;
-  cellH = window.innerWidth > 768 ? 80 : 105;
-}
-
-function initWidgetDrag(widget) {
-  const handle = widget.querySelector('.widget-drag-handle');
-  if (!handle) return;
-
-  handle.addEventListener('mousedown', onDragStart);
-  handle.addEventListener('touchstart', onDragStart, { passive: false });
-}
-
-function onDragStart(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  if (window.getSelection) {
-    window.getSelection().removeAllRanges();
+  if (sortableInstance) {
+    sortableInstance.destroy();
+    sortableInstance = null;
   }
-
-  const widget = e.target.closest('.widget');
-  if (!widget || !editMode) return;
-
-  draggedWidget = widget;
-  const pos  = getEventXY(e);
-  const rect = widget.getBoundingClientRect();
-  dragOffsetX = pos.clientX - rect.left;
-  dragOffsetY = pos.clientY - rect.top;
-
-  widget.classList.add('is-dragging');
-  widget.style.position      = 'fixed';
-  widget.style.width         = rect.width + 'px';
-  widget.style.height        = rect.height + 'px';
-  widget.style.minHeight     = rect.height + 'px';
-  widget.style.maxHeight     = rect.height + 'px';
-  widget.style.left          = rect.left + 'px';
-  widget.style.top           = rect.top + 'px';
-  widget.style.zIndex        = '1000';
-  widget.style.pointerEvents = 'none';
-
-  document.addEventListener('mousemove', onDragMove);
-  document.addEventListener('mouseup',   onDragEnd);
-  document.addEventListener('touchmove', onDragMove, { passive: false });
-  document.addEventListener('touchend',  onDragEnd, { passive: false });
-  document.addEventListener('touchcancel', onDragEnd, { passive: false });
-}
-
-function onDragMove(e) {
-  if (!draggedWidget) return;
-  e.preventDefault();
-  const pos = getEventXY(e);
-  draggedWidget.style.left = (pos.clientX - dragOffsetX) + 'px';
-  draggedWidget.style.top  = (pos.clientY - dragOffsetY) + 'px';
-}
-
-function onDragEnd(e) {
-  if (!draggedWidget || !gridEl) return;
-  e.preventDefault();
-
-  const pos  = getEventXY(e);
-  const isMobile = window.innerWidth <= 768;
-
-  // Restore dragged widget styles cleanly
-  draggedWidget.classList.remove('is-dragging');
-  draggedWidget.style.position      = '';
-  draggedWidget.style.width         = '';
-  draggedWidget.style.height        = '';
-  draggedWidget.style.minHeight     = '';
-  draggedWidget.style.maxHeight     = '';
-  draggedWidget.style.left          = '';
-  draggedWidget.style.top           = '';
-  draggedWidget.style.zIndex        = '';
-  draggedWidget.style.pointerEvents = '';
-
-  if (isMobile) {
-    // Mobile mode: drop-target DOM reorder
-    const targetEl = document.elementFromPoint(pos.clientX, pos.clientY)?.closest('.widget');
-    if (targetEl && targetEl !== draggedWidget && targetEl.parentElement === gridEl) {
-      const allWidgets = Array.from(gridEl.querySelectorAll('.widget'));
-      const draggedIdx = allWidgets.indexOf(draggedWidget);
-      const targetIdx  = allWidgets.indexOf(targetEl);
-      if (draggedIdx < targetIdx) {
-        gridEl.insertBefore(draggedWidget, targetEl.nextSibling);
-      } else {
-        gridEl.insertBefore(draggedWidget, targetEl);
-      }
-    }
-    reorderWidgetsFromDOM(true);
-  } else {
-    // Desktop mode: 12-column coordinate grid snap
-    const gridRect = gridEl.getBoundingClientRect();
-    const gap = 12;
-    const relX = (pos.clientX - dragOffsetX) - gridRect.left;
-    const relY = (pos.clientY - dragOffsetY) - gridRect.top;
-
-    const col = Math.max(0, Math.min(11, Math.round(relX / (cellW + gap))));
-    const row = Math.max(0, Math.round(relY / (cellH + gap)));
-
-    const wid = draggedWidget.dataset.id;
-    const w   = widgets.find(w => w.id == wid);
-    const wWidth = w ? w.width : 4;
-    const finalCol = Math.min(col, 12 - wWidth);
-
-    draggedWidget.style.gridColumn = `${finalCol + 1} / span ${wWidth}`;
-    draggedWidget.style.gridRow    = `${row + 1} / span ${w ? w.height : 2}`;
-
-    if (w) {
-      w.pos_x = finalCol;
-      w.pos_y = row;
-      draggedWidget.dataset.x = finalCol;
-      draggedWidget.dataset.y = row;
-    }
-    saveLayout(true);
-  }
-
-  document.removeEventListener('mousemove', onDragMove);
-  document.removeEventListener('mouseup',   onDragEnd);
-  document.removeEventListener('touchmove', onDragMove);
-  document.removeEventListener('touchend',  onDragEnd);
-  document.removeEventListener('touchcancel', onDragEnd);
-  draggedWidget = null;
 }
 
 // ============================================================
