@@ -74,11 +74,13 @@ $devices = DB::rows(
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Device — <?= $platformName ?></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Perangkat Saya — <?= $platformName ?></title>
+  <link rel="icon" type="image/png" href="assets/img/logo.png">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/dashboard.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="assets/js/theme.js"></script>
 </head>
 <body>
 <div class="app-layout">
@@ -90,12 +92,15 @@ $devices = DB::rows(
         <button type="button" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Buka Menu">
           <i class="fas fa-bars"></i>
         </button>
-        <h1 class="topbar-title"><i class="fas fa-microchip" style="color:var(--primary-light);margin-right:0.4rem"></i>Perangkat Saya</h1>
+        <h1 class="topbar-title"><i class="fas fa-microchip" style="color:var(--primary-light);margin-right:0.35rem"></i>Perangkat Saya</h1>
       </div>
       <div class="topbar-actions">
         <div class="credit-badge"><i class="fas fa-coins"></i> <?= number_format($user['credits']) ?> kredit</div>
+        <button type="button" class="theme-toggle-btn" onclick="toggleTheme()" title="Ubah Tema (Terang / Gelap)">
+          <i class="fas fa-moon theme-toggle-icon"></i>
+        </button>
         <button class="btn btn-primary" id="btn-add-device">
-          <i class="fas fa-plus"></i> <span>Tambah Perangkat</span>
+          <i class="fas fa-plus"></i> <span>Tambah</span>
         </button>
       </div>
     </header>

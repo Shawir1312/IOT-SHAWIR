@@ -20,13 +20,10 @@ function adminNavItem(string $href, string $icon, string $label, string $current
 
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
-    <div class="logo-icon" style="background:linear-gradient(135deg, #f97316 0%, #fb923c 100%)">
-      <i class="fas fa-shield-alt"></i>
-    </div>
-    <div class="logo-text" style="background:linear-gradient(135deg, #f97316 0%, #fb923c 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent">
-      <?= $platformName ?> Admin
-    </div>
-    <button type="button" class="sidebar-close-btn" onclick="toggleSidebar(false)" aria-label="Close sidebar">
+    <a href="index.php" class="logo-brand-link">
+      <img src="../assets/img/logo.png" alt="<?= $platformName ?>" class="sidebar-logo-img">
+    </a>
+    <button type="button" class="sidebar-close-btn" onclick="toggleSidebar(false)" aria-label="Tutup Menu">
       <i class="fas fa-times"></i>
     </button>
   </div>
@@ -60,8 +57,14 @@ function adminNavItem(string $href, string $icon, string $label, string $current
         <div class="role" style="color:#fb923c"><?= strtoupper($admin_s['role'] ?? 'ADMIN') ?></div>
       </div>
     </div>
+    <button type="button" class="sidebar-theme-item w-100" onclick="toggleTheme()" title="Ubah Tema">
+      <span><i class="fas fa-palette" style="margin-right:0.5rem"></i> Mode Tampilan</span>
+      <i class="fas fa-moon theme-toggle-icon"></i>
+    </button>
   </div>
 </aside>
+
+<script src="../assets/js/theme.js"></script>
 
 <script>
 function toggleSidebar(forceState) {

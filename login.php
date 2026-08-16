@@ -26,18 +26,19 @@ $flash = getFlash();
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Masuk — <?= $platformName ?></title>
+  <link rel="icon" type="image/png" href="assets/img/logo.png">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="assets/js/theme.js"></script>
 </head>
 <body>
 <div class="auth-page">
   <div class="auth-card">
     <div class="auth-logo">
-      <div class="logo-mark"><i class="fas fa-wifi"></i></div>
-      <h1><?= $platformName ?></h1>
-      <p>Masuk ke akun Anda</p>
+      <img src="assets/img/logo.png" alt="<?= $platformName ?>" style="max-height:60px;margin:0 auto 0.75rem;display:block;object-fit:contain">
+      <p>Masuk ke akun IoT Anda</p>
     </div>
 
     <?php if ($flash): ?>

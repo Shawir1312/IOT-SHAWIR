@@ -19,9 +19,10 @@ function navItem(string $href, string $icon, string $label, string $current, str
 
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
-    <div class="logo-icon"><i class="fas fa-wifi"></i></div>
-    <div class="logo-text"><?= getSetting('platform_name', 'ShawirIOT') ?></div>
-    <button type="button" class="sidebar-close-btn" onclick="toggleSidebar(false)" aria-label="Close sidebar">
+    <a href="<?= $baseUrl ?>/dashboard.php" class="logo-brand-link">
+      <img src="<?= $baseUrl ?>/assets/img/logo.png" alt="<?= getSetting('platform_name', 'ShawirIOT') ?>" class="sidebar-logo-img">
+    </a>
+    <button type="button" class="sidebar-close-btn" onclick="toggleSidebar(false)" aria-label="Tutup Menu">
       <i class="fas fa-times"></i>
     </button>
   </div>
@@ -66,8 +67,14 @@ function navItem(string $href, string $icon, string $label, string $current, str
         <div class="role"><?= $user_s['plan_name'] ?? 'Free' ?> · <?= number_format($user_s['credits'] ?? 0) ?> kredit</div>
       </div>
     </div>
+    <button type="button" class="sidebar-theme-item w-100" onclick="toggleTheme()" title="Ubah Tema">
+      <span><i class="fas fa-palette" style="margin-right:0.5rem"></i> Mode Tampilan</span>
+      <i class="fas fa-moon theme-toggle-icon"></i>
+    </button>
   </div>
 </aside>
+
+<script src="<?= $baseUrl ?>/assets/js/theme.js"></script>
 
 <script>
 function toggleSidebar(forceState) {

@@ -83,11 +83,13 @@ $transactions = DB::rows(
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Profil & Kredit — <?= $platformName ?></title>
+  <link rel="icon" type="image/png" href="assets/img/logo.png">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/dashboard.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="assets/js/theme.js"></script>
 </head>
 <body>
 <div class="app-layout">
@@ -95,16 +97,19 @@ $transactions = DB::rows(
   <div class="main-content">
     <header class="topbar">
       <div class="topbar-left">
-        <button type="button" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
+        <button type="button" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Buka Menu">
           <i class="fas fa-bars"></i>
         </button>
         <h1 class="topbar-title">
-          <i class="fas fa-user-circle" style="color:var(--primary-light);margin-right:0.4rem"></i>
-          Profil & Sistem Kredit
+          <i class="fas fa-user-circle" style="color:var(--primary-light);margin-right:0.35rem"></i>
+          Profil & Kredit
         </h1>
       </div>
       <div class="topbar-actions">
         <div class="credit-badge"><i class="fas fa-coins"></i> <?= number_format($user['credits']) ?> kredit</div>
+        <button type="button" class="theme-toggle-btn" onclick="toggleTheme()" title="Ubah Tema (Terang / Gelap)">
+          <i class="fas fa-moon theme-toggle-icon"></i>
+        </button>
       </div>
     </header>
 
