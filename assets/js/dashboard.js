@@ -119,13 +119,15 @@ function onDragStart(e) {
   dragOffsetX = pos.clientX - rect.left;
   dragOffsetY = pos.clientY - rect.top;
 
-  widget.style.opacity       = '0.7';
-  widget.style.zIndex        = '1000';
+  widget.classList.add('is-dragging');
   widget.style.position      = 'fixed';
   widget.style.width         = rect.width + 'px';
   widget.style.height        = rect.height + 'px';
+  widget.style.minHeight     = rect.height + 'px';
+  widget.style.maxHeight     = rect.height + 'px';
   widget.style.left          = rect.left + 'px';
   widget.style.top           = rect.top + 'px';
+  widget.style.zIndex        = '1000';
   widget.style.pointerEvents = 'none';
 
   document.addEventListener('mousemove', onDragMove);
@@ -150,18 +152,20 @@ function onDragEnd(e) {
   const pos  = getEventXY(e);
   const isMobile = window.innerWidth <= 768;
 
-  // Restore dragged widget styles first
+  // Restore dragged widget styles cleanly
+  draggedWidget.classList.remove('is-dragging');
   draggedWidget.style.position      = '';
   draggedWidget.style.width         = '';
   draggedWidget.style.height        = '';
+  draggedWidget.style.minHeight     = '';
+  draggedWidget.style.maxHeight     = '';
   draggedWidget.style.left          = '';
   draggedWidget.style.top           = '';
-  draggedWidget.style.opacity       = '';
   draggedWidget.style.zIndex        = '';
   draggedWidget.style.pointerEvents = '';
 
   if (isMobile) {
-    // Mobile mode: reorder DOM elements based on drop position
+    // Mobile mode: drop-target DOM reorder
     const targetEl = document.elementFromPoint(pos.clientX, pos.clientY)?.closest('.widget');
     if (targetEl && targetEl !== draggedWidget && targetEl.parentElement === gridEl) {
       const allWidgets = Array.from(gridEl.querySelectorAll('.widget'));
@@ -173,6 +177,7 @@ function onDragEnd(e) {
         gridEl.insertBefore(draggedWidget, targetEl);
       }
     }
+    reorderWidgetsFromDOM(true);
   } else {
     // Desktop mode: 12-column coordinate grid snap
     const gridRect = gridEl.getBoundingClientRect();
@@ -197,6 +202,7 @@ function onDragEnd(e) {
       draggedWidget.dataset.x = finalCol;
       draggedWidget.dataset.y = row;
     }
+    saveLayout(true);
   }
 
   document.removeEventListener('mousemove', onDragMove);
@@ -208,7 +214,7 @@ function onDragEnd(e) {
 }
 
 // ============================================================
-// RESIZE HANDLES (Unified Mouse & Touch)
+// RESIZE HANDLES (Drag-to-Resize on Mobile and Desktop)
 // ============================================================
 function initResizeHandles() {
   document.querySelectorAll('.widget.edit-mode').forEach(widget => {
@@ -242,8 +248,8 @@ function onResizeStart(e) {
 
   const wid = resizingWidget.dataset.id;
   const w   = widgets.find(w => w.id == wid);
-  resizeStartW = w ? w.width  : 4;
-  resizeStartH = w ? w.height : 2;
+  resizeStartW = parseInt(resizingWidget.dataset.w || w?.width  || 6);
+  resizeStartH = parseInt(resizingWidget.dataset.h || w?.height || 2);
 
   document.addEventListener('mousemove', onResizeMove);
   document.addEventListener('mouseup',   onResizeEnd);
@@ -256,34 +262,63 @@ function onResizeMove(e) {
   if (!resizingWidget || !gridEl) return;
   e.preventDefault();
   const pos = getEventXY(e);
-  const gap = 12;
   const dx = pos.clientX - resizeStartX;
   const dy = pos.clientY - resizeStartY;
 
-  const newW = Math.max(1, Math.min(12, resizeStartW + Math.round(dx / (cellW + gap))));
-  const newH = Math.max(1, resizeStartH + Math.round(dy / (cellH + gap)));
+  if (window.innerWidth <= 768) {
+    // Mobile Resize: horizontal drag toggles width, vertical drag changes height tier
+    if (dx > 40) {
+      resizingWidget.dataset.w = 12;
+      resizingWidget.classList.add('w-full');
+      resizingWidget.classList.remove('w-half');
+    } else if (dx < -40) {
+      resizingWidget.dataset.w = 6;
+      resizingWidget.classList.add('w-half');
+      resizingWidget.classList.remove('w-full');
+    }
 
-  resizingWidget.style.gridColumn = (resizingWidget.style.gridColumn || '1').split('/')[0] + `/ span ${newW}`;
-  resizingWidget.style.gridRow    = (resizingWidget.style.gridRow || '1').split('/')[0]    + `/ span ${newH}`;
+    const hSteps = Math.round(dy / 45);
+    const newH = Math.max(1, Math.min(5, resizeStartH + hSteps));
+    resizingWidget.dataset.h = newH;
+  } else {
+    // Desktop Resize: 12-column grid
+    const gap = 12;
+    const newW = Math.max(1, Math.min(12, resizeStartW + Math.round(dx / (cellW + gap))));
+    const newH = Math.max(1, resizeStartH + Math.round(dy / (cellH + gap)));
+    resizingWidget.style.gridColumn = (resizingWidget.style.gridColumn || '1').split('/')[0] + `/ span ${newW}`;
+    resizingWidget.style.gridRow    = (resizingWidget.style.gridRow || '1').split('/')[0]    + `/ span ${newH}`;
+    resizingWidget.dataset.w = newW;
+    resizingWidget.dataset.h = newH;
+  }
 }
 
 function onResizeEnd(e) {
   if (!resizingWidget) return;
   e.preventDefault();
   const pos = getEventXY(e);
-  const gap = 12;
   const dx = pos.clientX - resizeStartX;
   const dy = pos.clientY - resizeStartY;
 
   const wid = resizingWidget.dataset.id;
   const w   = widgets.find(w => w.id == wid);
-  const finalW = Math.max(1, Math.min(12, resizeStartW + Math.round(dx / (cellW + gap))));
-  const finalH = Math.max(1, resizeStartH + Math.round(dy / (cellH + gap)));
-  if (w) {
-    w.width  = finalW;
-    w.height = finalH;
-    resizingWidget.dataset.w = finalW;
-    resizingWidget.dataset.h = finalH;
+
+  if (window.innerWidth <= 768) {
+    const finalW = parseInt(resizingWidget.dataset.w || 6);
+    const finalH = parseInt(resizingWidget.dataset.h || 2);
+    if (w) {
+      w.width  = finalW;
+      w.height = finalH;
+    }
+  } else {
+    const gap = 12;
+    const finalW = Math.max(1, Math.min(12, resizeStartW + Math.round(dx / (cellW + gap))));
+    const finalH = Math.max(1, resizeStartH + Math.round(dy / (cellH + gap)));
+    if (w) {
+      w.width  = finalW;
+      w.height = finalH;
+      resizingWidget.dataset.w = finalW;
+      resizingWidget.dataset.h = finalH;
+    }
   }
 
   document.removeEventListener('mousemove', onResizeMove);
@@ -293,8 +328,8 @@ function onResizeEnd(e) {
   document.removeEventListener('touchcancel', onResizeEnd);
   resizingWidget = null;
 
-  // Reinit charts if resized
-  setTimeout(initCharts, 100);
+  setTimeout(initCharts, 150);
+  saveLayout(true);
 }
 
 // ============================================================

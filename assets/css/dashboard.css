@@ -221,6 +221,13 @@
 
 .widget.edit-mode:active { cursor: grabbing; }
 
+.widget.is-dragging {
+  opacity: 0.85 !important;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 0 2px var(--primary) !important;
+  pointer-events: none !important;
+  transition: none !important;
+}
+
 .widget.edit-mode::before {
   content: '';
   position: absolute;
@@ -258,30 +265,43 @@
 
 .widget-resize-handle {
   position: absolute;
-  bottom: 2px;
-  right: 2px;
-  width: 24px; height: 24px;
+  bottom: 3px;
+  right: 3px;
+  width: 28px; height: 28px;
   cursor: se-resize;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
-  z-index: 20;
+  z-index: 25;
   opacity: 0;
-  transition: opacity var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(99,102,241,0.25);
+  border: 1px solid var(--border-focus);
+  border-radius: 6px;
+  color: var(--primary-light);
+  font-size: 0.75rem;
+  transition: opacity var(--transition), transform 0.15s ease;
+}
+
+.widget.edit-mode .widget-resize-handle { opacity: 1; display: flex !important; }
+.widget-resize-handle:active {
+  transform: scale(1.15);
+  background: var(--primary);
+  color: #fff;
 }
 
 .widget-resize-handle::before {
   content: '';
   position: absolute;
-  bottom: 4px; right: 4px;
+  bottom: 5px; right: 5px;
   width: 10px; height: 10px;
   border-right: 2px solid var(--primary-light);
   border-bottom: 2px solid var(--primary-light);
   border-radius: 0 0 2px 0;
 }
-
-.widget.edit-mode .widget-resize-handle { opacity: 1; }
 
 .widget-edit-btn {
   position: absolute;
@@ -675,9 +695,7 @@ input:checked + .toggle-track::before { transform: translateX(24px); }
     box-sizing: border-box !important;
   }
 
-  .widget-resize-handle {
-    display: none !important;
-  }
+
 
   /* Full-width widgets across the 2-column grid */
   #widget-grid .widget[data-w="12"],
