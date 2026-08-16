@@ -337,10 +337,31 @@ $tagline      = getSetting('platform_tagline', 'Platform IoT Modern');
       z-index: 0;
     }
 
+    @media (max-width: 992px) {
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .plans-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+
     @media (max-width: 768px) {
+      .navbar { padding: 0.75rem 1rem; }
       .navbar-links { display: none; }
-      .footer-top { grid-template-columns: 1fr; gap: 2rem; }
+      .hero { padding: 6rem 1rem 3rem; }
+      .hero-title { font-size: 2.1rem; }
+      .hero-desc { font-size: 0.95rem; }
+      .hero-btns { flex-direction: column; width: 100%; gap: 0.75rem; }
+      .hero-btns .btn { width: 100%; justify-content: center; }
+      .features-grid { grid-template-columns: 1fr; gap: 1rem; }
+      .plans-grid { grid-template-columns: 1fr; gap: 1.25rem; }
+      .how-grid { grid-template-columns: 1fr; gap: 2rem; }
       .how-grid::before { display: none; }
+      .footer-top { grid-template-columns: 1fr; gap: 2rem; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-stats { grid-template-columns: 1fr; }
+      .navbar-cta .btn { padding: 0.35rem 0.65rem; font-size: 0.78rem; }
+      .brand-name { font-size: 1.15rem; }
     }
   </style>
 </head>
@@ -361,7 +382,7 @@ $tagline      = getSetting('platform_tagline', 'Platform IoT Modern');
   </div>
   <div class="navbar-cta">
     <a href="login.php" class="btn btn-secondary">Masuk</a>
-    <a href="register.php" class="btn btn-primary"><i class="fas fa-rocket"></i> Mulai Gratis</a>
+    <a href="register.php" class="btn btn-primary"><i class="fas fa-rocket"></i> Daftar</a>
   </div>
 </nav>
 

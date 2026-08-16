@@ -65,32 +65,16 @@ $plans = DB::rows("SELECT * FROM plans ORDER BY credits_required ASC");
 </head>
 <body class="admin-layout">
 <div class="app-layout">
-  <!-- ADMIN SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon" style="background:linear-gradient(135deg, #f97316 0%, #fb923c 100%)">
-        <i class="fas fa-shield-alt"></i>
-      </div>
-      <div class="logo-text" style="background:linear-gradient(135deg, #f97316 0%, #fb923c 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent">
-        <?= $platformName ?> Admin
-      </div>
-    </div>
-    <nav class="sidebar-nav">
-      <div class="nav-section-label">Panel Admin</div>
-      <a href="index.php" class="nav-item"><span class="nav-icon"><i class="fas fa-chart-pie"></i></span><span>Overview</span></a>
-      <a href="users.php" class="nav-item"><span class="nav-icon"><i class="fas fa-users"></i></span><span>Kelola User</span></a>
-      <a href="credits.php" class="nav-item"><span class="nav-icon"><i class="fas fa-coins"></i></span><span>Sistem Kredit</span></a>
-      <a href="devices.php" class="nav-item"><span class="nav-icon"><i class="fas fa-server"></i></span><span>Monitor Device</span></a>
-      <a href="settings.php" class="nav-item active"><span class="nav-icon"><i class="fas fa-cog"></i></span><span>Pengaturan Platform</span></a>
-      <div class="nav-section-label" style="margin-top:1rem">Navigasi User</div>
-      <a href="../dashboard.php" class="nav-item"><span class="nav-icon"><i class="fas fa-arrow-left"></i></span><span>Ke Dashboard User</span></a>
-      <a href="../logout.php" class="nav-item" style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span><span>Keluar</span></a>
-    </nav>
-  </aside>
+  <?php include __DIR__ . '/sidebar.php'; ?>
 
   <div class="main-content">
     <header class="topbar admin-topbar">
-      <h1 class="topbar-title"><i class="fas fa-cog" style="color:#fb923c;margin-right:0.4rem"></i>Pengaturan Platform</h1>
+      <div class="topbar-left">
+        <button type="button" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="topbar-title"><i class="fas fa-cog" style="color:#fb923c;margin-right:0.4rem"></i>Pengaturan Platform</h1>
+      </div>
     </header>
 
     <main class="page-content">
@@ -110,7 +94,7 @@ $plans = DB::rows("SELECT * FROM plans ORDER BY credits_required ASC");
           <?= csrfField() ?>
           <input type="hidden" name="action" value="save_general">
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="grid-2col">
             <div class="form-group">
               <label class="form-label">Nama Platform</label>
               <input type="text" name="platform_name" class="form-control" value="<?= sanitize($platformName) ?>" required>

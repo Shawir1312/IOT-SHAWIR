@@ -252,6 +252,14 @@
   .admin-stat-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
-@media (max-width: 640px) {
-  .admin-stat-grid { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 768px) {
+  .admin-stat-grid { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+  .quick-actions { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+  .quick-action-btn { padding: 0.85rem; }
+  .admin-stat { padding: 0.9rem; }
+  .admin-stat .stat-num { font-size: 1.5rem; }
+}
+
+@media (max-width: 480px) {
+  .admin-stat-grid { grid-template-columns: 1fr; }
 }

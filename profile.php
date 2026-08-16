@@ -94,10 +94,15 @@ $transactions = DB::rows(
   <?php include __DIR__ . '/includes/sidebar.php'; ?>
   <div class="main-content">
     <header class="topbar">
-      <h1 class="topbar-title">
-        <i class="fas fa-user-circle" style="color:var(--primary-light);margin-right:0.4rem"></i>
-        Profil & Sistem Kredit
-      </h1>
+      <div class="topbar-left">
+        <button type="button" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="topbar-title">
+          <i class="fas fa-user-circle" style="color:var(--primary-light);margin-right:0.4rem"></i>
+          Profil & Sistem Kredit
+        </h1>
+      </div>
       <div class="topbar-actions">
         <div class="credit-badge"><i class="fas fa-coins"></i> <?= number_format($user['credits']) ?> kredit</div>
       </div>
@@ -112,7 +117,7 @@ $transactions = DB::rows(
       <?php endif; ?>
 
       <!-- PROFILE & STATS -->
-      <div style="display:grid;grid-template-columns:1fr 2fr;gap:1.5rem;margin-bottom:1.5rem">
+      <div class="grid-profile mb-2">
         <!-- USER CARD -->
         <div class="card" style="text-align:center">
           <div style="width:80px;height:80px;border-radius:50%;background:var(--grad-primary);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:800;color:#fff;margin:0 auto 1rem;box-shadow:var(--shadow-glow)">
@@ -148,7 +153,7 @@ $transactions = DB::rows(
             <?= csrfField() ?>
             <input type="hidden" name="action" value="update_profile">
             <h4 style="font-size:0.95rem;margin-bottom:1rem;color:var(--primary-light)"><i class="fas fa-id-card"></i> Informasi Akun</h4>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+            <div class="grid-2col">
               <div class="form-group">
                 <label class="form-label">Nama Lengkap</label>
                 <input type="text" name="name" class="form-control" value="<?= sanitize($user['name']) ?>" required>
@@ -169,7 +174,7 @@ $transactions = DB::rows(
             <?= csrfField() ?>
             <input type="hidden" name="action" value="change_password">
             <h4 style="font-size:0.95rem;margin-bottom:1rem;color:var(--primary-light)"><i class="fas fa-key"></i> Ubah Password</h4>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem">
+            <div class="grid-3col">
               <div class="form-group">
                 <label class="form-label">Password Lama</label>
                 <input type="password" name="old_password" class="form-control" required placeholder="••••••••">

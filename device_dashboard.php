@@ -56,12 +56,15 @@ checkOfflineDevices();
   <div class="main-content">
     <!-- TOPBAR -->
     <header class="topbar">
-      <div style="display:flex;align-items:center;gap:0.75rem">
-        <a href="../device.php" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i></a>
-        <div>
-          <h1 class="topbar-title" style="font-size:1rem"><?= sanitize($device['name']) ?></h1>
-          <div style="font-size:0.72rem;color:var(--text-muted)">
-            <?= sanitize($device['hardware']) ?> &middot;
+      <div class="topbar-left">
+        <button type="button" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
+          <i class="fas fa-bars"></i>
+        </button>
+        <a href="device.php" class="btn btn-secondary btn-sm btn-icon" title="Kembali ke Device"><i class="fas fa-arrow-left"></i></a>
+        <div style="min-width:0;flex:1">
+          <h1 class="topbar-title" style="font-size:0.98rem"><?= sanitize($device['name']) ?></h1>
+          <div style="font-size:0.72rem;color:var(--text-muted);display:flex;align-items:center;gap:0.4rem">
+            <span><?= sanitize($device['hardware']) ?></span> &middot;
             <span id="device-status-label">
               <?= $device['is_online'] ? '<span style="color:var(--success)">● Online</span>' : '<span style="color:var(--text-muted)">● Offline</span>' ?>
             </span>
@@ -71,11 +74,10 @@ checkOfflineDevices();
       <div class="topbar-actions">
         <div class="rt-status-bar">
           <div class="rt-indicator" id="ws-indicator"></div>
-          <span id="ws-status">Menghubungkan...</span>
+          <span id="ws-status" style="font-size:0.75rem">Menghubungkan...</span>
         </div>
-        <div id="last-update" class="last-update"></div>
         <button class="btn btn-secondary btn-sm" id="btn-edit-toggle">
-          <i class="fas fa-edit"></i> Edit Dashboard
+          <i class="fas fa-edit"></i> <span>Edit Dashboard</span>
         </button>
       </div>
     </header>

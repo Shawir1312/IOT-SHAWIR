@@ -46,76 +46,23 @@ $recentTransactions = DB::rows(
 </head>
 <body class="admin-layout">
 <div class="app-layout">
-  <!-- ADMIN SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon" style="background:linear-gradient(135deg, #f97316 0%, #fb923c 100%)">
-        <i class="fas fa-shield-alt"></i>
-      </div>
-      <div class="logo-text" style="background:linear-gradient(135deg, #f97316 0%, #fb923c 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent">
-        <?= $platformName ?> Admin
-      </div>
-    </div>
-
-    <nav class="sidebar-nav">
-      <div class="nav-section-label">Panel Admin</div>
-      <a href="index.php" class="nav-item active">
-        <span class="nav-icon"><i class="fas fa-chart-pie"></i></span>
-        <span>Overview</span>
-      </a>
-      <a href="users.php" class="nav-item">
-        <span class="nav-icon"><i class="fas fa-users"></i></span>
-        <span>Kelola User</span>
-      </a>
-      <a href="credits.php" class="nav-item">
-        <span class="nav-icon"><i class="fas fa-coins"></i></span>
-        <span>Sistem Kredit</span>
-      </a>
-      <a href="devices.php" class="nav-item">
-        <span class="nav-icon"><i class="fas fa-server"></i></span>
-        <span>Monitor Device</span>
-      </a>
-      <a href="settings.php" class="nav-item">
-        <span class="nav-icon"><i class="fas fa-cog"></i></span>
-        <span>Pengaturan Platform</span>
-      </a>
-
-      <div class="nav-section-label" style="margin-top:1rem">Navigasi User</div>
-      <a href="../dashboard.php" class="nav-item">
-        <span class="nav-icon"><i class="fas fa-arrow-left"></i></span>
-        <span>Ke Dashboard User</span>
-      </a>
-      <a href="../logout.php" class="nav-item" style="color:var(--danger)">
-        <span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span>
-        <span>Keluar</span>
-      </a>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="user-card">
-        <div class="user-avatar" style="background:linear-gradient(135deg, #f97316 0%, #fb923c 100%)">
-          <?= strtoupper(substr($admin['name'], 0, 1)) ?>
-        </div>
-        <div class="user-info">
-          <div class="name"><?= sanitize($admin['name']) ?></div>
-          <div class="role" style="color:#fb923c"><?= strtoupper($admin['role']) ?></div>
-        </div>
-      </div>
-    </div>
-  </aside>
+  <?php include __DIR__ . '/sidebar.php'; ?>
 
   <div class="main-content">
     <header class="topbar admin-topbar">
-      <div style="display:flex;align-items:center;gap:0.75rem">
+      <div class="topbar-left">
+        <button type="button" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
+          <i class="fas fa-bars"></i>
+        </button>
         <h1 class="topbar-title">
           <i class="fas fa-tachometer-alt" style="color:#fb923c;margin-right:0.4rem"></i>
-          Admin Panel Overview
+          Admin Overview
         </h1>
         <span class="admin-badge"><i class="fas fa-lock"></i> <?= strtoupper($admin['role']) ?></span>
       </div>
       <div class="topbar-actions">
         <a href="credits.php" class="btn btn-primary btn-sm" style="background:linear-gradient(135deg, #f97316 0%, #ea580c 100%)">
-          <i class="fas fa-coins"></i> Tambah Kredit User
+          <i class="fas fa-coins"></i> <span>Tambah Kredit User</span>
         </a>
       </div>
     </header>
@@ -178,7 +125,7 @@ $recentTransactions = DB::rows(
       </div>
 
       <!-- TWO COLUMNS: RECENT USERS & CREDIT LOGS -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem">
+      <div class="grid-2col mb-2">
         <!-- USER LIST -->
         <div class="card">
           <div class="card-header">

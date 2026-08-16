@@ -86,8 +86,8 @@ $devices = DB::rows(
   <div class="main-content">
     <!-- TOPBAR -->
     <header class="topbar">
-      <div style="display:flex;align-items:center;gap:0.75rem">
-        <button class="btn btn-icon btn-secondary d-none" id="sidebar-toggle" style="display:none">
+      <div class="topbar-left">
+        <button type="button" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
           <i class="fas fa-bars"></i>
         </button>
         <h1 class="topbar-title"><i class="fas fa-microchip" style="color:var(--primary-light);margin-right:0.4rem"></i>Device Saya</h1>
@@ -95,7 +95,7 @@ $devices = DB::rows(
       <div class="topbar-actions">
         <div class="credit-badge"><i class="fas fa-coins"></i> <?= number_format($user['credits']) ?> kredit</div>
         <button class="btn btn-primary" id="btn-add-device">
-          <i class="fas fa-plus"></i> Tambah Device
+          <i class="fas fa-plus"></i> <span>Tambah Device</span>
         </button>
       </div>
     </header>

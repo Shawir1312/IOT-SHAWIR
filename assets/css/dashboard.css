@@ -558,14 +558,124 @@ input:checked + .toggle-track::before { transform: translateX(24px); }
 }
 
 /* ============================================================
-   RESPONSIVE
+   RESPONSIVE (MOBILE & TABLET WIDGET DASHBOARD)
    ============================================================ */
-@media (max-width: 768px) {
-  #widget-grid {
-    grid-template-columns: repeat(4, 1fr);
-    grid-auto-rows: 70px;
+@media (max-width: 992px) {
+  .dashboard-toolbar {
+    padding: 0.6rem 1rem;
+    top: 56px;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .dashboard-toolbar-left,
+  .dashboard-toolbar-right {
+    flex-wrap: wrap;
+    gap: 0.4rem;
   }
 
-  .widget-panel { width: 100%; }
-  .dashboard-canvas { padding: 0.75rem; }
+  .widget-panel {
+    width: 300px;
+    max-width: 85vw;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-canvas {
+    padding: 0.75rem 0.5rem;
+    min-height: auto;
+  }
+
+  /* When NOT in edit mode on mobile, dynamically adapt widgets to fit screen perfectly */
+  #widget-grid:not(.edit-mode) {
+    display: grid !important;
+    grid-template-columns: repeat(12, 1fr) !important;
+    grid-auto-rows: minmax(90px, auto) !important;
+    gap: 10px !important;
+  }
+
+  /* Full-width widgets on mobile: Charts, Terminal, Maps */
+  #widget-grid:not(.edit-mode) .w-line-chart,
+  #widget-grid:not(.edit-mode) .w-bar-chart,
+  #widget-grid:not(.edit-mode) .w-terminal,
+  #widget-grid:not(.edit-mode) .w-map {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+    min-height: 220px !important;
+    height: auto !important;
+  }
+
+  /* Compact widgets on mobile (2 columns side-by-side) */
+  #widget-grid:not(.edit-mode) .w-value-display,
+  #widget-grid:not(.edit-mode) .w-gauge,
+  #widget-grid:not(.edit-mode) .w-button,
+  #widget-grid:not(.edit-mode) .w-switch,
+  #widget-grid:not(.edit-mode) .w-slider,
+  #widget-grid:not(.edit-mode) .w-led,
+  #widget-grid:not(.edit-mode) .w-label {
+    grid-column: span 6 !important;
+    grid-row: auto !important;
+    min-height: 105px !important;
+    height: auto !important;
+  }
+
+  .w-value-display .val-number {
+    font-size: 1.85rem !important;
+  }
+
+  .chart-canvas-wrap {
+    height: 160px !important;
+    width: 100% !important;
+  }
+
+  .gauge-svg {
+    width: 100px !important;
+    height: 60px !important;
+  }
+
+  .widget-panel {
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+
+  .widget-type-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-canvas {
+    padding: 0.5rem 0.35rem;
+  }
+
+  #widget-grid:not(.edit-mode) {
+    gap: 8px !important;
+  }
+
+  /* On extra narrow screens, slider and label take full width */
+  #widget-grid:not(.edit-mode) .w-slider,
+  #widget-grid:not(.edit-mode) .w-label {
+    grid-column: 1 / -1 !important;
+  }
+
+  .widget-header {
+    padding: 0.4rem 0.6rem;
+  }
+
+  .widget-label {
+    font-size: 0.7rem;
+  }
+
+  .widget-body {
+    padding: 0.5rem;
+  }
+
+  .w-value-display .val-number {
+    font-size: 1.6rem !important;
+  }
+
+  .widget-type-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

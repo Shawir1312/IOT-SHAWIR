@@ -56,10 +56,15 @@ $transactions = DB::rows(
   <?php include __DIR__ . '/includes/sidebar.php'; ?>
   <div class="main-content">
     <header class="topbar">
-      <h1 class="topbar-title">
-        <i class="fas fa-home" style="color:var(--primary-light);margin-right:0.4rem"></i>
-        Selamat datang, <?= sanitize(explode(' ', $user['name'])[0]) ?>!
-      </h1>
+      <div class="topbar-left">
+        <button type="button" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="topbar-title">
+          <i class="fas fa-home" style="color:var(--primary-light);margin-right:0.4rem"></i>
+          Selamat datang, <?= sanitize(explode(' ', $user['name'])[0]) ?>!
+        </h1>
+      </div>
       <div class="topbar-actions">
         <div class="credit-badge"><i class="fas fa-coins"></i> <?= number_format($user['credits']) ?> kredit</div>
         <a href="device.php" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Device Baru</a>
@@ -111,7 +116,7 @@ $transactions = DB::rows(
       </div>
 
       <!-- PLAN PROGRESS + DEVICES -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+      <div class="grid-2col mb-2">
         <!-- Paket Info -->
         <div class="card">
           <div class="card-header">

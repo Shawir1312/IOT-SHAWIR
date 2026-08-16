@@ -118,54 +118,21 @@ $plans = DB::rows("SELECT * FROM plans WHERE is_active = 1");
 </head>
 <body class="admin-layout">
 <div class="app-layout">
-  <!-- ADMIN SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon" style="background:linear-gradient(135deg, #f97316 0%, #fb923c 100%)">
-        <i class="fas fa-shield-alt"></i>
-      </div>
-      <div class="logo-text" style="background:linear-gradient(135deg, #f97316 0%, #fb923c 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent">
-        <?= $platformName ?> Admin
-      </div>
-    </div>
-    <nav class="sidebar-nav">
-      <div class="nav-section-label">Panel Admin</div>
-      <a href="index.php" class="nav-item">
-        <span class="nav-icon"><i class="fas fa-chart-pie"></i></span>
-        <span>Overview</span>
-      </a>
-      <a href="users.php" class="nav-item active">
-        <span class="nav-icon"><i class="fas fa-users"></i></span>
-        <span>Kelola User</span>
-      </a>
-      <a href="credits.php" class="nav-item">
-        <span class="nav-icon"><i class="fas fa-coins"></i></span>
-        <span>Sistem Kredit</span>
-      </a>
-      <a href="devices.php" class="nav-item">
-        <span class="nav-icon"><i class="fas fa-server"></i></span>
-        <span>Monitor Device</span>
-      </a>
-      <a href="settings.php" class="nav-item">
-        <span class="nav-icon"><i class="fas fa-cog"></i></span>
-        <span>Pengaturan Platform</span>
-      </a>
-      <div class="nav-section-label" style="margin-top:1rem">Navigasi User</div>
-      <a href="../dashboard.php" class="nav-item"><span class="nav-icon"><i class="fas fa-arrow-left"></i></span><span>Ke Dashboard User</span></a>
-      <a href="../logout.php" class="nav-item" style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span><span>Keluar</span></a>
-    </nav>
-  </aside>
+  <?php include __DIR__ . '/sidebar.php'; ?>
 
   <div class="main-content">
     <header class="topbar admin-topbar">
-      <div style="display:flex;align-items:center;gap:0.75rem">
+      <div class="topbar-left">
+        <button type="button" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
+          <i class="fas fa-bars"></i>
+        </button>
         <h1 class="topbar-title"><i class="fas fa-users" style="color:#fb923c;margin-right:0.4rem"></i>Manajemen User</h1>
         <span class="badge badge-primary"><?= number_format($totalUsers) ?> Akun</span>
       </div>
       <div class="topbar-actions">
-        <form method="GET" action="" style="display:flex;gap:0.5rem">
-          <input type="text" name="q" class="form-control" style="width:220px;padding:0.4rem 0.8rem;font-size:0.85rem"
-            placeholder="Cari nama/email..." value="<?= sanitize($search) ?>">
+        <form method="GET" action="" style="display:flex;gap:0.4rem;max-width:100%">
+          <input type="text" name="q" class="form-control" style="width:160px;padding:0.35rem 0.65rem;font-size:0.82rem"
+            placeholder="Cari..." value="<?= sanitize($search) ?>">
           <button type="submit" class="btn btn-secondary btn-sm"><i class="fas fa-search"></i></button>
         </form>
       </div>

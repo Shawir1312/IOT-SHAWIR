@@ -85,53 +85,20 @@ $allUsers = DB::rows("SELECT id, name, email, credits FROM users WHERE is_active
 </head>
 <body class="admin-layout">
 <div class="app-layout">
-  <!-- ADMIN SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon" style="background:linear-gradient(135deg, #f97316 0%, #fb923c 100%)">
-        <i class="fas fa-shield-alt"></i>
-      </div>
-      <div class="logo-text" style="background:linear-gradient(135deg, #f97316 0%, #fb923c 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent">
-        <?= $platformName ?> Admin
-      </div>
-    </div>
-    <nav class="sidebar-nav">
-      <div class="nav-section-label">Panel Admin</div>
-      <a href="index.php" class="nav-item">
-        <span class="nav-icon"><i class="fas fa-chart-pie"></i></span>
-        <span>Overview</span>
-      </a>
-      <a href="users.php" class="nav-item">
-        <span class="nav-icon"><i class="fas fa-users"></i></span>
-        <span>Kelola User</span>
-      </a>
-      <a href="credits.php" class="nav-item active">
-        <span class="nav-icon"><i class="fas fa-coins"></i></span>
-        <span>Sistem Kredit</span>
-      </a>
-      <a href="devices.php" class="nav-item">
-        <span class="nav-icon"><i class="fas fa-server"></i></span>
-        <span>Monitor Device</span>
-      </a>
-      <a href="settings.php" class="nav-item">
-        <span class="nav-icon"><i class="fas fa-cog"></i></span>
-        <span>Pengaturan Platform</span>
-      </a>
-      <div class="nav-section-label" style="margin-top:1rem">Navigasi User</div>
-      <a href="../dashboard.php" class="nav-item"><span class="nav-icon"><i class="fas fa-arrow-left"></i></span><span>Ke Dashboard User</span></a>
-      <a href="../logout.php" class="nav-item" style="color:var(--danger)"><span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span><span>Keluar</span></a>
-    </nav>
-  </aside>
+  <?php include __DIR__ . '/sidebar.php'; ?>
 
   <div class="main-content">
     <header class="topbar admin-topbar">
-      <div style="display:flex;align-items:center;gap:0.75rem">
-        <h1 class="topbar-title"><i class="fas fa-coins" style="color:var(--accent);margin-right:0.4rem"></i>Manajemen & Log Kredit</h1>
+      <div class="topbar-left">
+        <button type="button" class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle navigation">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="topbar-title"><i class="fas fa-coins" style="color:var(--accent);margin-right:0.4rem"></i>Sistem Kredit</h1>
       </div>
       <div class="topbar-actions">
         <button class="btn btn-primary btn-sm" style="background:linear-gradient(135deg, #f59e0b 0%, #d97706 100%)"
           onclick="document.getElementById('grant-card').scrollIntoView({behavior:'smooth'})">
-          <i class="fas fa-plus"></i> Beri Kredit Baru
+          <i class="fas fa-plus"></i> <span>Beri Kredit</span>
         </button>
       </div>
     </header>
@@ -171,7 +138,7 @@ $allUsers = DB::rows("SELECT id, name, email, credits FROM users WHERE is_active
         <form method="POST" action="">
           <?= csrfField() ?>
           <input type="hidden" name="action" value="grant_credits">
-          <div style="display:grid;grid-template-columns:2fr 1fr 1fr 2fr auto;gap:0.75rem;align-items:flex-end">
+          <div class="grid-3col mb-2">
             <div class="form-group" style="margin:0">
               <label class="form-label">Pilih Pengguna *</label>
               <select name="user_id" class="form-control" required>
