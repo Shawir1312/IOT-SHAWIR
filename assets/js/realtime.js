@@ -164,16 +164,17 @@ function setWsStatus(connected, polling = false) {
 
   if (connected) {
     indicator.classList.add('connected');
+    indicator.style.background = 'var(--success)';
     statusEl.textContent = 'Realtime Aktif';
     statusEl.style.color = 'var(--success)';
   } else if (polling) {
     indicator.classList.remove('connected');
-    indicator.style.background = 'var(--accent)';
-    statusEl.textContent = 'HTTP Polling';
-    statusEl.style.color = 'var(--accent)';
+    indicator.style.background = 'var(--primary-light)';
+    statusEl.textContent = 'Sinkron Realtime';
+    statusEl.style.color = 'var(--primary-light)';
   } else {
     indicator.classList.remove('connected');
-    indicator.style.background = '';
+    indicator.style.background = 'var(--text-muted)';
     statusEl.textContent = 'Menghubungkan...';
     statusEl.style.color = 'var(--text-muted)';
   }
