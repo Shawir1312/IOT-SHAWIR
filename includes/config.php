@@ -19,7 +19,7 @@ define('DB_CHARSET', 'utf8mb4');
 // ============================================================
 define('PLATFORM_NAME', 'ShawirIOT');
 define('PLATFORM_VERSION', '1.0.0');
-define('PLATFORM_URL', 'http://localhost');      // Ganti dengan URL server Anda
+define('PLATFORM_URL', 'http://iot.shawir.id');      // URL platform Anda
 define('PLATFORM_TIMEZONE', 'Asia/Makassar');
 
 // ============================================================
@@ -27,7 +27,7 @@ define('PLATFORM_TIMEZONE', 'Asia/Makassar');
 // ============================================================
 define('WS_HOST', '0.0.0.0');
 define('WS_PORT', 8080);
-define('WS_URL', 'ws://localhost:8080');         // Ganti dengan URL WS server Anda
+define('WS_URL', 'ws://iot.shawir.id:8080');         // URL WS server Anda
 
 // ============================================================
 // SECURITY

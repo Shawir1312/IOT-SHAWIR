@@ -11,7 +11,7 @@
 const char* AUTH_TOKEN  = "YOUR_DEVICE_TOKEN_HERE"; // Salin dari dashboard web ShawirIOT
 const char* WIFI_SSID   = "YOUR_WIFI_SSID";
 const char* WIFI_PASS   = "YOUR_WIFI_PASSWORD";
-const char* SERVER_HOST = "192.168.1.100";          // IP server lokal atau domain (cth: "iot.anda.com")
+const char* SERVER_HOST = "iot.shawir.id";          // Domain server Anda
 const uint16_t SERVER_PORT = 80;                    // Port web server (default 80)
 
 unsigned long lastSend = 0;

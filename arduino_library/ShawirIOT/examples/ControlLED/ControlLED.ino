@@ -23,7 +23,7 @@
 const char* AUTH_TOKEN  = "YOUR_DEVICE_TOKEN_HERE"; 
 const char* WIFI_SSID   = "YOUR_WIFI_SSID";
 const char* WIFI_PASS   = "YOUR_WIFI_PASSWORD";
-const char* SERVER_HOST = "192.168.1.100";          
+const char* SERVER_HOST = "iot.shawir.id";          
 const uint16_t SERVER_PORT = 80;
 
 // Handler saat tombol / switch di Virtual Pin V4 ditekan di dashboard
