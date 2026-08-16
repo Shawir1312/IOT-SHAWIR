@@ -303,50 +303,107 @@
   border-radius: 0 0 2px 0;
 }
 
-.widget-edit-btn {
-  position: absolute;
-  top: 6px;
-  left: 6px;
-  display: flex;
-  gap: 4px;
-  z-index: 20;
-  opacity: 0;
-  transition: opacity var(--transition);
+/* WIDGET EDIT TOOLBAR (Mobile & Desktop Blynk-Style Controls) */
+.widget.edit-mode {
+  padding-top: 36px !important;
 }
 
-.widget.edit-mode .widget-edit-btn { opacity: 1; }
-
-.widget-action-btn {
-  width: 28px; height: 28px;
-  background: rgba(15,23,42,0.9);
-  border: 1px solid var(--border-light);
-  border-radius: 6px;
+.widget-edit-toolbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 36px;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-focus);
+  padding: 3px 6px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  cursor: pointer;
+  justify-content: space-between;
+  gap: 3px;
+  z-index: 30;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.widget.edit-mode .widget-edit-toolbar {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.edit-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.w-btn-ctrl {
+  height: 28px;
+  padding: 0 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
   color: var(--text-secondary);
-  transition: all var(--transition);
+  font-size: 0.72rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
+  transition: all 0.15s ease;
 }
 
-.widget-action-btn.move-btn {
-  background: rgba(99,102,241,0.25);
+.w-btn-ctrl:active {
+  transform: scale(0.92);
+}
+
+.w-btn-ctrl.move {
+  background: rgba(99, 102, 241, 0.18);
   color: var(--primary-light);
-  border-color: rgba(99,102,241,0.4);
+  border-color: rgba(99, 102, 241, 0.35);
 }
-
-.widget-action-btn.move-btn:hover,
-.widget-action-btn.move-btn:active {
+.w-btn-ctrl.move:active {
   background: var(--primary);
   color: #fff;
-  transform: scale(1.08);
 }
 
-.widget-action-btn:hover { border-color: var(--border-focus); color: var(--text-primary); }
-.widget-action-btn.delete:hover { border-color: rgba(239,68,68,0.5); color: var(--danger); background: rgba(239,68,68,0.1); }
+.w-btn-ctrl.size {
+  background: rgba(16, 185, 129, 0.18);
+  color: var(--success);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+.w-btn-ctrl.size:active {
+  background: var(--success);
+  color: #fff;
+}
+
+.w-btn-ctrl.cog {
+  background: rgba(245, 158, 11, 0.18);
+  color: var(--accent);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+.w-btn-ctrl.cog:active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.w-btn-ctrl.del {
+  background: rgba(239, 68, 68, 0.18);
+  color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.35);
+}
+.w-btn-ctrl.del:active {
+  background: var(--danger);
+  color: #fff;
+}
 
 /* ============================================================
    WIDGET TYPES

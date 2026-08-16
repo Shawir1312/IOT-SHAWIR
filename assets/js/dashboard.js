@@ -353,7 +353,7 @@ function moveWidgetDown(id) {
   reorderWidgetsFromDOM(true);
 }
 
-function toggleWidgetSize(id) {
+function toggleWidgetWidth(id) {
   const wEl = document.getElementById('widget-' + id);
   if (!wEl) return;
   const wObj = widgets.find(w => w.id == id);
@@ -386,7 +386,51 @@ function toggleWidgetSize(id) {
 
   setTimeout(initCharts, 150);
   saveLayout(true);
-  showToast(newW >= 12 ? 'Ukuran diubah ke Layar Penuh (100%)' : 'Ukuran diubah ke Setengah Layar (50%)', 'success');
+  showToast(newW >= 12 ? 'Lebar diubah ke Layar Penuh (100%)' : 'Lebar diubah ke Setengah Layar (50%)', 'success');
+}
+
+function increaseWidgetHeight(id) {
+  const wEl = document.getElementById('widget-' + id);
+  if (!wEl) return;
+  const wObj = widgets.find(w => w.id == id);
+  const currentH = parseInt(wEl.dataset.h || wObj?.height || 2);
+  const newH = Math.min(5, currentH + 1);
+
+  wEl.dataset.h = newH;
+  if (wObj) wObj.height = newH;
+
+  if (window.innerWidth > 768) {
+    const y = parseInt(wEl.dataset.y || 0);
+    wEl.style.gridRow = `${y + 1} / span ${newH}`;
+  }
+
+  setTimeout(initCharts, 150);
+  saveLayout(true);
+  showToast(`Tinggi diatur: ${newH}x`, 'info');
+}
+
+function decreaseWidgetHeight(id) {
+  const wEl = document.getElementById('widget-' + id);
+  if (!wEl) return;
+  const wObj = widgets.find(w => w.id == id);
+  const currentH = parseInt(wEl.dataset.h || wObj?.height || 2);
+  const newH = Math.max(1, currentH - 1);
+
+  wEl.dataset.h = newH;
+  if (wObj) wObj.height = newH;
+
+  if (window.innerWidth > 768) {
+    const y = parseInt(wEl.dataset.y || 0);
+    wEl.style.gridRow = `${y + 1} / span ${newH}`;
+  }
+
+  setTimeout(initCharts, 150);
+  saveLayout(true);
+  showToast(`Tinggi diatur: ${newH}x`, 'info');
+}
+
+function toggleWidgetSize(id) {
+  toggleWidgetWidth(id);
 }
 
 function reorderWidgetsFromDOM(autoSave = false) {
