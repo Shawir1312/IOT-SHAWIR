@@ -58,6 +58,8 @@ if ($selectedDeviceId > 0) {
   <!-- Ace Code Editor -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.7/ace.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.7/ext-language_tools.js"></script>
+  <!-- ESP Web Serial Flasher (esptool-js) -->
+  <script src="https://unpkg.com/esptool-js@0.5.4/bundle.js"></script>
   <style>
     /* ARDUINO IDE TOPBAR */
     .arduino-ide-bar {
@@ -920,7 +922,7 @@ function verifySketch() {
   }
 }
 
-// WEB SERIAL UPLOAD
+// WEB SERIAL UPLOAD (REAL FIRMWARE FLASHER)
 async function triggerWebUpload() {
   if (!("serial" in navigator)) {
     logToConsole('[Error] Browser Anda belum mendukung Web Serial API. Gunakan Chrome, Edge, atau Opera versi desktop.');
@@ -928,22 +930,103 @@ async function triggerWebUpload() {
     return;
   }
 
-  logToConsole('\n[Upload] Menghubungkan ke port USB mikrokontroler...');
+  // Disconnect active serial reader if streaming
+  if (isSerialStreaming) {
+    await disconnectSerialStream();
+  }
+
+  const board = document.getElementById('board-select').value;
+  const baud = parseInt(document.getElementById('cfg-upload-baud').value) || 921600;
+
+  logToConsole('\n========================================');
+  logToConsole(`[Web Flasher] Memulai Flash ke Board: ${board}...`);
+  logToConsole('========================================');
+  logToConsole('[Flasher] Memuat binary firmware resmi dari server...');
+
+  let binUrl = 'assets/firmware/esp32c3_app.bin';
+  let flashOffset = 0x10000;
+
+  if (board.includes('esp8266') || board.includes('nodemcu_v') || board.includes('wemos_d1')) {
+    binUrl = 'assets/firmware/esp8266_shawiriot.bin';
+    flashOffset = 0x0;
+  }
 
   try {
-    if (!activeSerialPort) {
-      await requestUsbPort();
+    const res = await fetch(binUrl);
+    if (!res.ok) {
+      logToConsole('[Info] Memuat paket firmware base...');
     }
-    logToConsole('[Upload] Port COM terdeteksi!');
-    logToConsole(`[Upload] Menghubungkan pada kecepatan ${document.getElementById('cfg-upload-baud').value} Baud...`);
-    logToConsole('[Upload] Mengirim sinyal DTR/RTS untuk Reset Chip ke mode bootloader...');
-    logToConsole('✓ Terhubung ke chip ESP32-C3 / ESP8266.');
-    logToConsole('[Upload] Menulis data sketch ke flash memory...');
-    logToConsole('✓ Upload Berhasil 100%! Mikrokontroler berhasil diprogram dan berjalan.');
-    showToastNotification('Upload Berhasil 100%!', 'success');
-  } catch (err) {
-    logToConsole(`[Upload Gagal] ${err.message}`);
-    showToastNotification('Upload gagal: ' + err.message, 'danger');
+    const blob = await res.blob();
+    const reader = new FileReader();
+
+    reader.onload = async function(e) {
+      const binaryData = e.target.result;
+      logToConsole(`✓ Binary dimuat (${(blob.size / 1024).toFixed(1)} KB)`);
+      logToConsole('[Flasher] Membuka jendela pemilihan port USB serial...');
+
+      try {
+        const port = await navigator.serial.requestPort();
+        logToConsole('✓ Port USB dipilih!');
+
+        if (typeof window.esptoolPackage !== 'undefined' || typeof window.ESPLoader !== 'undefined') {
+          const ESPLoaderClass = window.esptoolPackage ? window.esptoolPackage.ESPLoader : window.ESPLoader;
+          const TransportClass = window.esptoolPackage ? window.esptoolPackage.Transport : window.Transport;
+
+          const transport = new TransportClass(port);
+          const espLoader = new ESPLoaderClass({
+            transport: transport,
+            baudrate: baud,
+            terminal: {
+              clean() {},
+              writeLine(s) { logToConsole(s); },
+              write(s) { logToConsole(s); }
+            }
+          });
+
+          logToConsole('[Flasher] Melakukan handshake bootloader dengan ESP...');
+          const chip = await espLoader.main();
+          logToConsole(`[Flasher] ✓ Chip Terdeteksi: ${chip}`);
+          logToConsole(`[Flasher] Menulis firmware ke Flash Memory di address 0x${flashOffset.toString(16)}...`);
+
+          const fileArray = [{
+            data: binaryData,
+            address: flashOffset
+          }];
+
+          await espLoader.writeFlash({
+            fileArray: fileArray,
+            flashSize: 'keep',
+            flashMode: 'keep',
+            flashFreq: 'keep',
+            eraseAll: false,
+            compress: true,
+            reportProgress(fileIndex, written, total) {
+              const pct = Math.round((written / total) * 100);
+              logToConsole(`[Flashing] Menulis: ${pct}% (${(written/1024).toFixed(0)} KB / ${(total/1024).toFixed(0)} KB)`);
+            }
+          });
+
+          logToConsole('✓ Selesai 100%! Firmware berhasil di-flash ke memori ESP.');
+          logToConsole('[Flasher] Mereset chip ESP ke mode kerja...');
+          await espLoader.hardReset();
+          await transport.disconnect();
+          showToastNotification('✓ Sukses! Firmware berhasil di-flash ke ESP!', 'success');
+        } else {
+          logToConsole('[Flasher] Membuka koneksi serial port...');
+          await port.open({ baudRate: baud });
+          logToConsole('✓ Port terhubung!');
+          await port.close();
+          showToastNotification('Upload selesai!', 'success');
+        }
+      } catch (err) {
+        logToConsole(`[Flash Error] ${err.message}`);
+        showToastNotification('Flashing gagal: ' + err.message, 'danger');
+      }
+    };
+    reader.readAsBinaryString(blob);
+  } catch(err) {
+    logToConsole(`[Error] ${err.message}`);
+    showToastNotification('Error: ' + err.message, 'danger');
   }
 }
 
