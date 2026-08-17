@@ -27,7 +27,7 @@ if ($selectedDeviceId === 0 && !empty($devices)) {
 $devicePins = [];
 if ($selectedDeviceId > 0) {
     $devicePins = DB::rows(
-        "SELECT vp.pin, vp.value, vp.data_type, w.name as widget_name, w.type as widget_type
+        "SELECT vp.pin, vp.value, w.label as widget_name, w.type as widget_type
          FROM virtual_pins vp 
          LEFT JOIN dashboards db ON db.device_id = vp.device_id
          LEFT JOIN widgets w ON w.dashboard_id = db.id AND w.pin = vp.pin
