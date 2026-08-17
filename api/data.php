@@ -50,8 +50,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         jsonResponse(true, 'OK', ['pins' => $pins, 'is_online' => (bool)$online]);
     }
 
-    // SINGLE PIN
+    // SINGLE PIN (Dibaca oleh perangkat atau dashboard)
     if (isset($_GET['pin'])) {
+        if (!isset($_GET['source']) || $_GET['source'] !== 'dashboard') {
+            deviceHeartbeat($deviceId);
+        }
         $pin = strtoupper(sanitize($_GET['pin']));
         $row = DB::row("SELECT value FROM virtual_pins WHERE device_id = ? AND pin = ?", [$deviceId, $pin]);
         jsonResponse(true, 'OK', ['pin' => $pin, 'value' => $row ? $row['value'] : null]);

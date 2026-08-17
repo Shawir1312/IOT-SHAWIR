@@ -54,7 +54,7 @@ define('API_RATE_WINDOW', 3600);        // window dalam detik
 // DATA SETTINGS
 // ============================================================
 define('MAX_HISTORY_RECORDS', 100000);  // Maks record histori per pin
-define('DEVICE_OFFLINE_TIMEOUT', 60);   // Detik sebelum device dianggap offline
+define('DEVICE_OFFLINE_TIMEOUT', 120);  // Detik sebelum device dianggap offline (2 menit toleransi)
 
 // ============================================================
 // INIT
