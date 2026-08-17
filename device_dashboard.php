@@ -75,6 +75,9 @@ checkOfflineDevices();
           <div class="rt-indicator" id="ws-indicator"></div>
           <span id="ws-status" style="font-size:0.75rem">Realtime</span>
         </div>
+        <a href="code_editor.php?device_id=<?= $device['id'] ?>" class="btn btn-secondary btn-sm" title="Editor Kode & Program Arduino">
+          <i class="fas fa-code"></i> <span>Kode</span>
+        </a>
         <button type="button" class="theme-toggle-btn" onclick="toggleTheme()" title="Ubah Tema (Terang / Gelap)">
           <i class="fas fa-moon theme-toggle-icon"></i>
         </button>

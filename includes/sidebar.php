@@ -31,6 +31,7 @@ function navItem(string $href, string $icon, string $label, string $current, str
     <div class="nav-section-label">Utama</div>
     <?= navItem($baseUrl . '/dashboard.php', 'home', 'Beranda', $currentPage, 'dashboard.php') ?>
     <?= navItem($baseUrl . '/device.php', 'microchip', 'Perangkat Saya', $currentPage, 'device.php') ?>
+    <?= navItem($baseUrl . '/code_editor.php', 'code', 'Editor Kode', $currentPage, 'code_editor.php') ?>
     <?= navItem($baseUrl . '/profile.php', 'user-circle', 'Profil & Kredit', $currentPage, 'profile.php') ?>
 
     <?php if (isAdmin()): ?>

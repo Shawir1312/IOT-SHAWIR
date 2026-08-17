@@ -176,6 +176,9 @@ $devices = DB::rows(
                 <a href="device_dashboard.php?device=<?= $dev['id'] ?>" class="btn btn-primary btn-sm" style="flex:1">
                   <i class="fas fa-th-large"></i> Buka Dashboard
                 </a>
+                <a href="code_editor.php?device_id=<?= $dev['id'] ?>" class="btn btn-secondary btn-sm" title="Buka Editor Kode & Program">
+                  <i class="fas fa-code"></i>
+                </a>
                 <button class="btn btn-secondary btn-sm" onclick="regenToken(<?= $dev['id'] ?>, '<?= sanitize($dev['name']) ?>')" title="Buat Ulang Token">
                   <i class="fas fa-sync-alt"></i>
                 </button>
