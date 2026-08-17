@@ -30,6 +30,31 @@ void ShawirIOTClass::setServer(const char* serverHost, uint16_t serverPort) {
     }
 }
 
+void ShawirIOTClass::begin() {
+    #if defined(ESP8266) || defined(ESP32)
+    #include <EEPROM.h>
+    EEPROM.begin(512);
+    char tokenBuf[65];
+    memset(tokenBuf, 0, sizeof(tokenBuf));
+    if (EEPROM.read(400) == 0x53 && EEPROM.read(401) == 0x48) {
+        for (int i = 0; i < 64; i++) {
+            tokenBuf[i] = (char)EEPROM.read(402 + i);
+        }
+    }
+    EEPROM.end();
+
+    if (strlen(tokenBuf) > 0) {
+        Serial.print(F("[ShawirIOT] Memuat Token dari shawirWifi: "));
+        Serial.println(tokenBuf);
+        begin(tokenBuf);
+        return;
+    }
+    #endif
+
+    Serial.println(F("[ShawirIOT] Peringatan: Token belum ditemukan di shawirWifi. Gunakan ShawirIOT.begin(\"TOKEN\");"));
+    begin("");
+}
+
 void ShawirIOTClass::begin(const char* token) {
     begin(token, "", "", SHAWIR_DEFAULT_HOST, SHAWIR_DEFAULT_PORT);
 }

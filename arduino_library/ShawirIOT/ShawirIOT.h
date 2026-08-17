@@ -100,7 +100,13 @@ public:
     ShawirIOTClass();
 
     /**
-     * Inisialisasi hanya dengan Token (WiFi dikelola oleh ShawirWiFi atau sketch Anda)
+     * Inisialisasi otomatis: Mengambil Token yang tersimpan oleh shawirWifi
+     * dan menggunakan koneksi WiFi yang sudah aktif ke server iot.shawir.id:80
+     */
+    void begin();
+
+    /**
+     * Inisialisasi hanya dengan Token (WiFi dikelola oleh shawirWifi atau sketch Anda)
      * Otomatis terhubung ke server resmi: iot.shawir.id:80
      * @param token Token unik device dari web ShawirIOT
      */

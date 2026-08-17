@@ -1,110 +1,144 @@
 /**
- * ShawirWiFi - Smart WiFi Manager & Captive Portal Library
- * Version 1.0.0
+ * shawirWifi.h
  * 
- * Elegant, zero-configuration WiFi manager for ESP8266 and ESP32.
- * Allows easy WiFi setup via a sleek web portal without hardcoding credentials in your sketch.
+ * shawirWifi - Custom WiFi Manager & IoT Configurator Library
+ * Based on WiFiManager by tzapu/tablatronix
+ * for configuration of WiFi credentials and ShawirIOT Device Token
+ * using a modern Captive Portal on ESP8266/ESP32 platforms.
  * 
- * Perfectly integrated with ShawirIOT platform.
+ * Customized & Integrated by Shawir for ShawirIOT Platform
+ * @license MIT
  */
 
-#ifndef SHAWIR_WIFI_H
-#define SHAWIR_WIFI_H
+#ifndef shawirWifi_h
+#define shawirWifi_h
 
 #include <Arduino.h>
+#include <EEPROM.h>
 
-#if defined(ESP8266)
-  #include <ESP8266WiFi.h>
-  #include <ESP8266WebServer.h>
-  #include <DNSServer.h>
-  #include <EEPROM.h>
-  typedef ESP8266WebServer ShawirWebServer;
-#elif defined(ESP32)
-  #include <WiFi.h>
-  #include <WebServer.h>
-  #include <DNSServer.h>
-  #include <EEPROM.h>
-  typedef WebServer ShawirWebServer;
-#else
-  #error "ShawirWiFi library only supports ESP8266 and ESP32 architecture."
-#endif
+// Include the core WiFiManager implementation
+#include "WiFiManager.h"
 
-class ShawirWiFiClass {
+#define SHAWIR_TOKEN_EEPROM_ADDR 400
+#define SHAWIR_TOKEN_MAGIC_0 0x53 // 'S'
+#define SHAWIR_TOKEN_MAGIC_1 0x48 // 'H'
+
+/**
+ * shawirWifiParameter is an alias for WiFiManagerParameter.
+ */
+using shawirWifiParameter = WiFiManagerParameter;
+
+/**
+ * shawirWifi - Smart WiFi & Device Configurator
+ * Inherits from WiFiManager with built-in ShawirIOT token handling.
+ */
+class shawirWifi : public WiFiManager {
 private:
-    ShawirWebServer* _server;
-    DNSServer* _dnsServer;
+    WiFiManagerParameter* _tokenParam;
+    char _tokenBuf[65];
 
-    String _ssid;
-    String _pass;
-    String _apName;
-    String _apPassword;
+    void loadShawirToken() {
+        memset(_tokenBuf, 0, sizeof(_tokenBuf));
+        EEPROM.begin(512);
+        if (EEPROM.read(SHAWIR_TOKEN_EEPROM_ADDR) == SHAWIR_TOKEN_MAGIC_0 && 
+            EEPROM.read(SHAWIR_TOKEN_EEPROM_ADDR + 1) == SHAWIR_TOKEN_MAGIC_1) {
+            for (int i = 0; i < 64; i++) {
+                _tokenBuf[i] = (char)EEPROM.read(SHAWIR_TOKEN_EEPROM_ADDR + 2 + i);
+            }
+        }
+        EEPROM.end();
+    }
 
-    unsigned long _connectTimeout; // seconds
-    unsigned long _configTimeout;  // seconds
-    bool _portalActive;
-    bool _configSaved;
-
-    void loadCredentials();
-    void saveCredentials(const String& ssid, const String& pass);
-    bool connectToSavedWiFi();
-    void setupWebServer();
-    void handleRoot();
-    void handleSave();
-    void handleReset();
-    void handleNotFound();
-    String getNetworkScanOptions();
+    void saveShawirToken(const char* token) {
+        if (!token) return;
+        EEPROM.begin(512);
+        EEPROM.write(SHAWIR_TOKEN_EEPROM_ADDR, SHAWIR_TOKEN_MAGIC_0);
+        EEPROM.write(SHAWIR_TOKEN_EEPROM_ADDR + 1, SHAWIR_TOKEN_MAGIC_1);
+        for (int i = 0; i < 64; i++) {
+            EEPROM.write(SHAWIR_TOKEN_EEPROM_ADDR + 2 + i, (i < (int)strlen(token)) ? token[i] : 0);
+        }
+        EEPROM.commit();
+        EEPROM.end();
+        strncpy(_tokenBuf, token, sizeof(_tokenBuf) - 1);
+    }
 
 public:
-    ShawirWiFiClass();
-    ~ShawirWiFiClass();
+    shawirWifi() : WiFiManager() {
+        _tokenParam = nullptr;
+        loadShawirToken();
+    }
+
+    ~shawirWifi() {
+        if (_tokenParam) {
+            delete _tokenParam;
+            _tokenParam = nullptr;
+        }
+    }
 
     /**
-     * Otomatis terhubung ke WiFi tersimpan, atau buka web portal setup jika belum terhubung
-     * @param apName Nama Access Point hotspot saat mode setup (default: "ShawirWiFi-Setup")
-     * @param apPassword Password Access Point (opsional, default: open / tanpa password)
-     * @return true jika berhasil terhubung ke WiFi
+     * Buka Captive Portal dengan Form WiFi + Input Token Perangkat ShawirIOT
+     * @param apName Nama Access Point hotspot (default: "ShawirIOT-Device")
+     * @param apPassword Password Access Point (opsional)
+     * @return true jika berhasil terhubung
      */
-    bool autoConnect(const char* apName = "ShawirWiFi-Setup", const char* apPassword = NULL);
+    bool autoConnectShawirIOT(const char* apName = "ShawirIOT-Device", const char* apPassword = NULL) {
+        if (!_tokenParam) {
+            // Label HTML kustom untuk input token
+            const char* customHtml = "placeholder='Tempel token device dari web dashboard'";
+            _tokenParam = new WiFiManagerParameter("shawir_token", "ShawirIOT Device Token", _tokenBuf, 64, customHtml);
+            addParameter(_tokenParam);
+        }
+
+        // Atur callback saat konfigurasi disimpan
+        setSaveParamsCallback([this]() {
+            if (_tokenParam) {
+                const char* val = _tokenParam->getValue();
+                if (val && strlen(val) > 0) {
+                    saveShawirToken(val);
+                    Serial.print(F("[shawirWifi] Token ShawirIOT tersimpan: "));
+                    Serial.println(_tokenBuf);
+                }
+            }
+        });
+
+        bool res = autoConnect(apName, apPassword);
+        if (res && _tokenParam) {
+            const char* val = _tokenParam->getValue();
+            if (val && strlen(val) > 0) {
+                saveShawirToken(val);
+            }
+        }
+        return res;
+    }
 
     /**
-     * Buka Web Portal Captive Portal secara manual untuk mengganti WiFi
-     * @param apName Nama Access Point hotspot
-     * @param apPassword Password Access Point
-     * @return true jika user berhasil memasukkan kredensial baru
+     * Ambil Token ShawirIOT yang tersimpan di flash memory
      */
-    bool startConfigPortal(const char* apName = "ShawirWiFi-Setup", const char* apPassword = NULL);
+    String getShawirToken() {
+        if (strlen(_tokenBuf) == 0) {
+            loadShawirToken();
+        }
+        return String(_tokenBuf);
+    }
 
     /**
-     * Hapus kredensial WiFi yang tersimpan di memori Flash / EEPROM
+     * Simpan Token ShawirIOT secara manual ke memori flash
      */
-    void resetSettings();
+    void setShawirToken(const char* token) {
+        saveShawirToken(token);
+    }
 
     /**
-     * Cek apakah ESP sedang terhubung ke WiFi
+     * Hapus Token ShawirIOT dari memori flash
      */
-    bool isConnected();
-
-    /**
-     * Ambil nama SSID WiFi yang sedang aktif
-     */
-    String getSSID();
-
-    /**
-     * Ambil Password WiFi yang tersimpan
-     */
-    String getPassword();
-
-    /**
-     * Set batas waktu percobaan koneksi ke WiFi dalam detik (default 15 detik)
-     */
-    void setConnectTimeout(unsigned long seconds);
-
-    /**
-     * Set batas waktu portal konfigurasi aktif dalam detik (0 = tanpa batas waktu)
-     */
-    void setConfigTimeout(unsigned long seconds);
+    void eraseShawirToken() {
+        EEPROM.begin(512);
+        EEPROM.write(SHAWIR_TOKEN_EEPROM_ADDR, 0);
+        EEPROM.write(SHAWIR_TOKEN_EEPROM_ADDR + 1, 0);
+        EEPROM.commit();
+        EEPROM.end();
+        memset(_tokenBuf, 0, sizeof(_tokenBuf));
+    }
 };
 
-extern ShawirWiFiClass ShawirWiFi;
-
-#endif // SHAWIR_WIFI_H
+#endif // shawirWifi_h
