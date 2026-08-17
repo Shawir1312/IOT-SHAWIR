@@ -1,11 +1,12 @@
 /**
- * ShawirIOT - ControlLED Example
+ * ShawirIOT - ControlLED Example (dengan shawirWifi)
  * 
- * Demonstrates controlling physical actuators (Relay / LED / PWM)
+ * Demonstrates controlling physical actuators (Relay / LED / PWM Slider)
  * from Button, Switch, and Slider widgets on the ShawirIOT dashboard.
  */
 
-#include <ShawirIOT.h>
+#include <shawirWifi.h> // Library WiFi Manager shawirWifi
+#include <ShawirIOT.h>  // Library ShawirIOT Platform
 
 // Definisi Pin Fisik
 #if defined(ESP8266)
@@ -19,31 +20,28 @@
   const int PWM_PIN = 9;
 #endif
 
-// Salin Token Device dari web ShawirIOT (menu Perangkat Saya)
-const char* AUTH_TOKEN = "YOUR_DEVICE_TOKEN_HERE"; 
-const char* WIFI_SSID  = "YOUR_WIFI_SSID";
-const char* WIFI_PASS  = "YOUR_WIFI_PASSWORD";
+// Salin Token Device dari web dashboard ShawirIOT (menu Perangkat Saya)
+const char* AUTH_TOKEN = "YOUR_DEVICE_TOKEN_HERE";
 
 // Handler saat tombol / switch di Virtual Pin V4 ditekan di dashboard
 void handleRelaySwitch(const String& value) {
-    Serial.print("[Handler] V4 Nilai Diterima: ");
+    Serial.print(F("[ShawirIOT] V4 Perintah Diterima: "));
     Serial.println(value);
 
     if (value == "1" || value == "ON" || value == "true") {
         digitalWrite(LED_PIN, HIGH);
-        Serial.println("-> LED Fisik DINYALAKAN (ON)");
+        Serial.println(F("-> LED / Relay Fisik DINYALAKAN (ON)"));
     } else {
         digitalWrite(LED_PIN, LOW);
-        Serial.println("-> LED Fisik DIMATIKAN (OFF)");
+        Serial.println(F("-> LED / Relay Fisik DIMATIKAN (OFF)"));
     }
 }
 
 // Handler saat Slider di Virtual Pin V5 digeser (0 - 255)
 void handleSliderBrightness(const String& value) {
-    int brightness = value.toInt();
-    brightness = constrain(brightness, 0, 255);
+    int brightness = constrain(value.toInt(), 0, 255);
 
-    Serial.print("[Handler] V5 Kecerahan Slider: ");
+    Serial.print(F("[ShawirIOT] V5 Kecerahan PWM: "));
     Serial.println(brightness);
 
     #if defined(ESP8266)
@@ -63,15 +61,17 @@ void setup() {
     pinMode(PWM_PIN, OUTPUT);
     digitalWrite(LED_PIN, LOW);
 
-    // Daftarkan listener untuk Virtual Pins SEBELUM begin
+    // 1. Daftarkan listener kontrol Virtual Pins
     ShawirIOT.onWrite(V4, handleRelaySwitch);
     ShawirIOT.onWrite(V5, handleSliderBrightness);
+    ShawirIOT.setPollInterval(400); // Polling responsif 400ms
 
-    // Atur interval pengecekan perintah tombol (500ms agar responsif)
-    ShawirIOT.setPollInterval(500);
+    // 2. Hubungkan WiFi via shawirWifi
+    shawirWifi wm;
+    wm.autoConnect("shawirWifi-AP");
 
-    // Inisialisasi koneksi (otomatis ke server resmi iot.shawir.id)
-    ShawirIOT.begin(AUTH_TOKEN, WIFI_SSID, WIFI_PASS);
+    // 3. Mulai ShawirIOT (server host iot.shawir.id otomatis)
+    ShawirIOT.begin(AUTH_TOKEN);
 }
 
 void loop() {

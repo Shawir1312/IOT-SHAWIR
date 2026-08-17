@@ -1,18 +1,17 @@
 /**
- * ShawirIOT - BasicConnect Example
+ * ShawirIOT - BasicConnect Example (dengan shawirWifi)
  * 
- * Demonstrates how to connect an ESP8266 or ESP32 to ShawirIOT platform
- * and send a simple counter value to Virtual Pin V0.
+ * Menghubungkan ESP8266 / ESP32 ke WiFi secara otomatis menggunakan library shawirWifi,
+ * dan langsung streaming data counter ke Virtual Pin V0 di platform ShawirIOT.
  * 
- * Server host "iot.shawir.id" is embedded directly in the library by default.
+ * Server host "iot.shawir.id" (Port 80) sudah tertanam otomatis di library.
  */
 
-#include <ShawirIOT.h>
+#include <shawirWifi.h> // Library WiFi Manager shawirWifi
+#include <ShawirIOT.h>  // Library ShawirIOT Platform
 
-// Salin Token Device dari web ShawirIOT (menu Perangkat Saya)
-const char* AUTH_TOKEN = "YOUR_DEVICE_TOKEN_HERE"; 
-const char* WIFI_SSID  = "YOUR_WIFI_SSID";
-const char* WIFI_PASS  = "YOUR_WIFI_PASSWORD";
+// Salin Token Device dari menu Perangkat Saya di web dashboard ShawirIOT
+const char* AUTH_TOKEN = "YOUR_DEVICE_TOKEN_HERE";
 
 unsigned long lastSend = 0;
 int counter = 0;
@@ -21,12 +20,20 @@ void setup() {
     Serial.begin(115200);
     delay(1000);
 
-    // Inisialisasi koneksi ShawirIOT (otomatis terhubung ke server resmi iot.shawir.id)
-    ShawirIOT.begin(AUTH_TOKEN, WIFI_SSID, WIFI_PASS);
+    Serial.println(F("\n=========================================="));
+    Serial.println(F("     ShawirIOT + shawirWifi Basic Setup   "));
+    Serial.println(F("=========================================="));
+
+    // 1. Hubungkan WiFi via portal hotspot shawirWifi (tanpa hardcode password wifi!)
+    shawirWifi wm;
+    wm.autoConnect("shawirWifi-AP");
+
+    // 2. Inisialisasi ShawirIOT dengan token (otomatis terhubung ke server resmi iot.shawir.id)
+    ShawirIOT.begin(AUTH_TOKEN);
 }
 
 void loop() {
-    // Jalankan service ShawirIOT
+    // 3. Jalankan service realtime ShawirIOT
     ShawirIOT.run();
 
     // Kirim data counter ke Virtual Pin V0 setiap 2 detik
@@ -34,10 +41,10 @@ void loop() {
         lastSend = millis();
         counter++;
 
-        Serial.print("Mengirim counter ke Virtual Pin V0: ");
+        Serial.print(F("Mengirim counter ke Virtual Pin V0: "));
         Serial.println(counter);
 
-        // Kirim ke Virtual Pin V0
+        // Kirim ke Virtual Pin V0 di Web Dashboard ShawirIOT
         ShawirIOT.virtualWrite(V0, counter);
     }
 }

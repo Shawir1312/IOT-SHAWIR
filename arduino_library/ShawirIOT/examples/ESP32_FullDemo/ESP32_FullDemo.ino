@@ -1,7 +1,7 @@
 /**
- * ShawirIOT - Complete ESP32 / ESP8266 Full Demo
+ * ShawirIOT - Complete ESP32 / ESP8266 Full Demo (dengan shawirWifi)
  * 
- * Demonstrates ALL features:
+ * Demonstrates ALL features with automatic shawirWifi setup:
  * - V0: Counter / Heartbeat (Value Display)
  * - V1: Temperature °C (Gauge)
  * - V2: Humidity % (Line Chart)
@@ -12,12 +12,11 @@
  * - V7: GPS Location (Map Widget)
  */
 
-#include <ShawirIOT.h>
+#include <shawirWifi.h> // Library WiFi Manager shawirWifi
+#include <ShawirIOT.h>  // Library ShawirIOT Platform
 
-// Salin Token Device dari web ShawirIOT (menu Perangkat Saya)
-const char* AUTH_TOKEN = "YOUR_DEVICE_TOKEN_HERE"; 
-const char* WIFI_SSID  = "YOUR_WIFI_SSID";
-const char* WIFI_PASS  = "YOUR_WIFI_PASSWORD";
+// Salin Token Device dari web dashboard ShawirIOT (menu Perangkat Saya)
+const char* AUTH_TOKEN = "YOUR_DEVICE_TOKEN_HERE";
 
 #if defined(ESP8266)
   const int LED_PIN = D4;
@@ -39,13 +38,13 @@ void onRelayChange(const String& val) {
     // Update status LED widget di dashboard (V6)
     ShawirIOT.virtualWrite(V6, relayState ? "1" : "0");
     
-    Serial.printf("[Command] Relay diubah ke: %s\n", relayState ? "ON" : "OFF");
+    Serial.printf("[ShawirIOT] Relay diubah ke: %s\n", relayState ? "ON" : "OFF");
 }
 
 // Callback: Saat user menggeser slider V5
 void onSliderChange(const String& val) {
     int pwmVal = val.toInt();
-    Serial.printf("[Command] Slider PWM: %d\n", pwmVal);
+    Serial.printf("[ShawirIOT] Slider PWM: %d\n", pwmVal);
 }
 
 void setup() {
@@ -55,13 +54,17 @@ void setup() {
     pinMode(LED_PIN, OUTPUT);
     digitalWrite(LED_PIN, LOW);
 
-    // Daftarkan listener kontrol
+    // 1. Daftarkan listener kontrol
     ShawirIOT.onWrite(V4, onRelayChange);
     ShawirIOT.onWrite(V5, onSliderChange);
     ShawirIOT.setPollInterval(400); // Cek perintah setiap 400ms
 
-    // Hubungkan ke server resmi ShawirIOT (iot.shawir.id)
-    ShawirIOT.begin(AUTH_TOKEN, WIFI_SSID, WIFI_PASS);
+    // 2. Hubungkan WiFi via shawirWifi
+    shawirWifi wm;
+    wm.autoConnect("shawirWifi-AP");
+
+    // 3. Hubungkan ke server resmi ShawirIOT (iot.shawir.id)
+    ShawirIOT.begin(AUTH_TOKEN);
 }
 
 void loop() {
