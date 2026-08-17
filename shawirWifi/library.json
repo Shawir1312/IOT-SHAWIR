@@ -1,0 +1,32 @@
+{
+  "name": "shawirWifi",
+  "version": "2.0.17",
+  "keywords": "wifi,wi-fi,esp,esp8266,esp32,espressif8266,espressif32,nodemcu,wemos,arduino,shawir",
+  "description": "shawirWifi - WiFi Configuration manager with web captive portal for ESP boards, customized by Shawir",
+  "authors":
+  [
+    {
+        "name": "Shawir",
+        "maintainer": true
+    },
+    {
+        "name": "tzapu (original)",
+        "url": "https://github.com/tzapu"
+    },
+    {
+        "name": "tablatronix (original)",
+        "url": "https://github.com/tablatronix"
+    }
+  ],
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/tzapu/WiFiManager.git"
+  },
+  "frameworks": "arduino",
+  "platforms": 
+  [
+    "espressif8266",
+    "espressif32"
+  ]
+}

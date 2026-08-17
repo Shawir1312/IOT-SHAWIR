@@ -14,11 +14,10 @@
 
 #include <ShawirIOT.h>
 
-const char* AUTH_TOKEN  = "YOUR_DEVICE_TOKEN_HERE"; 
-const char* WIFI_SSID   = "YOUR_WIFI_SSID";
-const char* WIFI_PASS   = "YOUR_WIFI_PASSWORD";
-const char* SERVER_HOST = "iot.shawir.id";          
-const uint16_t SERVER_PORT = 80;
+// Salin Token Device dari web ShawirIOT (menu Perangkat Saya)
+const char* AUTH_TOKEN = "YOUR_DEVICE_TOKEN_HERE"; 
+const char* WIFI_SSID  = "YOUR_WIFI_SSID";
+const char* WIFI_PASS  = "YOUR_WIFI_PASSWORD";
 
 #if defined(ESP8266)
   const int LED_PIN = D4;
@@ -61,8 +60,8 @@ void setup() {
     ShawirIOT.onWrite(V5, onSliderChange);
     ShawirIOT.setPollInterval(400); // Cek perintah setiap 400ms
 
-    // Hubungkan ke server
-    ShawirIOT.begin(AUTH_TOKEN, WIFI_SSID, WIFI_PASS, SERVER_HOST, SERVER_PORT);
+    // Hubungkan ke server resmi ShawirIOT (iot.shawir.id)
+    ShawirIOT.begin(AUTH_TOKEN, WIFI_SSID, WIFI_PASS);
 }
 
 void loop() {

@@ -7,12 +7,10 @@
 
 #include <ShawirIOT.h>
 
-// Konfigurasi Kredensial & Server
-const char* AUTH_TOKEN  = "YOUR_DEVICE_TOKEN_HERE"; 
-const char* WIFI_SSID   = "YOUR_WIFI_SSID";
-const char* WIFI_PASS   = "YOUR_WIFI_PASSWORD";
-const char* SERVER_HOST = "iot.shawir.id";          
-const uint16_t SERVER_PORT = 80;
+// Salin Token Device dari web ShawirIOT (menu Perangkat Saya)
+const char* AUTH_TOKEN = "YOUR_DEVICE_TOKEN_HERE"; 
+const char* WIFI_SSID  = "YOUR_WIFI_SSID";
+const char* WIFI_PASS  = "YOUR_WIFI_PASSWORD";
 
 unsigned long lastSensorRead = 0;
 
@@ -20,8 +18,8 @@ void setup() {
     Serial.begin(115200);
     delay(1000);
 
-    // Hubungkan ke WiFi dan ShawirIOT Platform
-    ShawirIOT.begin(AUTH_TOKEN, WIFI_SSID, WIFI_PASS, SERVER_HOST, SERVER_PORT);
+    // Hubungkan ke WiFi dan platform resmi ShawirIOT (iot.shawir.id)
+    ShawirIOT.begin(AUTH_TOKEN, WIFI_SSID, WIFI_PASS);
 }
 
 void loop() {

@@ -19,12 +19,10 @@
   const int PWM_PIN = 9;
 #endif
 
-// Konfigurasi Kredensial & Server
-const char* AUTH_TOKEN  = "YOUR_DEVICE_TOKEN_HERE"; 
-const char* WIFI_SSID   = "YOUR_WIFI_SSID";
-const char* WIFI_PASS   = "YOUR_WIFI_PASSWORD";
-const char* SERVER_HOST = "iot.shawir.id";          
-const uint16_t SERVER_PORT = 80;
+// Salin Token Device dari web ShawirIOT (menu Perangkat Saya)
+const char* AUTH_TOKEN = "YOUR_DEVICE_TOKEN_HERE"; 
+const char* WIFI_SSID  = "YOUR_WIFI_SSID";
+const char* WIFI_PASS  = "YOUR_WIFI_PASSWORD";
 
 // Handler saat tombol / switch di Virtual Pin V4 ditekan di dashboard
 void handleRelaySwitch(const String& value) {
@@ -51,7 +49,6 @@ void handleSliderBrightness(const String& value) {
     #if defined(ESP8266)
       analogWrite(PWM_PIN, brightness * 4); // ESP8266 10-bit range (0-1023)
     #elif defined(ESP32)
-      // ESP32 ledc write atau analogWrite (ESP32 Arduino core 2.0+)
       analogWrite(PWM_PIN, brightness);
     #else
       analogWrite(PWM_PIN, brightness);
@@ -73,8 +70,8 @@ void setup() {
     // Atur interval pengecekan perintah tombol (500ms agar responsif)
     ShawirIOT.setPollInterval(500);
 
-    // Inisialisasi koneksi
-    ShawirIOT.begin(AUTH_TOKEN, WIFI_SSID, WIFI_PASS, SERVER_HOST, SERVER_PORT);
+    // Inisialisasi koneksi (otomatis ke server resmi iot.shawir.id)
+    ShawirIOT.begin(AUTH_TOKEN, WIFI_SSID, WIFI_PASS);
 }
 
 void loop() {

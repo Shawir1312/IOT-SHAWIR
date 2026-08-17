@@ -1,6 +1,6 @@
 /**
  * ShawirIOT - Arduino & ESP Library Implementation
- * Version 1.0.0
+ * Version 1.1.0
  */
 
 #include "ShawirIOT.h"
@@ -9,9 +9,9 @@ ShawirIOTClass::ShawirIOTClass() {
     _token = "";
     _ssid = "";
     _pass = "";
-    _serverHost = "";
-    _serverPort = 80;
-    _baseApiUrl = "";
+    _serverHost = SHAWIR_DEFAULT_HOST;
+    _serverPort = SHAWIR_DEFAULT_PORT;
+    _baseApiUrl = "http://" + String(SHAWIR_DEFAULT_HOST) + "/api/data.php";
     _lastPollTime = 0;
     _pollInterval = 1000; // 1s default
     _lastHeartbeat = 0;
@@ -19,19 +19,34 @@ ShawirIOTClass::ShawirIOTClass() {
     _listenerCount = 0;
 }
 
-void ShawirIOTClass::begin(const char* token, const char* ssid, const char* pass, const char* serverHost, uint16_t serverPort) {
-    _token = String(token);
-    _ssid = String(ssid);
-    _pass = String(pass);
-    _serverHost = String(serverHost);
+void ShawirIOTClass::setServer(const char* serverHost, uint16_t serverPort) {
+    _serverHost = (serverHost && strlen(serverHost) > 0) ? String(serverHost) : String(SHAWIR_DEFAULT_HOST);
     _serverPort = serverPort;
 
-    // Form base URL
     if (_serverPort == 80) {
         _baseApiUrl = "http://" + _serverHost + "/api/data.php";
     } else {
         _baseApiUrl = "http://" + _serverHost + ":" + String(_serverPort) + "/api/data.php";
     }
+}
+
+void ShawirIOTClass::begin(const char* token) {
+    begin(token, "", "", SHAWIR_DEFAULT_HOST, SHAWIR_DEFAULT_PORT);
+}
+
+void ShawirIOTClass::begin(const char* token, const char* ssid, const char* pass) {
+    begin(token, ssid, pass, SHAWIR_DEFAULT_HOST, SHAWIR_DEFAULT_PORT);
+}
+
+void ShawirIOTClass::begin(const char* token, const char* serverHost, uint16_t serverPort) {
+    begin(token, "", "", serverHost, serverPort);
+}
+
+void ShawirIOTClass::begin(const char* token, const char* ssid, const char* pass, const char* serverHost, uint16_t serverPort) {
+    _token = String(token);
+    _ssid = (ssid != nullptr) ? String(ssid) : "";
+    _pass = (pass != nullptr) ? String(pass) : "";
+    setServer(serverHost, serverPort);
 
     _isConfigured = true;
 
@@ -39,14 +54,25 @@ void ShawirIOTClass::begin(const char* token, const char* ssid, const char* pass
     Serial.println(F("===================================="));
     Serial.println(F("    ShawirIOT Client Initializing   "));
     Serial.println(F("===================================="));
+    Serial.print(F("[ShawirIOT] Target Host: "));
+    Serial.println(_baseApiUrl);
 
-    connectWiFi();
+    if (_ssid.length() > 0) {
+        connectWiFi();
+    } else if (WiFi.status() == WL_CONNECTED) {
+        Serial.println(F("[ShawirIOT] Terhubung via WiFi aktif (ShawirWiFi)."));
+        Serial.print(F("[ShawirIOT] IP Address: "));
+        Serial.println(WiFi.localIP());
+        Serial.println(F("[ShawirIOT] Siap mengirim & menerima data!"));
+    } else {
+        Serial.println(F("[ShawirIOT] Catatan: Menunggu koneksi WiFi dari ShawirWiFi..."));
+    }
 }
 
 void ShawirIOTClass::connectWiFi() {
     if (_ssid.length() == 0) return;
 
-    Serial.print(F("[ShawirIOT] Connecting to WiFi: "));
+    Serial.print(F("[ShawirIOT] Menghubungkan ke WiFi: "));
     Serial.println(_ssid);
 
     WiFi.mode(WIFI_STA);
@@ -61,14 +87,12 @@ void ShawirIOTClass::connectWiFi() {
 
     Serial.println();
     if (WiFi.status() == WL_CONNECTED) {
-        Serial.println(F("[ShawirIOT] WiFi Connected!"));
+        Serial.println(F("[ShawirIOT] WiFi Terhubung!"));
         Serial.print(F("[ShawirIOT] IP Address: "));
         Serial.println(WiFi.localIP());
-        Serial.print(F("[ShawirIOT] Server API: "));
-        Serial.println(_baseApiUrl);
-        Serial.println(F("[ShawirIOT] Ready to stream data!"));
+        Serial.println(F("[ShawirIOT] Siap streaming data!"));
     } else {
-        Serial.println(F("[ShawirIOT] WiFi Connection Failed! Check SSID/Password."));
+        Serial.println(F("[ShawirIOT] Gagal terhubung ke WiFi! Periksa SSID & Password."));
     }
 }
 
@@ -83,19 +107,19 @@ void ShawirIOTClass::setPollInterval(unsigned long ms) {
 void ShawirIOTClass::run() {
     if (!_isConfigured) return;
 
-    // Auto reconnect WiFi if dropped
-    if (WiFi.status() != WL_CONNECTED) {
+    // Auto reconnect if explicit SSID was passed and connection dropped
+    if (WiFi.status() != WL_CONNECTED && _ssid.length() > 0) {
         static unsigned long lastReconnect = 0;
         if (millis() - lastReconnect > 10000) {
             lastReconnect = millis();
-            Serial.println(F("[ShawirIOT] Reconnecting WiFi..."));
+            Serial.println(F("[ShawirIOT] Menghubungkan kembali WiFi..."));
             WiFi.reconnect();
         }
         return;
     }
 
-    // Poll registered virtual pins if any listeners exist
-    if (_listenerCount > 0 && (millis() - _lastPollTime >= _pollInterval)) {
+    // Poll registered virtual pins if any listeners exist and WiFi is connected
+    if (connected() && _listenerCount > 0 && (millis() - _lastPollTime >= _pollInterval)) {
         _lastPollTime = millis();
         pollRegisteredPins();
     }
@@ -193,7 +217,7 @@ float ShawirIOTClass::virtualReadFloat(const char* pin) {
 
 void ShawirIOTClass::onWrite(const char* pin, ShawirPinHandler handler) {
     if (_listenerCount >= MAX_LISTENERS) {
-        Serial.println(F("[ShawirIOT] Error: Max pin listeners reached!"));
+        Serial.println(F("[ShawirIOT] Error: Batas maksimum pin listener tercapai!"));
         return;
     }
 

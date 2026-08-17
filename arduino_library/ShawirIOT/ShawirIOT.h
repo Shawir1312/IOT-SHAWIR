@@ -1,9 +1,12 @@
 /**
  * ShawirIOT - Arduino & ESP Library
- * Version 1.0.0
+ * Version 1.1.0
  * 
  * An elegant IoT communication library for ESP8266, ESP32, and Arduino.
  * Easily push sensor data and listen to dashboard commands with Virtual Pins (V0 - V255).
+ * 
+ * Default Server Host: iot.shawir.id (Port 80)
+ * Fully compatible with ShawirWiFi (WiFi Manager) & standalone WiFi.
  */
 
 #ifndef SHAWIR_IOT_H
@@ -22,6 +25,10 @@
 #else
   #warning "Make sure to include appropriate WiFi library for your architecture."
 #endif
+
+// Default Server Configuration
+#define SHAWIR_DEFAULT_HOST "iot.shawir.id"
+#define SHAWIR_DEFAULT_PORT 80
 
 // Virtual Pin Definitions
 #define V0   "V0"
@@ -93,14 +100,43 @@ public:
     ShawirIOTClass();
 
     /**
-     * Inisialisasi koneksi dengan Wi-Fi dan platform server
+     * Inisialisasi hanya dengan Token (WiFi dikelola oleh ShawirWiFi atau sketch Anda)
+     * Otomatis terhubung ke server resmi: iot.shawir.id:80
+     * @param token Token unik device dari web ShawirIOT
+     */
+    void begin(const char* token);
+
+    /**
+     * Inisialisasi dengan Token dan Kredensial WiFi
+     * Otomatis terhubung ke server resmi: iot.shawir.id:80
      * @param token Token unik device dari web ShawirIOT
      * @param ssid Nama WiFi
      * @param pass Password WiFi
-     * @param serverHost Domain / IP Server (cth: "192.168.1.10" atau "iot.domain.com")
-     * @param serverPort Port HTTP server (default 80)
      */
-    void begin(const char* token, const char* ssid, const char* pass, const char* serverHost, uint16_t serverPort = 80);
+    void begin(const char* token, const char* ssid, const char* pass);
+
+    /**
+     * Inisialisasi dengan Token dan Custom Server Host (WiFi sudah terhubung)
+     * @param token Token unik device dari web ShawirIOT
+     * @param serverHost Domain / IP Server (default: iot.shawir.id)
+     * @param serverPort Port HTTP server (default: 80)
+     */
+    void begin(const char* token, const char* serverHost, uint16_t serverPort = SHAWIR_DEFAULT_PORT);
+
+    /**
+     * Inisialisasi lengkap dengan Kredensial WiFi dan Custom Server Host
+     * @param token Token unik device dari web ShawirIOT
+     * @param ssid Nama WiFi
+     * @param pass Password WiFi
+     * @param serverHost Domain / IP Server
+     * @param serverPort Port HTTP server
+     */
+    void begin(const char* token, const char* ssid, const char* pass, const char* serverHost, uint16_t serverPort = SHAWIR_DEFAULT_PORT);
+
+    /**
+     * Ubah konfigurasi server host dan port
+     */
+    void setServer(const char* serverHost, uint16_t serverPort = SHAWIR_DEFAULT_PORT);
 
     /**
      * Loop runner — panggil di dalam loop() sketch Anda
