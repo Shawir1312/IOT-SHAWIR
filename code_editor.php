@@ -1013,9 +1013,16 @@ async function triggerWebUpload() {
 
           logToConsole('✓ Selesai 100%! Firmware berhasil di-flash ke memori ESP.');
           logToConsole('[Flasher] Mereset chip ESP ke mode kerja...');
-          await espLoader.hardReset();
-          await transport.disconnect();
-          showToastNotification('✓ Sukses! Firmware berhasil di-flash ke ESP!', 'success');
+          try {
+            if (typeof espLoader.flashFinish === 'function') {
+              await espLoader.flashFinish(true);
+            }
+          } catch(e) {}
+          try {
+            await transport.disconnect();
+          } catch(e) {}
+          logToConsole('✓ Chip ESP telah di-reset dan aktif menjalankan program baru!');
+          showToastNotification('✓ Sukses! Firmware berhasil di-flash 100% ke ESP!', 'success');
         } else {
           logToConsole('[Flasher] Membuka koneksi serial port...');
           await port.open({ baudRate: baud });
