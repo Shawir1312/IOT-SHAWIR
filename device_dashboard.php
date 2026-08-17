@@ -105,7 +105,7 @@ checkOfflineDevices();
 
     <!-- DASHBOARD CANVAS -->
     <div class="dashboard-canvas" id="dashboard-canvas"
-         style="background-color:<?= sanitize($dashboard['bg_color']) ?>">
+         <?= (!empty($dashboard['bg_color']) && $dashboard['bg_color'] !== '#0f172a') ? 'style="background-color:' . sanitize($dashboard['bg_color']) . '"' : '' ?>>
       <div id="widget-grid">
         <?php foreach ($widgets as $w): ?>
           <div class="widget w-<?= $w['type'] ?> w-<?= str_replace('_', '-', $w['type']) ?>"
@@ -274,10 +274,10 @@ function renderWidgetBody(array $w, string $val): string {
             $pct    = $max > $min ? (($numVal - $min) / ($max - $min)) : 0;
             $deg    = -130 + ($pct * 260);
             return "<svg class='gauge-svg' viewBox='0 0 120 70'>
-                      <path d='M10,70 A60,60 0 0,1 110,70' fill='none' stroke='#1e293b' stroke-width='10'/>
+                      <path class='gauge-track' d='M10,70 A60,60 0 0,1 110,70' fill='none' stroke='var(--border-light)' stroke-width='10'/>
                       <path id='gauge-arc-{$w['id']}' d='M10,70 A60,60 0 0,1 110,70' fill='none' stroke='{$color}' stroke-width='10'
                         stroke-dasharray='188.5' stroke-dashoffset='" . (188.5 - $pct * 188.5) . "' stroke-linecap='round'/>
-                      <text x='60' y='60' text-anchor='middle' fill='#f1f5f9' font-size='16' font-weight='800'>{$numVal}</text>
+                      <text x='60' y='60' text-anchor='middle' fill='var(--text-primary)' font-size='16' font-weight='800'>{$numVal}</text>
                     </svg>
                     <div class='gauge-label'>{$unit}</div>";
 

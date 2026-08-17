@@ -344,6 +344,10 @@ function updateWidgetValue(pin, value) {
 // INIT CHARTS
 // ============================================================
 function initCharts() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const tickColor = isDark ? '#94a3b8' : '#64748b';
+  const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+
   document.querySelectorAll('canvas[data-pin]').forEach(canvas => {
     const widgetEl = canvas.closest('.widget');
     if (!widgetEl) return;
@@ -378,8 +382,8 @@ function initCharts() {
               data: values,
               borderColor: color,
               backgroundColor: type === 'line'
-                ? hexToRgba(color, 0.1)
-                : hexToRgba(color, 0.6),
+                ? hexToRgba(color, isDark ? 0.15 : 0.08)
+                : hexToRgba(color, isDark ? 0.6 : 0.7),
               borderWidth: 2,
               fill: type === 'line',
               tension: 0.3,
@@ -401,12 +405,12 @@ function initCharts() {
             },
             scales: {
               x: {
-                ticks: { color: '#475569', maxTicksLimit: 6, font: { size: 9 } },
-                grid:  { color: 'rgba(255,255,255,0.04)' }
+                ticks: { color: tickColor, maxTicksLimit: 6, font: { size: 9 } },
+                grid:  { color: gridColor }
               },
               y: {
-                ticks: { color: '#475569', font: { size: 9 } },
-                grid:  { color: 'rgba(255,255,255,0.04)' }
+                ticks: { color: tickColor, font: { size: 9 } },
+                grid:  { color: gridColor }
               }
             }
           }
@@ -447,5 +451,7 @@ function closeWidgetPanel() {
   document.getElementById('widget-panel')?.classList.remove('open');
 }
 
-// Init on load
+// Init on load & listen for theme change
 window.addEventListener('DOMContentLoaded', initCharts);
+window.addEventListener('themeChanged', () => { setTimeout(initCharts, 50); });
+

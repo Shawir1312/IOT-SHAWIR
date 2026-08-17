@@ -338,13 +338,16 @@ if (session_status() === PHP_SESSION_NONE) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Installer — ShawirIOT Platform</title>
+  <link rel="icon" type="image/png" href="assets/img/logo.png">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="assets/js/theme.js"></script>
   <style>
     .installer-container {
       max-width: 680px;
       margin: 3rem auto;
       padding: 0 1rem;
+      position: relative;
     }
     .req-item {
       display: flex;
@@ -359,6 +362,11 @@ if (session_status() === PHP_SESSION_NONE) {
 </head>
 <body>
 <div class="installer-container">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:0.75rem">
+    <button type="button" class="theme-toggle-btn" onclick="toggleTheme()" title="Ubah Tema (Terang / Gelap)">
+      <i class="fas fa-moon theme-toggle-icon"></i>
+    </button>
+  </div>
   <div class="auth-card" style="max-width: 100%;">
     <div class="auth-logo" style="margin-bottom:1.5rem">
       <div class="logo-mark"><i class="fas fa-magic"></i></div>

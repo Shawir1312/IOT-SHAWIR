@@ -36,8 +36,15 @@ $tagline      = getSetting('platform_tagline', 'Platform IoT Modern');
       justify-content: space-between;
       background: var(--bg-surface);
       backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border-light);
       transition: all 0.3s ease;
+    }
+
+    .navbar.scrolled {
+      background: var(--bg-surface);
+      box-shadow: var(--shadow-md);
+      border-bottom-color: var(--border);
     }
 
     .navbar-brand {
@@ -616,9 +623,13 @@ $tagline      = getSetting('platform_tagline', 'Platform IoT Modern');
 // Navbar scroll effect
 window.addEventListener('scroll', () => {
   const nav = document.getElementById('navbar');
-  nav.style.background = window.scrollY > 50
-    ? 'rgba(7,11,20,0.97)'
-    : 'rgba(7,11,20,0.8)';
+  if (nav) {
+    if (window.scrollY > 30) {
+      nav.classList.add('scrolled');
+    } else {
+      nav.classList.remove('scrolled');
+    }
+  }
 });
 </script>
 </body>

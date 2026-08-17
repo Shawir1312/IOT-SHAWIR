@@ -94,15 +94,24 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
-.plan-free       { background: rgba(71,85,105,0.3);  color: #94a3b8; }
-.plan-basic      { background: rgba(6,182,212,0.15); color: var(--secondary); }
-.plan-pro        { background: rgba(99,102,241,0.15); color: var(--primary-light); }
-.plan-enterprise { background: rgba(245,158,11,0.15); color: var(--accent); }
+.plan-free       { background: rgba(100,116,139,0.12); color: #475569; }
+.plan-basic      { background: rgba(8,145,178,0.12);   color: #0891b2; }
+.plan-pro        { background: rgba(79,70,229,0.12);   color: #4f46e5; }
+.plan-enterprise { background: rgba(217,119,6,0.12);   color: #d97706; }
+
+:root[data-theme="dark"] .plan-free, body.theme-dark .plan-free             { background: rgba(71,85,105,0.3);  color: #94a3b8; }
+:root[data-theme="dark"] .plan-basic, body.theme-dark .plan-basic           { background: rgba(6,182,212,0.15); color: var(--secondary); }
+:root[data-theme="dark"] .plan-pro, body.theme-dark .plan-pro               { background: rgba(99,102,241,0.15); color: var(--primary-light); }
+:root[data-theme="dark"] .plan-enterprise, body.theme-dark .plan-enterprise { background: rgba(245,158,11,0.15); color: var(--accent); }
 
 /* Role badge */
-.role-superadmin { background: rgba(239,68,68,0.12); color: #f87171; }
-.role-admin      { background: rgba(249,115,22,0.15); color: #fb923c; }
-.role-user       { background: rgba(71,85,105,0.3);  color: #94a3b8; }
+.role-superadmin { background: rgba(220,38,38,0.12); color: #dc2626; }
+.role-admin      { background: rgba(234,88,12,0.12); color: #ea580c; }
+.role-user       { background: rgba(100,116,139,0.12); color: #475569; }
+
+:root[data-theme="dark"] .role-superadmin, body.theme-dark .role-superadmin { background: rgba(239,68,68,0.15); color: #f87171; }
+:root[data-theme="dark"] .role-admin, body.theme-dark .role-admin           { background: rgba(249,115,22,0.15); color: #fb923c; }
+:root[data-theme="dark"] .role-user, body.theme-dark .role-user             { background: rgba(71,85,105,0.3);  color: #94a3b8; }
 
 /* ============================================================
    CREDIT MANAGEMENT

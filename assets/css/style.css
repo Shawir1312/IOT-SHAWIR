@@ -667,8 +667,8 @@ th, td {
 }
 
 th {
-  background: rgba(255,255,255,0.03);
-  color: var(--text-muted);
+  background: var(--bg-card-hover);
+  color: var(--text-secondary);
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -676,7 +676,7 @@ th {
 }
 
 tr:last-child td { border-bottom: none; }
-tbody tr:hover td { background: rgba(99,102,241,0.04); }
+tbody tr:hover td { background: var(--bg-card-hover); }
 
 /* ============================================================
    ALERTS & TOASTS
@@ -689,13 +689,38 @@ tbody tr:hover td { background: rgba(99,102,241,0.04); }
   border-radius: var(--radius-md);
   font-size: 0.875rem;
   margin-bottom: 1rem;
-  border-left: 3px solid;
+  border-left: 4px solid;
+  font-weight: 500;
 }
 
-.alert-success { background: rgba(16,185,129,0.1); border-color: var(--success); color: #6ee7b7; }
-.alert-danger   { background: rgba(239,68,68,0.1); border-color: var(--danger); color: #fca5a5; }
-.alert-warning  { background: rgba(245,158,11,0.1); border-color: var(--warning); color: #fcd34d; }
-.alert-info     { background: rgba(99,102,241,0.1); border-color: var(--primary); color: var(--primary-light); }
+.alert-success { background: rgba(5, 150, 105, 0.08); border-color: var(--success); color: #065f46; }
+.alert-danger   { background: rgba(220, 38, 38, 0.08); border-color: var(--danger); color: #991b1b; }
+.alert-warning  { background: rgba(217, 119, 6, 0.08); border-color: var(--warning); color: #92400e; }
+.alert-info     { background: rgba(79, 70, 229, 0.08); border-color: var(--primary); color: #3730a3; }
+
+:root[data-theme="dark"] .alert-success,
+body.theme-dark .alert-success {
+  background: rgba(16, 185, 129, 0.14);
+  color: #6ee7b7;
+}
+
+:root[data-theme="dark"] .alert-danger,
+body.theme-dark .alert-danger {
+  background: rgba(239, 68, 68, 0.14);
+  color: #fca5a5;
+}
+
+:root[data-theme="dark"] .alert-warning,
+body.theme-dark .alert-warning {
+  background: rgba(245, 158, 11, 0.14);
+  color: #fcd34d;
+}
+
+:root[data-theme="dark"] .alert-info,
+body.theme-dark .alert-info {
+  background: rgba(99, 102, 241, 0.14);
+  color: var(--primary-light);
+}
 
 /* ============================================================
    MODAL
