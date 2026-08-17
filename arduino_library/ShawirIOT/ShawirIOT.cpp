@@ -32,7 +32,6 @@ void ShawirIOTClass::setServer(const char* serverHost, uint16_t serverPort) {
 
 void ShawirIOTClass::begin() {
     #if defined(ESP8266) || defined(ESP32)
-    #include <EEPROM.h>
     EEPROM.begin(512);
     char tokenBuf[65];
     memset(tokenBuf, 0, sizeof(tokenBuf));

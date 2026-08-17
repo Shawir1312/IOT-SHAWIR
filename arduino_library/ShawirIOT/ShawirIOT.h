@@ -18,10 +18,12 @@
   #include <ESP8266WiFi.h>
   #include <ESP8266HTTPClient.h>
   #include <WiFiClient.h>
+  #include <EEPROM.h>
 #elif defined(ESP32)
   #include <WiFi.h>
   #include <HTTPClient.h>
   #include <WiFiClient.h>
+  #include <EEPROM.h>
 #else
   #warning "Make sure to include appropriate WiFi library for your architecture."
 #endif
