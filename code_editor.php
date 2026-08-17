@@ -58,8 +58,13 @@ if ($selectedDeviceId > 0) {
   <!-- Ace Code Editor -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.7/ace.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.7/ext-language_tools.js"></script>
-  <!-- ESP Web Serial Flasher (esptool-js) -->
-  <script src="https://unpkg.com/esptool-js@0.5.4/bundle.js"></script>
+  <!-- Local ESP Web Serial Flasher (esptool-js) ES Module -->
+  <script type="module">
+    import { ESPLoader, Transport } from './assets/js/esptool.js';
+    window.ESPLoader = ESPLoader;
+    window.Transport = Transport;
+    window.esptoolPackage = { ESPLoader, Transport };
+  </script>
   <style>
     /* ARDUINO IDE TOPBAR */
     .arduino-ide-bar {
@@ -943,12 +948,12 @@ async function triggerWebUpload() {
   logToConsole('========================================');
   logToConsole('[Flasher] Memuat binary firmware resmi dari server...');
 
-  let binUrl = 'assets/firmware/esp32c3_app.bin';
-  let flashOffset = 0x10000;
+  let binUrl = 'assets/firmware/esp32c3_merged.bin';
+  let flashOffset = 0x00000000;
 
   if (board.includes('esp8266') || board.includes('nodemcu_v') || board.includes('wemos_d1')) {
     binUrl = 'assets/firmware/esp8266_shawiriot.bin';
-    flashOffset = 0x0;
+    flashOffset = 0x00000000;
   }
 
   try {
