@@ -37,6 +37,17 @@ switch ($action) {
         $type = $input['type'] ?? '';
         if (!in_array($type, $validTypes)) jsonResponse(false, 'Tipe widget tidak valid.', null, 400);
 
+        // Auto-calculate position below the lowest existing widget to prevent overlap
+        $maxBottom = (int)DB::value(
+            "SELECT COALESCE(MAX(pos_y + height), 0) FROM widgets WHERE dashboard_id = ?",
+            [$dashboardId]
+        );
+        $posX = isset($input['pos_x']) ? (int)$input['pos_x'] : 0;
+        $posY = isset($input['pos_y']) && (int)$input['pos_y'] > 0 ? (int)$input['pos_y'] : $maxBottom;
+        if ($posX === 0 && $posY === 0 && $maxBottom > 0) {
+            $posY = $maxBottom;
+        }
+
         $id = DB::insert(
             "INSERT INTO widgets (dashboard_id, type, label, pin, color, text_color, min_value, max_value, unit, on_value, off_value, pos_x, pos_y, width, height)
              VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
@@ -52,8 +63,8 @@ switch ($action) {
                 sanitize($input['unit']      ?? ''),
                 sanitize($input['on_value']  ?? '1'),
                 sanitize($input['off_value'] ?? '0'),
-                (int)($input['pos_x'] ?? 0),
-                (int)($input['pos_y'] ?? 0),
+                $posX,
+                $posY,
                 max(1, min(12, (int)($input['width']  ?? 4))),
                 max(1, (int)($input['height'] ?? 2)),
             ]

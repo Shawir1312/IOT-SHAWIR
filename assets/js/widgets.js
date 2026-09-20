@@ -178,9 +178,22 @@ async function submitWidgetConfig() {
     off_value: document.getElementById('cfg-off')?.value || '0',
     width:  parseInt(document.getElementById('cfg-w')?.value || WIDGET_TYPES[type]?.defaultW || 4),
     height: parseInt(document.getElementById('cfg-h')?.value || WIDGET_TYPES[type]?.defaultH || 2),
-    pos_x: 0, pos_y: 0,
+    pos_x: 0,
+    pos_y: 0,
     csrf_token: CSRF_TOKEN,
   };
+
+  // Auto-calculate bottom-most Y coordinate when adding a new widget so it never overlaps
+  if (!editingWidgetId && Array.isArray(widgets) && widgets.length > 0) {
+    let maxBottom = 0;
+    widgets.forEach(w => {
+      const wy = parseInt(w.pos_y || 0);
+      const wh = parseInt(w.height || 2);
+      if (wy + wh > maxBottom) maxBottom = wy + wh;
+    });
+    payload.pos_x = 0;
+    payload.pos_y = maxBottom;
+  }
 
   if (editingWidgetId) payload.widget_id = editingWidgetId;
 
@@ -272,9 +285,25 @@ function updateWidgetValue(pin, value) {
 
       case 'switch': {
         const chk = body.querySelector('input[type=checkbox]');
-        const lbl = body.querySelector('div');
-        if (chk) chk.checked = value === w.on_value;
-        if (lbl) lbl.textContent = value === w.on_value ? 'ON' : 'OFF';
+        const lbl = body.querySelector('.switch-status-label');
+        const onVal = chk?.dataset?.on ?? w.on_value ?? '1';
+        const isOn = String(value).trim() === String(onVal).trim();
+        if (chk) chk.checked = isOn;
+        if (lbl) {
+          lbl.textContent = isOn ? 'ON' : 'OFF';
+          lbl.className = 'switch-status-label ' + (isOn ? 'is-on' : 'is-off');
+          lbl.style.color = isOn ? 'var(--success)' : 'var(--text-muted)';
+        }
+        break;
+      }
+
+      case 'button': {
+        const btn = body.querySelector('.momentary-btn');
+        if (btn) {
+          const onVal = btn.dataset.on || w.on_value || '1';
+          const isDown = String(value).trim() === String(onVal).trim();
+          btn.classList.toggle('btn-active-pressed', isDown);
+        }
         break;
       }
 
@@ -451,7 +480,65 @@ function closeWidgetPanel() {
   document.getElementById('widget-panel')?.classList.remove('open');
 }
 
+// ============================================================
+// SWITCH TOGGLE HANDLER
+// ============================================================
+function onSwitchToggle(input, pin) {
+  const onVal = input.dataset.on || '1';
+  const offVal = input.dataset.off || '0';
+  const val = input.checked ? onVal : offVal;
+  const parent = input.closest('.switch-container') || input.closest('.widget-body');
+  const lbl = parent ? parent.querySelector('.switch-status-label') : null;
+  if (lbl) {
+    lbl.textContent = input.checked ? 'ON' : 'OFF';
+    lbl.className = 'switch-status-label ' + (input.checked ? 'is-on' : 'is-off');
+    lbl.style.color = input.checked ? 'var(--success)' : 'var(--text-muted)';
+  }
+  sendPinValue(pin, val);
+}
+
+// ============================================================
+// MOMENTARY PUSH BUTTON (Hold for ON, Release for OFF)
+// ============================================================
+function initMomentaryButtons() {
+  document.querySelectorAll('.momentary-btn').forEach(btn => {
+    if (btn.dataset.momentaryAttached) return;
+    btn.dataset.momentaryAttached = 'true';
+
+    const pin = btn.dataset.pin;
+    const onVal = btn.dataset.on || '1';
+    const offVal = btn.dataset.off || '0';
+    let isPressed = false;
+
+    const handleDown = (e) => {
+      e.preventDefault();
+      if (isPressed) return;
+      isPressed = true;
+      btn.classList.add('btn-active-pressed');
+      sendPinValue(pin, onVal);
+    };
+
+    const handleUp = (e) => {
+      if (!isPressed) return;
+      isPressed = false;
+      btn.classList.remove('btn-active-pressed');
+      sendPinValue(pin, offVal);
+    };
+
+    btn.addEventListener('mousedown', handleDown);
+    btn.addEventListener('mouseup', handleUp);
+    btn.addEventListener('mouseleave', handleUp);
+
+    btn.addEventListener('touchstart', handleDown, { passive: false });
+    btn.addEventListener('touchend', handleUp, { passive: false });
+    btn.addEventListener('touchcancel', handleUp, { passive: false });
+  });
+}
+
 // Init on load & listen for theme change
-window.addEventListener('DOMContentLoaded', initCharts);
+window.addEventListener('DOMContentLoaded', () => {
+  initCharts();
+  initMomentaryButtons();
+});
 window.addEventListener('themeChanged', () => { setTimeout(initCharts, 50); });
 

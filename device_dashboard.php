@@ -252,17 +252,28 @@ function renderWidgetBody(array $w, string $val): string {
                     <div class='led-label'>" . ($on ? 'HIDUP' : 'MATI') . "</div>";
 
         case 'button':
-            return "<button class='widget-btn' style='background:{$color}' onclick='sendPinValue(\"{$w['pin']}\", \"{$w['on_value']}\")'>
-                      <i class='fas fa-hand-pointer'></i> {$w['label']}
+            $onVal = htmlspecialchars($w['on_value'] ?? '1');
+            $offVal = htmlspecialchars($w['off_value'] ?? '0');
+            return "<button type='button' class='widget-btn momentary-btn' style='background:{$color}'
+                      data-pin='{$w['pin']}'
+                      data-on='{$onVal}'
+                      data-off='{$offVal}'
+                      title='Tahan untuk ON, lepas untuk OFF'>
+                      <i class='fas fa-hand-pointer'></i> <span class='btn-label'>{$w['label']}</span>
                     </button>";
 
         case 'switch':
-            $checked = $val === $w['on_value'] ? 'checked' : '';
-            return "<label class='toggle-switch'>
-                      <input type='checkbox' {$checked} onchange='sendPinValue(\"{$w['pin']}\", this.checked ? \"{$w['on_value']}\" : \"{$w['off_value']}\")'>
-                      <div class='toggle-track'></div>
-                    </label>
-                    <div style='font-size:0.8rem;color:var(--text-secondary)'>" . ($val === $w['on_value'] ? 'HIDUP' : 'MATI') . "</div>";
+            $isOn = (string)$val === (string)($w['on_value'] ?? '1');
+            $checked = $isOn ? 'checked' : '';
+            $statusText = $isOn ? 'ON' : 'OFF';
+            $statusClass = $isOn ? 'is-on' : 'is-off';
+            return "<div class='switch-container'>
+                      <label class='toggle-switch'>
+                        <input type='checkbox' {$checked} data-on='" . htmlspecialchars($w['on_value'] ?? '1') . "' data-off='" . htmlspecialchars($w['off_value'] ?? '0') . "' onchange='onSwitchToggle(this, \"{$w['pin']}\")'>
+                        <span class='toggle-track'></span>
+                      </label>
+                      <span class='switch-status-label {$statusClass}'>{$statusText}</span>
+                    </div>";
 
         case 'slider':
             $numVal = is_numeric($val) ? (float)$val : $min;

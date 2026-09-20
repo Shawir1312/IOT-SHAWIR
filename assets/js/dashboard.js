@@ -351,20 +351,71 @@ function applyGridCoordinates() {
   const isMobile = window.innerWidth <= 768;
   const cols = isMobile ? 6 : 12;
 
+  // Track occupied 2D cells to automatically push overlapping widgets down
+  const occupied = {};
+
   document.querySelectorAll('.widget').forEach(wEl => {
     const wid = wEl.dataset.id;
     const wObj = widgets.find(w => w.id == wid);
-    const x = parseInt(wEl.dataset.x ?? wObj?.pos_x ?? 0);
-    const y = parseInt(wEl.dataset.y ?? wObj?.pos_y ?? 0);
-    const w = parseInt(wEl.dataset.w ?? wObj?.width ?? (isMobile ? 3 : 4));
-    const h = parseInt(wEl.dataset.h ?? wObj?.height ?? 2);
+    let x = parseInt(wEl.dataset.x ?? wObj?.pos_x ?? 0);
+    let y = parseInt(wEl.dataset.y ?? wObj?.pos_y ?? 0);
+    let w = parseInt(wEl.dataset.w ?? wObj?.width ?? (isMobile ? 3 : 4));
+    let h = parseInt(wEl.dataset.h ?? wObj?.height ?? 2);
 
-    const colSpan = Math.max(1, Math.min(cols, w));
-    const colX = Math.max(0, Math.min(cols - colSpan, x));
+    let colSpan = Math.max(1, Math.min(cols, w));
+    let colX = Math.max(0, Math.min(cols - colSpan, x));
+
+    // Collision check: if another widget is already occupying these cells, find the next free row
+    let hasCollision = false;
+    for (let r = y; r < y + h; r++) {
+      for (let c = colX; c < colX + colSpan; c++) {
+        if (occupied[`${r},${c}`]) {
+          hasCollision = true;
+          break;
+        }
+      }
+      if (hasCollision) break;
+    }
+
+    if (hasCollision) {
+      let candidateY = y + 1;
+      let placed = false;
+      while (!placed && candidateY < 200) {
+        let collides = false;
+        for (let r = candidateY; r < candidateY + h; r++) {
+          for (let c = colX; c < colX + colSpan; c++) {
+            if (occupied[`${r},${c}`]) {
+              collides = true;
+              break;
+            }
+          }
+          if (collides) break;
+        }
+        if (!collides) {
+          y = candidateY;
+          placed = true;
+        } else {
+          candidateY++;
+        }
+      }
+      wEl.dataset.y = y;
+      if (wObj) wObj.pos_y = y;
+    }
+
+    // Mark as occupied
+    for (let r = y; r < y + h; r++) {
+      for (let c = colX; c < colX + colSpan; c++) {
+        occupied[`${r},${c}`] = true;
+      }
+    }
 
     wEl.style.gridColumn = `${colX + 1} / span ${colSpan}`;
     wEl.style.gridRow = `${y + 1} / span ${h}`;
   });
+
+  if (typeof initMomentaryButtons === 'function') {
+    initMomentaryButtons();
+  }
 }
 
 // ============================================================
