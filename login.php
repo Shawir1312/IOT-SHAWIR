@@ -55,6 +55,12 @@ $flash = getFlash();
       </div>
     <?php endif; ?>
 
+    <?php if (isset($_GET['reset']) && $_GET['reset'] === 'success' && empty($flash)): ?>
+      <div class="alert alert-success">
+        <i class="fas fa-check-circle"></i> Kata sandi Anda berhasil diperbarui. Silakan masuk dengan kata sandi baru.
+      </div>
+    <?php endif; ?>
+
     <?php if ($error): ?>
       <div class="alert alert-danger" id="login-error">
         <i class="fas fa-exclamation-circle"></i> <?= sanitize($error) ?>
@@ -86,7 +92,7 @@ $flash = getFlash();
       <div class="form-group">
         <label class="form-label" for="password">
           Password
-          <a href="#" style="float:right;font-size:0.78rem;color:var(--primary-light)">Lupa password?</a>
+          <a href="forgot_password.php" style="float:right;font-size:0.78rem;color:var(--primary-light)">Lupa password?</a>
         </label>
         <div class="input-group">
           <span class="input-prefix"><i class="fas fa-lock"></i></span>

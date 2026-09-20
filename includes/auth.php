@@ -255,6 +255,156 @@ function resendVerification(string $email): array {
 }
 
 // ============================================================
+// PASSWORD RESET HELPERS
+// ============================================================
+
+/**
+ * Request password reset (Generates Token + OTP and sends email)
+ */
+function requestPasswordReset(string $email): array {
+    ensurePasswordResetTable();
+    $email = strtolower(trim($email));
+
+    if (!validateEmail($email)) {
+        return ['success' => false, 'message' => 'Format alamat email tidak valid.'];
+    }
+
+    $user = DB::row("SELECT * FROM users WHERE email = ? LIMIT 1", [$email]);
+    if (!$user) {
+        return ['success' => false, 'message' => 'Alamat email tidak terdaftar dalam sistem.'];
+    }
+
+    if (empty($user['is_active'])) {
+        return ['success' => false, 'message' => 'Akun dengan email ini dinonaktifkan. Silakan hubungi admin.'];
+    }
+
+    // Rate limiting: 60 seconds cooldown
+    $last = DB::row("SELECT TIMESTAMPDIFF(SECOND, created_at, NOW()) as diff FROM password_resets WHERE email = ? ORDER BY id DESC LIMIT 1", [$email]);
+    if ($last && $last['diff'] !== null && (int)$last['diff'] < 60) {
+        $remaining = 60 - (int)$last['diff'];
+        return ['success' => false, 'message' => "Mohon tunggu {$remaining} detik sebelum meminta pengiriman ulang kode."];
+    }
+
+    $res = sendPasswordResetEmail((int)$user['id'], $user['name'], $user['email']);
+    if ($res['success']) {
+        return [
+            'success' => true,
+            'message' => 'Instruksi pemulihan dan kode OTP telah dikirim ke email Anda.',
+            'email'   => $email,
+            'otp'     => $res['otp'] ?? '',
+            'token'   => $res['token'] ?? ''
+        ];
+    }
+
+    return [
+        'success' => true, // Still allow moving to OTP screen so user/developer can use OTP
+        'warning' => 'Gagal mengirim email secara langsung (SMTP offline/belum aktif). ' . ($res['message'] ?? ''),
+        'message' => 'Permintaan reset berhasil dibuat.',
+        'email'   => $email,
+        'otp'     => $res['otp'] ?? '',
+        'token'   => $res['token'] ?? ''
+    ];
+}
+
+/**
+ * Verify reset token from URL
+ */
+function verifyPasswordResetToken(string $token): ?array {
+    ensurePasswordResetTable();
+    $token = trim($token);
+    if (empty($token)) return null;
+
+    $row = DB::row(
+        "SELECT pr.*, u.name, u.email as user_email 
+         FROM password_resets pr 
+         JOIN users u ON pr.user_id = u.id 
+         WHERE pr.token = ? AND pr.expires_at > NOW() 
+         LIMIT 1",
+        [$token]
+    );
+
+    return $row ?: null;
+}
+
+/**
+ * Verify reset using 6-digit OTP
+ */
+function verifyPasswordResetOtp(string $email, string $otp): ?array {
+    ensurePasswordResetTable();
+    $email = strtolower(trim($email));
+    $otp   = trim($otp);
+    if (empty($email) || empty($otp)) return null;
+
+    $row = DB::row(
+        "SELECT pr.*, u.name, u.email as user_email 
+         FROM password_resets pr 
+         JOIN users u ON pr.user_id = u.id 
+         WHERE pr.email = ? AND pr.otp_code = ? AND pr.expires_at > NOW() 
+         LIMIT 1",
+        [$email, $otp]
+    );
+
+    return $row ?: null;
+}
+
+/**
+ * Complete password reset with new password
+ */
+function completePasswordReset(string $token, string $password, string $passwordConfirm): array {
+    ensurePasswordResetTable();
+    $reset = verifyPasswordResetToken($token);
+
+    if (!$reset) {
+        return [
+            'success' => false,
+            'message' => 'Tautan atau sesi pemulihan sandi tidak valid atau sudah kedaluwarsa. Silakan ajukan permohonan baru.'
+        ];
+    }
+
+    if ($password !== $passwordConfirm) {
+        return [
+            'success' => false,
+            'message' => 'Konfirmasi kata sandi baru tidak cocok.'
+        ];
+    }
+
+    $errors = validatePassword($password);
+    if (!empty($errors)) {
+        return [
+            'success' => false,
+            'message' => implode(', ', $errors)
+        ];
+    }
+
+    $hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => BCRYPT_ROUNDS]);
+
+    // Update user password, clear remember tokens for security, and auto-verify email
+    DB::query(
+        "UPDATE users 
+         SET password = ?, 
+             remember_token = NULL, 
+             email_verified_at = COALESCE(email_verified_at, NOW()), 
+             is_active = 1, 
+             updated_at = NOW() 
+         WHERE id = ?",
+        [$hash, (int)$reset['user_id']]
+    );
+
+    // Delete used password reset tokens
+    try {
+        DB::query("DELETE FROM password_resets WHERE user_id = ? OR email = ?", [(int)$reset['user_id'], $reset['email']]);
+    } catch (\Throwable $e) {}
+
+    // Clear session fallbacks
+    unset($_SESSION['dev_reset_otp'], $_SESSION['dev_reset_token'], $_SESSION['last_reset_email']);
+
+    return [
+        'success' => true,
+        'message' => 'Kata sandi berhasil diperbarui! Silakan masuk dengan kata sandi baru Anda.'
+    ];
+}
+
+// ============================================================
 // LOGOUT
 // ============================================================
 

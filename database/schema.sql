@@ -191,6 +191,23 @@ CREATE TABLE IF NOT EXISTS `email_verifications` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
+-- Table: password_resets (Token & OTP Reset Password)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `password_resets` (
+  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `user_id` INT UNSIGNED NOT NULL,
+  `email` VARCHAR(150) NOT NULL,
+  `token` VARCHAR(64) NOT NULL UNIQUE,
+  `otp_code` VARCHAR(6) NOT NULL,
+  `expires_at` TIMESTAMP NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX `idx_pr_email` (`email`),
+  INDEX `idx_pr_token` (`token`),
+  INDEX `idx_pr_otp` (`otp_code`),
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
 -- Table: platform_settings
 -- ============================================================
 CREATE TABLE IF NOT EXISTS `platform_settings` (

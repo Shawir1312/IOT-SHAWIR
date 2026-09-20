@@ -195,6 +195,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isInstalled) {
                       `last_ping` TIMESTAMP NULL DEFAULT NULL
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+                    CREATE TABLE IF NOT EXISTS `email_verifications` (
+                      `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                      `user_id` INT UNSIGNED NOT NULL,
+                      `email` VARCHAR(150) NOT NULL,
+                      `token` VARCHAR(64) NOT NULL UNIQUE,
+                      `otp_code` VARCHAR(6) NOT NULL,
+                      `expires_at` TIMESTAMP NOT NULL,
+                      `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                      INDEX `idx_ev_email` (`email`),
+                      INDEX `idx_ev_token` (`token`),
+                      INDEX `idx_ev_otp` (`otp_code`),
+                      FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+                    CREATE TABLE IF NOT EXISTS `password_resets` (
+                      `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                      `user_id` INT UNSIGNED NOT NULL,
+                      `email` VARCHAR(150) NOT NULL,
+                      `token` VARCHAR(64) NOT NULL UNIQUE,
+                      `otp_code` VARCHAR(6) NOT NULL,
+                      `expires_at` TIMESTAMP NOT NULL,
+                      `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                      INDEX `idx_pr_email` (`email`),
+                      INDEX `idx_pr_token` (`token`),
+                      INDEX `idx_pr_otp` (`otp_code`),
+                      FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
                     CREATE TABLE IF NOT EXISTS `platform_settings` (
                       `key` VARCHAR(100) PRIMARY KEY,
                       `value` TEXT,

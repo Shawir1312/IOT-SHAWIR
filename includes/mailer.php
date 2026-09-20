@@ -33,6 +33,32 @@ function ensureEmailVerificationTable(): void {
 }
 
 /**
+ * Ensure password_resets table exists
+ */
+function ensurePasswordResetTable(): void {
+    static $ensured = false;
+    if ($ensured) return;
+    try {
+        DB::query("CREATE TABLE IF NOT EXISTS `password_resets` (
+            `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            `user_id` INT UNSIGNED NOT NULL,
+            `email` VARCHAR(150) NOT NULL,
+            `token` VARCHAR(64) NOT NULL UNIQUE,
+            `otp_code` VARCHAR(6) NOT NULL,
+            `expires_at` TIMESTAMP NOT NULL,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX `idx_pr_email` (`email`),
+            INDEX `idx_pr_token` (`token`),
+            INDEX `idx_pr_otp` (`otp_code`),
+            FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+    } catch (\Throwable $e) {
+        // Silent table creation failure if permission restricted
+    }
+    $ensured = true;
+}
+
+/**
  * Lightweight Native SMTP Client (Pure PHP Socket)
  */
 class ShawirSMTP {
@@ -471,3 +497,126 @@ function buildVerificationEmailTemplate(string $name, string $otp, string $verif
 </html>
 HTML;
 }
+
+/**
+ * Generate and send Password Reset Token + 6-digit OTP
+ */
+function sendPasswordResetEmail(int $userId, string $userName, string $email): array {
+    ensurePasswordResetTable();
+
+    // 1. Generate Token (64 char hex) & OTP (6 digit)
+    $token   = generateToken(32);
+    $otpCode = str_pad((string)random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+
+    // 2. Remove old pending password resets for this user/email
+    try {
+        DB::query("DELETE FROM password_resets WHERE user_id = ? OR email = ?", [$userId, $email]);
+    } catch (\Throwable $e) {}
+
+    // 3. Save new reset token with 1 hour expiry
+    DB::insert(
+        "INSERT INTO password_resets (user_id, email, token, otp_code, expires_at) 
+         VALUES (?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))",
+        [$userId, $email, $token, $otpCode]
+    );
+
+    // Save to session for convenient developer fallback if SMTP is unconfigured
+    $_SESSION['last_reset_email'] = $email;
+    $_SESSION['dev_reset_otp']    = $otpCode;
+    $_SESSION['dev_reset_token']  = $token;
+
+    // 4. Construct Email HTML
+    $platformName = getSetting('platform_name', 'ShawirIOT');
+    $resetUrl = PLATFORM_URL . '/forgot_password.php?token=' . urlencode($token);
+
+    $subject = "Atur Ulang Kata Sandi {$platformName}: {$otpCode}";
+    $html = buildPasswordResetEmailTemplate($userName, $otpCode, $resetUrl, $platformName);
+
+    $result = sendEmail($email, $subject, $html);
+    $result['otp']   = $otpCode;
+    $result['token'] = $token;
+
+    return $result;
+}
+
+/**
+ * Modern HTML Email Template for Password Reset
+ */
+function buildPasswordResetEmailTemplate(string $name, string $otp, string $resetUrl, string $platformName): string {
+    $safeName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+    $safePlatform = htmlspecialchars($platformName, ENT_QUOTES, 'UTF-8');
+
+    return <<<HTML
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atur Ulang Kata Sandi {$safePlatform}</title>
+<style>
+  body { margin:0; padding:0; background-color:#0b0f19; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#cbd5e1; }
+  .wrapper { width:100%; max-width:580px; margin:0 auto; padding:32px 16px; }
+  .card { background:#131d31; border:1px solid #1e293b; border-radius:16px; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,0.4); }
+  .header { padding:32px 24px; text-align:center; background:linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); border-bottom:1px solid #1e293b; }
+  .header h1 { margin:0; font-size:24px; font-weight:800; color:#ffffff; letter-spacing:-0.5px; }
+  .header p { margin:6px 0 0 0; font-size:13px; color:#94a3b8; }
+  .content { padding:32px 28px; }
+  .greeting { font-size:16px; color:#f8fafc; font-weight:600; margin-bottom:12px; }
+  .desc { font-size:14px; line-height:1.6; color:#94a3b8; margin-bottom:24px; }
+  .otp-box { background:#0a0e17; border:2px dashed #e11d48; border-radius:12px; padding:20px; text-align:center; margin:24px 0; }
+  .otp-label { font-size:11px; text-transform:uppercase; letter-spacing:1.5px; color:#fb7185; font-weight:700; margin-bottom:8px; }
+  .otp-code { font-family:Consolas,Monaco,'Courier New',Courier,monospace; font-size:36px; font-weight:800; letter-spacing:8px; color:#f43f5e; margin:4px 0; }
+  .otp-exp { font-size:12px; color:#94a3b8; margin-top:6px; }
+  .btn-wrap { text-align:center; margin:28px 0; }
+  .btn { display:inline-block; padding:14px 32px; background:linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); color:#ffffff !important; text-decoration:none; font-weight:700; font-size:15px; border-radius:10px; box-shadow:0 4px 14px rgba(225,29,72,0.4); }
+  .security-alert { background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.2); border-radius:10px; padding:14px; margin:20px 0; font-size:13px; color:#fca5a5; line-height:1.5; }
+  .divider { border-top:1px solid #1e293b; margin:28px 0 20px 0; }
+  .footer { font-size:12px; color:#64748b; line-height:1.5; text-align:center; }
+  .url-wrap { word-break:break-all; font-size:12px; color:#818cf8; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="card">
+    <div class="header">
+      <h1>{$safePlatform}</h1>
+      <p>Pemulihan Akses & Keamanan Akun</p>
+    </div>
+    <div class="content">
+      <div class="greeting">Halo, {$safeName}! 🔒</div>
+      <div class="desc">
+        Kami menerima permintaan untuk mengatur ulang kata sandi akun Anda di <strong>{$safePlatform}</strong>. Silakan gunakan tombol di bawah ini atau masukkan kode OTP 6-digit pada halaman lupa sandi:
+      </div>
+
+      <div class="btn-wrap">
+        <a href="{$resetUrl}" class="btn" target="_blank">🔑 Atur Ulang Kata Sandi Saya</a>
+      </div>
+
+      <div class="otp-box">
+        <div class="otp-label">Atau Masukkan Kode OTP Reset</div>
+        <div class="otp-code">{$otp}</div>
+        <div class="otp-exp">Kode berlaku selama 1 jam</div>
+      </div>
+
+      <div class="security-alert">
+        <strong>Penting:</strong> Jika Anda tidak pernah meminta pengaturan ulang kata sandi ini, jangan berikan kode di atas kepada siapapun dan segera amankan akun Anda.
+      </div>
+
+      <div class="divider"></div>
+
+      <div style="font-size:12px; color:#94a3b8; margin-bottom:8px;">Atau salin tautan berikut ke browser Anda:</div>
+      <div class="url-wrap"><a href="{$resetUrl}" style="color:#818cf8;">{$resetUrl}</a></div>
+
+      <div class="divider"></div>
+
+      <div class="footer">
+        &copy; 2026 {$safePlatform}. Seluruh hak cipta dilindungi.
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+HTML;
+}
+
