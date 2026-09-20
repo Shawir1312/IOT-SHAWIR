@@ -65,7 +65,7 @@ switch ($action) {
                 sanitize($input['off_value'] ?? '0'),
                 $posX,
                 $posY,
-                max(1, min(12, (int)($input['width']  ?? 4))),
+                max(1, min(12, (int)($input['width']  ?? 3))),
                 max(1, (int)($input['height'] ?? 2)),
             ]
         );

@@ -12,11 +12,11 @@ const WIDGET_TYPES = {
   bar_chart:     { label: 'Grafik Batang',   icon: 'fa-chart-bar',      defaultW: 6, defaultH: 4 },
   gauge:         { label: 'Speedometer (Gauge)', icon: 'fa-gauge-high', defaultW: 3, defaultH: 3 },
   button:        { label: 'Tombol Tekan',   icon: 'fa-hand-pointer',   defaultW: 3, defaultH: 2 },
-  slider:        { label: 'Pengatur Nilai (Slider)', icon: 'fa-sliders-h', defaultW: 4, defaultH: 2 },
-  switch:        { label: 'Saklar ON/OFF',  icon: 'fa-toggle-on',      defaultW: 2, defaultH: 2 },
+  slider:        { label: 'Pengatur Nilai (Slider)', icon: 'fa-sliders-h', defaultW: 6, defaultH: 2 },
+  switch:        { label: 'Saklar ON/OFF',  icon: 'fa-toggle-on',      defaultW: 3, defaultH: 2 },
   led:           { label: 'Indikator LED',  icon: 'fa-circle-dot',     defaultW: 2, defaultH: 2 },
   terminal:      { label: 'Terminal Log',   icon: 'fa-terminal',       defaultW: 6, defaultH: 4 },
-  label:         { label: 'Label Teks',     icon: 'fa-font',           defaultW: 4, defaultH: 1 },
+  label:         { label: 'Label Teks',     icon: 'fa-font',           defaultW: 6, defaultH: 1 },
   map:           { label: 'Peta Lokasi GPS',icon: 'fa-map-marker-alt', defaultW: 6, defaultH: 5 },
 };
 
@@ -35,6 +35,12 @@ function selectWidgetType(type) {
 function editWidget(id) {
   const w = widgets.find(w => w.id == id);
   if (!w) return;
+  // Sync latest width & height from live DOM element if it was resized or toggled
+  const wEl = document.getElementById('widget-' + id);
+  if (wEl) {
+    if (wEl.dataset.w) w.width = parseInt(wEl.dataset.w);
+    if (wEl.dataset.h) w.height = parseInt(wEl.dataset.h);
+  }
   editingWidgetId    = id;
   selectedWidgetType = w.type;
   showWidgetConfigForm(w.type, w);
@@ -54,6 +60,12 @@ function showWidgetConfigForm(type, existing) {
   const hasUnit  = ['value_display','slider','gauge'].includes(type);
 
   const v = existing || {};
+  let currentW = WIDGET_TYPES[type]?.defaultW || 3;
+  if (existing && v.width) {
+    currentW = parseInt(v.width);
+    if (currentW > 6) currentW = 6;
+  }
+  let currentH = existing && v.height ? parseInt(v.height) : (WIDGET_TYPES[type]?.defaultH || 2);
 
   const html = `
     <form id="widget-config-form" style="display:flex;flex-direction:column;gap:1rem">
@@ -117,19 +129,22 @@ function showWidgetConfigForm(type, existing) {
         <div class="form-group">
           <label class="form-label">Lebar Tampilan</label>
           <select id="cfg-w" class="form-control">
-            <option value="6" ${(v.width || WIDGET_TYPES[type]?.defaultW || 4) <= 6 ? 'selected' : ''}>Setengah Layar (50% / 2 Kolom)</option>
-            <option value="12" ${(v.width || WIDGET_TYPES[type]?.defaultW || 4) > 6 ? 'selected' : ''}>Layar Penuh (100% / 1 Kolom)</option>
-            <option value="4" ${(v.width == 4) ? 'selected' : ''}>Sepertiga Layar (33%)</option>
+            <option value="3" ${currentW === 3 ? 'selected' : ''}>Setengah Layar (50% / 3 Kolom - Muat 2 Widget Sebaris)</option>
+            <option value="6" ${currentW === 6 ? 'selected' : ''}>Layar Penuh (100% / 6 Kolom Penuh)</option>
+            <option value="2" ${currentW === 2 ? 'selected' : ''}>Sepertiga Layar (33% / 2 Kolom - Muat 3 Widget Sebaris)</option>
+            <option value="4" ${currentW === 4 ? 'selected' : ''}>Dua Pertiga Layar (66% / 4 Kolom)</option>
+            <option value="1" ${currentW === 1 ? 'selected' : ''}>1 Kolom Ringkas (16% / 1 Kolom)</option>
+            <option value="5" ${currentW === 5 ? 'selected' : ''}>5 Kolom (83% Layar)</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label">Tinggi Tampilan</label>
           <select id="cfg-h" class="form-control">
-            <option value="1" ${v.height == 1 ? 'selected' : ''}>1x (Ringkas)</option>
-            <option value="2" ${(v.height == 2 || !v.height) ? 'selected' : ''}>2x (Standar)</option>
-            <option value="3" ${v.height == 3 ? 'selected' : ''}>3x (Sedang)</option>
-            <option value="4" ${v.height == 4 ? 'selected' : ''}>4x (Tinggi / Grafik)</option>
-            <option value="5" ${v.height == 5 ? 'selected' : ''}>5x (Ekstra Besar)</option>
+            <option value="1" ${currentH == 1 ? 'selected' : ''}>1x (Ringkas)</option>
+            <option value="2" ${(currentH == 2 || !currentH) ? 'selected' : ''}>2x (Standar)</option>
+            <option value="3" ${currentH == 3 ? 'selected' : ''}>3x (Sedang)</option>
+            <option value="4" ${currentH == 4 ? 'selected' : ''}>4x (Tinggi / Grafik)</option>
+            <option value="5" ${currentH == 5 ? 'selected' : ''}>5x (Ekstra Besar)</option>
           </select>
         </div>
       </div>
@@ -164,6 +179,10 @@ async function submitWidgetConfig() {
   const type = selectedWidgetType;
   if (!type) return;
 
+  const existingWidget = editingWidgetId ? widgets.find(w => w.id == editingWidgetId) : null;
+  const cfgW = parseInt(document.getElementById('cfg-w')?.value || existingWidget?.width || WIDGET_TYPES[type]?.defaultW || 3);
+  const cfgH = parseInt(document.getElementById('cfg-h')?.value || existingWidget?.height || WIDGET_TYPES[type]?.defaultH || 2);
+
   const payload = {
     action:       editingWidgetId ? 'update' : 'create',
     dashboard_id: DASHBOARD_ID,
@@ -176,8 +195,8 @@ async function submitWidgetConfig() {
     unit:      document.getElementById('cfg-unit')?.value || '',
     on_value:  document.getElementById('cfg-on')?.value || '1',
     off_value: document.getElementById('cfg-off')?.value || '0',
-    width:  parseInt(document.getElementById('cfg-w')?.value || WIDGET_TYPES[type]?.defaultW || 4),
-    height: parseInt(document.getElementById('cfg-h')?.value || WIDGET_TYPES[type]?.defaultH || 2),
+    width:  cfgW,
+    height: cfgH,
     pos_x: 0,
     pos_y: 0,
     csrf_token: CSRF_TOKEN,

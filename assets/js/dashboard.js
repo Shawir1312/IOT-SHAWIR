@@ -430,8 +430,9 @@ async function saveLayout(silent = false) {
     const wid = parseInt(el.dataset.id);
     const x = parseInt(el.dataset.x || 0);
     const y = parseInt(el.dataset.y || 0);
-    const w = parseInt(el.dataset.w || 6);
-    const h = parseInt(el.dataset.h || 2);
+    const wObj = widgets.find(item => item.id == wid);
+    const w = parseInt(el.dataset.w ?? wObj?.width ?? 3);
+    const h = parseInt(el.dataset.h ?? wObj?.height ?? 2);
 
     layout.push({
       id:     wid,
