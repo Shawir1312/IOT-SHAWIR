@@ -54,9 +54,14 @@ $tagline      = getSetting('platform_tagline', 'Platform IoT Modern');
     }
 
     .navbar-brand img {
-      height: 42px;
-      max-width: 200px;
+      height: 64px;
+      max-width: 260px;
       object-fit: contain;
+      transition: transform var(--transition);
+    }
+
+    .navbar-brand img:hover {
+      transform: scale(1.02);
     }
 
     .navbar-links { display: flex; align-items: center; gap: 2rem; }
@@ -339,7 +344,8 @@ $tagline      = getSetting('platform_tagline', 'Platform IoT Modern');
     }
 
     @media (max-width: 768px) {
-      .navbar { padding: 0.75rem 1rem; }
+      .navbar { padding: 0.5rem 1rem; }
+      .navbar-brand img { height: 48px; max-width: 190px; }
       .navbar-links { display: none; }
       .hero { padding: 6rem 1rem 3rem; }
       .hero-title { font-size: 2.1rem; }
@@ -365,8 +371,8 @@ $tagline      = getSetting('platform_tagline', 'Platform IoT Modern');
 
 <!-- NAVBAR -->
 <nav class="navbar" id="navbar">
-  <a href="index.php" class="navbar-brand" style="display:flex;align-items:center;text-decoration:none">
-    <img src="assets/img/logo.png" alt="<?= $platformName ?>" style="height:48px;max-width:210px;object-fit:contain">
+  <a href="index.php" class="navbar-brand">
+    <img src="assets/img/logo.png" alt="<?= $platformName ?>" style="height:64px;max-width:260px;object-fit:contain">
   </a>
   <div class="navbar-links">
     <a href="#features">Fitur</a>
@@ -387,9 +393,6 @@ $tagline      = getSetting('platform_tagline', 'Platform IoT Modern');
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="hero-content">
-    <div style="margin-bottom:1.5rem">
-      <img src="assets/img/logo.png" alt="<?= $platformName ?>" style="max-height:85px;max-width:320px;width:100%;object-fit:contain;filter:drop-shadow(0 6px 20px rgba(0,0,0,0.3))">
-    </div>
     <div class="hero-eyebrow"><i class="fas fa-bolt"></i> Platform IoT Next-Gen</div>
     <h1 class="hero-title">
       Kontrol Perangkat IoT<br>
