@@ -7,8 +7,8 @@
    ============================================================ */
 .device-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
 }
 
 .device-card {
@@ -17,9 +17,9 @@
   border-radius: var(--radius-lg);
   padding: 1.25rem;
   transition: all var(--transition);
-  cursor: pointer;
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .device-card::after {
@@ -57,8 +57,43 @@
 
 .device-card-actions {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
-  margin-top: 0.75rem;
+  margin-top: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.device-card-actions .btn-main-action {
+  flex: 1 1 auto;
+  min-width: 130px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.device-card-actions .action-group-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.device-card-actions .btn-icon-action {
+  width: 34px;
+  height: 34px;
+  padding: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm, 6px);
+  font-size: 0.82rem;
 }
 
 /* ============================================================
@@ -761,11 +796,13 @@ input:checked + .toggle-track::before { transform: translateX(24px); }
 }
 
 .token-value {
-  font-family: 'Courier New', monospace;
-  font-size: 0.85rem;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.82rem;
   color: var(--primary-light);
   flex: 1;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.05em;
+  word-break: break-all;
+  user-select: all;
 }
 
 /* ============================================================

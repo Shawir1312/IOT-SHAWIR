@@ -533,55 +533,50 @@ $tagline      = getSetting('platform_tagline', 'Platform IoT Modern');
       <h2 class="section-title">Mulai Gratis, Upgrade Sesuai Kebutuhan</h2>
       <p class="section-desc">Semua paket menggunakan sistem kredit yang dikelola admin.</p>
     </div>
+    <?php
+    $landingPlans = [];
+    try {
+        $landingPlans = DB::rows("SELECT * FROM plans WHERE is_active = 1 ORDER BY credits_required ASC");
+    } catch (\Throwable $e) {}
+
+    if (empty($landingPlans)) {
+        $landingPlans = [
+            ['name' => 'Free', 'slug' => 'free', 'credits_required' => 0, 'max_devices' => (int)getSetting('max_free_devices', 1), 'max_widgets_per_device' => 5, 'history_days' => 1, 'description' => 'Gratis selamanya'],
+            ['name' => 'Basic', 'slug' => 'basic', 'credits_required' => 100, 'max_devices' => 5, 'max_widgets_per_device' => 20, 'history_days' => 7, 'description' => 'Sekali bayar'],
+            ['name' => 'Pro', 'slug' => 'pro', 'credits_required' => 300, 'max_devices' => 20, 'max_widgets_per_device' => 100, 'history_days' => 30, 'description' => 'Sekali bayar'],
+            ['name' => 'Enterprise', 'slug' => 'enterprise', 'credits_required' => 1000, 'max_devices' => 9999, 'max_widgets_per_device' => 9999, 'history_days' => 365, 'description' => 'Sekali bayar'],
+        ];
+    }
+    ?>
     <div class="plans-grid">
-      <div class="plan-card-landing">
-        <div class="plan-name-lg">Free</div>
-        <div class="plan-price">0 <sub>kredit</sub></div>
-        <div class="plan-credit">Gratis selamanya</div>
-        <ul class="plan-feat-list">
-          <li>1 Device</li>
-          <li>5 Widget per Device</li>
-          <li>Histori 1 Hari</li>
-          <li>API Akses</li>
-        </ul>
-        <a href="register.php" class="btn btn-secondary btn-block">Mulai Gratis</a>
-      </div>
-      <div class="plan-card-landing">
-        <div class="plan-name-lg">Basic</div>
-        <div class="plan-price">100 <sub>kredit</sub></div>
-        <div class="plan-credit">Sekali bayar</div>
-        <ul class="plan-feat-list">
-          <li>5 Device</li>
-          <li>20 Widget per Device</li>
-          <li>Histori 7 Hari</li>
-          <li>Export CSV</li>
-        </ul>
-        <a href="register.php" class="btn btn-secondary btn-block">Pilih Basic</a>
-      </div>
-      <div class="plan-card-landing featured">
-        <div class="plan-name-lg">Pro</div>
-        <div class="plan-price">300 <sub>kredit</sub></div>
-        <div class="plan-credit">Sekali bayar</div>
-        <ul class="plan-feat-list">
-          <li>20 Device</li>
-          <li>100 Widget per Device</li>
-          <li>Histori 30 Hari</li>
-          <li>Priority Support</li>
-        </ul>
-        <a href="register.php" class="btn btn-primary btn-block">Pilih Pro</a>
-      </div>
-      <div class="plan-card-landing">
-        <div class="plan-name-lg">Enterprise</div>
-        <div class="plan-price">1000 <sub>kredit</sub></div>
-        <div class="plan-credit">Sekali bayar</div>
-        <ul class="plan-feat-list">
-          <li>Unlimited Device</li>
-          <li>Unlimited Widget</li>
-          <li>Histori 1 Tahun</li>
-          <li>Dedicated Support</li>
-        </ul>
-        <a href="register.php" class="btn btn-secondary btn-block">Pilih Enterprise</a>
-      </div>
+      <?php foreach ($landingPlans as $lp): ?>
+        <?php
+          $isPro = (strtolower($lp['slug'] ?? '') === 'pro' || strtolower($lp['name'] ?? '') === 'pro');
+          $devCount = (int)$lp['max_devices'];
+          $devText = ($devCount >= 9999) ? 'Unlimited Device' : ($devCount . ' Device');
+          $widgetCount = (int)$lp['max_widgets_per_device'];
+          $widgetText = ($widgetCount >= 9999) ? 'Unlimited Widget' : ($widgetCount . ' Widget per Device');
+          $histDays = (int)$lp['history_days'];
+          $histText = ($histDays >= 365) ? 'Histori 1 Tahun' : ('Histori ' . $histDays . ' Hari');
+          $creditsReq = (int)$lp['credits_required'];
+          $priceLabel = ($creditsReq === 0) ? '0' : number_format($creditsReq);
+          $creditDesc = !empty($lp['description']) ? sanitize($lp['description']) : ($creditsReq === 0 ? 'Gratis selamanya' : 'Sekali bayar');
+          $btnClass = $isPro ? 'btn-primary' : 'btn-secondary';
+          $btnText = ($creditsReq === 0) ? 'Mulai Gratis' : ('Pilih ' . sanitize($lp['name']));
+        ?>
+        <div class="plan-card-landing <?= $isPro ? 'featured' : '' ?>">
+          <div class="plan-name-lg"><?= sanitize($lp['name']) ?></div>
+          <div class="plan-price"><?= $priceLabel ?> <sub>kredit</sub></div>
+          <div class="plan-credit"><?= $creditDesc ?></div>
+          <ul class="plan-feat-list">
+            <li><strong><?= $devText ?></strong></li>
+            <li><?= $widgetText ?></li>
+            <li><?= $histText ?></li>
+            <li>API Akses & Webhook</li>
+          </ul>
+          <a href="register.php" class="btn <?= $btnClass ?> btn-block"><?= $btnText ?></a>
+        </div>
+      <?php endforeach; ?>
     </div>
   </div>
 </section>

@@ -173,18 +173,20 @@ $devices = DB::rows(
               </div>
 
               <div class="device-card-actions">
-                <a href="device_dashboard.php?device=<?= $dev['id'] ?>" class="btn btn-primary btn-sm" style="flex:1">
-                  <i class="fas fa-th-large"></i> Buka Dashboard
+                <a href="device_dashboard.php?device=<?= $dev['id'] ?>" class="btn btn-primary btn-sm btn-main-action">
+                  <i class="fas fa-th-large"></i> <span>Buka Dashboard</span>
                 </a>
-                <a href="code_editor.php?device_id=<?= $dev['id'] ?>" class="btn btn-secondary btn-sm" title="Buka Editor Kode & Program">
-                  <i class="fas fa-code"></i>
-                </a>
-                <button class="btn btn-secondary btn-sm" onclick="regenToken(<?= $dev['id'] ?>, '<?= sanitize($dev['name']) ?>')" title="Buat Ulang Token">
-                  <i class="fas fa-sync-alt"></i>
-                </button>
-                <button class="btn btn-danger btn-sm" onclick="deleteDevice(<?= $dev['id'] ?>, '<?= sanitize($dev['name']) ?>')" title="Hapus Perangkat">
-                  <i class="fas fa-trash"></i>
-                </button>
+                <div class="action-group-right">
+                  <a href="code_editor.php?device_id=<?= $dev['id'] ?>" class="btn btn-secondary btn-sm btn-icon-action" title="Buka Editor Kode & Program">
+                    <i class="fas fa-code"></i>
+                  </a>
+                  <button type="button" class="btn btn-secondary btn-sm btn-icon-action" onclick="regenToken(<?= $dev['id'] ?>, '<?= sanitize($dev['name']) ?>')" title="Buat Ulang Token">
+                    <i class="fas fa-sync-alt"></i>
+                  </button>
+                  <button type="button" class="btn btn-danger btn-sm btn-icon-action" onclick="deleteDevice(<?= $dev['id'] ?>, '<?= sanitize($dev['name']) ?>')" title="Hapus Perangkat">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
               </div>
             </div>
           <?php endforeach; ?>

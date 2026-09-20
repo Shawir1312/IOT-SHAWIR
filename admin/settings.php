@@ -22,6 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         setSetting('websocket_port', sanitize($_POST['websocket_port'] ?? '8080'));
         setSetting('data_retention_days', sanitize($_POST['data_retention_days'] ?? '365'));
 
+        if (isset($_POST['max_free_devices'])) {
+            $maxFree = max(1, (int)$_POST['max_free_devices']);
+            setSetting('max_free_devices', (string)$maxFree);
+            DB::query("UPDATE plans SET max_devices = ? WHERE id = 1 OR slug = 'free'", [$maxFree]);
+        }
+
         flash('success', 'Pengaturan platform berhasil disimpan.');
         redirect('settings.php');
     }
@@ -39,6 +45,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             "UPDATE plans SET credits_required = ?, max_devices = ?, max_widgets_per_device = ?, history_days = ?, description = ? WHERE id = ?",
             [$creditsReq, $maxDevices, $maxWidgets, $histDays, $desc, $planId]
         );
+
+        $planSlug = DB::value("SELECT slug FROM plans WHERE id = ?", [$planId]);
+        if ($planId === 1 || $planSlug === 'free') {
+            setSetting('max_free_devices', (string)$maxDevices);
+        }
+
         flash('success', 'Pengaturan paket berhasil disimpan.');
         redirect('settings.php');
     }
@@ -111,6 +123,8 @@ $smtpFromEmail = getSetting('smtp_from_email', $email);
 $smtpFromName  = getSetting('smtp_from_name', $platformName);
 
 $plans = DB::rows("SELECT * FROM plans ORDER BY credits_required ASC");
+$freePlan = DB::row("SELECT * FROM plans WHERE id = 1 OR slug = 'free' LIMIT 1");
+$maxFreeDevices = $freePlan ? (int)$freePlan['max_devices'] : (int)getSetting('max_free_devices', '1');
 ?><!DOCTYPE html>
 <html lang="id">
 <head>
@@ -172,6 +186,11 @@ $plans = DB::rows("SELECT * FROM plans ORDER BY credits_required ASC");
               <label class="form-label">Port WebSocket Server</label>
               <input type="number" name="websocket_port" class="form-control" value="<?= sanitize($wsPort) ?>">
               <div class="form-hint">Port untuk daemon WebSocket (default: 8080)</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Maks. Kuota Device Gratis (Paket Free)</label>
+              <input type="number" name="max_free_devices" class="form-control" value="<?= $maxFreeDevices ?>" min="1" required>
+              <div class="form-hint">Batas kuota perangkat gratis untuk pengguna baru (tersinkron otomatis dengan Paket Free)</div>
             </div>
           </div>
 
