@@ -13,8 +13,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $result = registerUser($_POST['name'] ?? '', $_POST['email'] ?? '', $_POST['password'] ?? '');
         if ($result['success']) {
-            flash('success', 'Registrasi berhasil! Silakan login.');
-            redirect(PLATFORM_URL . '/login.php');
+            if (!empty($result['require_verify'])) {
+                flash('success', $result['message']);
+                redirect(PLATFORM_URL . '/verify.php?email=' . urlencode($result['email'] ?? ''));
+            } else {
+                flash('success', 'Registrasi berhasil! Silakan login.');
+                redirect(PLATFORM_URL . '/login.php');
+            }
         } else {
             $error = $result['message'];
         }

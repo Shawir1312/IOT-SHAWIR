@@ -6,6 +6,7 @@ require_once __DIR__ . '/includes/auth.php';
 if (isLoggedIn()) redirect(PLATFORM_URL . '/dashboard.php');
 
 $error = '';
+$unverifiedEmail = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf();
     $result = loginUser(
@@ -17,6 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect(PLATFORM_URL . '/dashboard.php');
     } else {
         $error = $result['message'];
+        if (!empty($result['unverified'])) {
+            $unverifiedEmail = $result['email'] ?? '';
+        }
     }
 }
 
@@ -54,6 +58,13 @@ $flash = getFlash();
     <?php if ($error): ?>
       <div class="alert alert-danger" id="login-error">
         <i class="fas fa-exclamation-circle"></i> <?= sanitize($error) ?>
+        <?php if (!empty($unverifiedEmail)): ?>
+          <div style="margin-top:0.6rem">
+            <a href="verify.php?email=<?= urlencode($unverifiedEmail) ?>" class="btn btn-primary btn-sm" style="font-size:0.8rem;padding:0.35rem 0.75rem">
+              <i class="fas fa-check-circle"></i> Verifikasi Email Sekarang
+            </a>
+          </div>
+        <?php endif; ?>
       </div>
     <?php endif; ?>
 

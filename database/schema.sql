@@ -174,6 +174,23 @@ CREATE TABLE IF NOT EXISTS `websocket_connections` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
+-- Table: email_verifications (Token & OTP Verifikasi Email)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `email_verifications` (
+  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `user_id` INT UNSIGNED NOT NULL,
+  `email` VARCHAR(150) NOT NULL,
+  `token` VARCHAR(64) NOT NULL UNIQUE,
+  `otp_code` VARCHAR(6) NOT NULL,
+  `expires_at` TIMESTAMP NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX `idx_ev_email` (`email`),
+  INDEX `idx_ev_token` (`token`),
+  INDEX `idx_ev_otp` (`otp_code`),
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================================
 -- Table: platform_settings
 -- ============================================================
 CREATE TABLE IF NOT EXISTS `platform_settings` (
@@ -187,6 +204,16 @@ INSERT INTO `platform_settings` (`key`, `value`) VALUES
 ('platform_tagline', 'Platform IoT Modern ShawirIOT'),
 ('platform_email', 'admin@shawiriot.com'),
 ('allow_registration', '1'),
+('require_email_verification', '1'),
 ('max_free_devices', '1'),
 ('websocket_port', '8080'),
-('data_retention_days', '365');
+('data_retention_days', '365'),
+('smtp_enabled', '0'),
+('smtp_host', 'smtp.gmail.com'),
+('smtp_port', '465'),
+('smtp_user', ''),
+('smtp_pass', ''),
+('smtp_crypto', 'ssl'),
+('smtp_from_email', 'admin@shawiriot.com'),
+('smtp_from_name', 'ShawirIOT Platform');
+
