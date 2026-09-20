@@ -66,6 +66,8 @@ function showWidgetConfigForm(type, existing) {
     if (currentW > 6) currentW = 6;
   }
   let currentH = existing && v.height ? parseInt(v.height) : (WIDGET_TYPES[type]?.defaultH || 2);
+  const minVal = (v.min_value !== undefined && v.min_value !== null && v.min_value !== '') ? parseFloat(v.min_value) : 0;
+  const maxVal = (v.max_value !== undefined && v.max_value !== null && v.max_value !== '') ? parseFloat(v.max_value) : 100;
 
   const html = `
     <form id="widget-config-form" style="display:flex;flex-direction:column;gap:1rem">
@@ -87,11 +89,11 @@ function showWidgetConfigForm(type, existing) {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div class="form-group">
           <label class="form-label">Batas Minimum</label>
-          <input type="number" id="cfg-min" class="form-control" value="${v.min_value ?? 0}" step="any">
+          <input type="number" id="cfg-min" class="form-control" value="${minVal}" step="any">
         </div>
         <div class="form-group">
           <label class="form-label">Batas Maksimum</label>
-          <input type="number" id="cfg-max" class="form-control" value="${v.max_value ?? 100}" step="any">
+          <input type="number" id="cfg-max" class="form-control" value="${maxVal}" step="any">
         </div>
       </div>` : ''}
 

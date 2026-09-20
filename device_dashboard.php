@@ -30,6 +30,11 @@ if (!$dashboard) {
 
 // Get widgets
 $widgets = DB::rows("SELECT * FROM widgets WHERE dashboard_id = ? ORDER BY pos_y, pos_x", [$dashboard['id']]);
+foreach ($widgets as &$w) {
+    $w['min_value'] = (float)$w['min_value'];
+    $w['max_value'] = (float)$w['max_value'];
+}
+unset($w);
 
 // Get current pin values
 $pinValues = [];
@@ -116,8 +121,8 @@ checkOfflineDevices();
                data-id="<?= $w['id'] ?>"
                data-type="<?= $w['type'] ?>"
                data-pin="<?= sanitize($w['pin']) ?>"
-               data-min="<?= $w['min_value'] ?>"
-               data-max="<?= $w['max_value'] ?>"
+               data-min="<?= (float)$w['min_value'] ?>"
+               data-max="<?= (float)$w['max_value'] ?>"
                data-on="<?= sanitize($w['on_value']) ?>"
                data-off="<?= sanitize($w['off_value']) ?>"
                data-x="<?= (int)$w['pos_x'] ?>"

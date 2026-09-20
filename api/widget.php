@@ -71,6 +71,10 @@ switch ($action) {
         );
 
         $widget = DB::row("SELECT * FROM widgets WHERE id = ?", [$id]);
+        if ($widget) {
+            $widget['min_value'] = (float)$widget['min_value'];
+            $widget['max_value'] = (float)$widget['max_value'];
+        }
         jsonResponse(true, 'Widget berhasil ditambahkan.', $widget);
     }
 
