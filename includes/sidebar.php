@@ -44,9 +44,9 @@ function navItem(string $href, string $icon, string $label, string $current, str
     <?php endif; ?>
 
     <div class="nav-section-label" style="margin-top:1rem">Lainnya</div>
-    <a href="#" class="nav-item" onclick="event.preventDefault();window.open('https://github.com/Shawir1312/IOT-SHAWIR','_blank')">
+    <a href="https://github.com/Shawir1312/IOT-LIBLARY" target="_blank" rel="noopener" class="nav-item">
       <span class="nav-icon"><i class="fas fa-book"></i></span>
-      <span>Dokumentasi</span>
+      <span>Dokumentasi & Library</span>
     </a>
     <a href="<?= $baseUrl ?>/logout.php" class="nav-item" style="color:var(--danger)">
       <span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span>

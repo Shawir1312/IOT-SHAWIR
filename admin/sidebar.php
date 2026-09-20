@@ -41,6 +41,10 @@ function adminNavItem(string $href, string $icon, string $label, string $current
       <span class="nav-icon"><i class="fas fa-arrow-left"></i></span>
       <span>Ke Dashboard Pengguna</span>
     </a>
+    <a href="https://github.com/Shawir1312/IOT-LIBLARY" target="_blank" rel="noopener" class="nav-item">
+      <span class="nav-icon"><i class="fas fa-book"></i></span>
+      <span>Dokumentasi & Library</span>
+    </a>
     <a href="../logout.php" class="nav-item" style="color:var(--danger)">
       <span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span>
       <span>Keluar</span>

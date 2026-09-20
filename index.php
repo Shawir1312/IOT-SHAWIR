@@ -379,6 +379,7 @@ $tagline      = getSetting('platform_tagline', 'Platform IoT Modern');
     <a href="#how">Cara Kerja</a>
     <a href="#widgets">Widget</a>
     <a href="#plans">Paket</a>
+    <a href="https://github.com/Shawir1312/IOT-LIBLARY" target="_blank" rel="noopener"><i class="fab fa-github"></i> Dokumentasi & Library</a>
   </div>
   <div class="navbar-cta">
     <button type="button" class="theme-toggle-btn" onclick="toggleTheme()" title="Ubah Tema (Terang / Gelap)">
@@ -443,6 +444,9 @@ $tagline      = getSetting('platform_tagline', 'Platform IoT Modern');
       </div>
       <h3 class="feature-title">Library Arduino Resmi</h3>
       <p class="feature-desc">Library C++ siap pakai untuk ESP8266, ESP32, dan Arduino. Install di Arduino IDE, langsung konek.</p>
+      <a href="https://github.com/Shawir1312/IOT-LIBLARY" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.35rem;margin-top:0.6rem;font-size:0.85rem;color:var(--primary-light);font-weight:600">
+        <i class="fab fa-github"></i> Buka IOT-LIBLARY <i class="fas fa-external-link-alt" style="font-size:0.7rem"></i>
+      </a>
     </div>
     <div class="feature-card">
       <div class="feature-icon" style="background:rgba(245,158,11,0.15);color:var(--accent)">
@@ -601,11 +605,11 @@ $tagline      = getSetting('platform_tagline', 'Platform IoT Modern');
         <a href="register.php">Daftar</a>
       </div>
       <div class="footer-col">
-        <h4>Dokumentasi</h4>
-        <a href="#">Arduino Library</a>
-        <a href="#">REST API</a>
-        <a href="#">WebSocket API</a>
-        <a href="#">Widget Guide</a>
+        <h4>Dokumentasi & Library</h4>
+        <a href="https://github.com/Shawir1312/IOT-LIBLARY" target="_blank" rel="noopener"><i class="fab fa-github"></i> Arduino Library</a>
+        <a href="https://github.com/Shawir1312/IOT-LIBLARY#panduan-instalasi" target="_blank" rel="noopener">Panduan Instalasi</a>
+        <a href="https://github.com/Shawir1312/IOT-LIBLARY#contoh-kode-program" target="_blank" rel="noopener">Contoh Program</a>
+        <a href="https://github.com/Shawir1312/IOT-LIBLARY" target="_blank" rel="noopener">Dokumentasi GitHub</a>
       </div>
       <div class="footer-col">
         <h4>Akun</h4>

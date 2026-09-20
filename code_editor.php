@@ -498,6 +498,15 @@ if ($selectedDeviceId > 0) {
                 </div>
               <?php endif; ?>
             </div>
+
+            <!-- DOKUMENTASI & LIBRARY GITHUB -->
+            <div class="board-card" style="border: 1px solid rgba(99,102,241,0.25); background: rgba(99,102,241,0.04);">
+              <div class="board-card-title"><i class="fab fa-github" style="color:var(--primary-light)"></i> Dokumentasi & Library</div>
+              <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.6rem">Unduh library Arduino resmi dan baca panduan sketch lengkap di GitHub.</p>
+              <a href="https://github.com/Shawir1312/IOT-LIBLARY" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm btn-block" style="font-size:0.78rem">
+                <i class="fab fa-github"></i> Buka IOT-LIBLARY GitHub
+              </a>
+            </div>
           </div>
         </div>
 
