@@ -24,7 +24,7 @@ switch ($action) {
     // ========================================================
     case 'save_layout': {
         $dashboardId = (int)($input['dashboard_id'] ?? 0);
-        $dashboard   = DB::row("SELECT * FROM dashboards WHERE id = ? AND user_id = ?", [$dashboardId, $user['id']]);
+        $dashboard   = DB::row("SELECT * FROM dashboards WHERE id = ? " . (isAdmin() ? "" : "AND user_id = ?"), isAdmin() ? [$dashboardId] : [$dashboardId, $user['id']]);
         if (!$dashboard) jsonResponse(false, 'Dashboard tidak ditemukan.', null, 404);
 
         $layout = $input['layout'] ?? [];
@@ -54,7 +54,7 @@ switch ($action) {
     // ========================================================
     case 'update_settings': {
         $dashboardId = (int)($input['dashboard_id'] ?? 0);
-        $dashboard   = DB::row("SELECT * FROM dashboards WHERE id = ? AND user_id = ?", [$dashboardId, $user['id']]);
+        $dashboard   = DB::row("SELECT * FROM dashboards WHERE id = ? " . (isAdmin() ? "" : "AND user_id = ?"), isAdmin() ? [$dashboardId] : [$dashboardId, $user['id']]);
         if (!$dashboard) jsonResponse(false, 'Dashboard tidak ditemukan.', null, 404);
 
         $title   = sanitize($input['title'] ?? $dashboard['title']);

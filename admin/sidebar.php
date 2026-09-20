@@ -33,7 +33,7 @@ function adminNavItem(string $href, string $icon, string $label, string $current
     <?= adminNavItem('index.php', 'chart-pie', 'Ringkasan', $currentPage, 'index.php') ?>
     <?= adminNavItem('users.php', 'users', 'Manajemen Pengguna', $currentPage, 'users.php') ?>
     <?= adminNavItem('credits.php', 'coins', 'Sistem Kredit', $currentPage, 'credits.php') ?>
-    <?= adminNavItem('devices.php', 'server', 'Monitor Perangkat', $currentPage, 'devices.php') ?>
+    <?= adminNavItem('devices.php', 'server', 'Perangkat & Widget', $currentPage, 'devices.php') ?>
     <?= adminNavItem('settings.php', 'cog', 'Pengaturan Platform', $currentPage, 'settings.php') ?>
 
     <div class="nav-section-label" style="margin-top:1rem">Navigasi Pengguna</div>

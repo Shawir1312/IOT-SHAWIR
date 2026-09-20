@@ -8,23 +8,36 @@ requireLogin();
 $deviceId = (int)($_GET['device'] ?? 0);
 $user = currentUser();
 
-// Verify device ownership
-$device = DB::row(
-    "SELECT d.* FROM devices d WHERE d.id = ? AND d.user_id = ? AND d.is_active = 1",
-    [$deviceId, $user['id']]
-);
+// Verify device ownership (Admins can view any user device)
+if (isAdmin()) {
+    $device = DB::row(
+        "SELECT d.*, u.name as owner_name, u.email as owner_email 
+         FROM devices d 
+         JOIN users u ON d.user_id = u.id 
+         WHERE d.id = ? AND d.is_active = 1",
+        [$deviceId]
+    );
+} else {
+    $device = DB::row(
+        "SELECT d.*, u.name as owner_name, u.email as owner_email 
+         FROM devices d 
+         JOIN users u ON d.user_id = u.id 
+         WHERE d.id = ? AND d.user_id = ? AND d.is_active = 1",
+        [$deviceId, $user['id']]
+    );
+}
 
 if (!$device) {
     flash('error', 'Device tidak ditemukan.');
-    redirect(PLATFORM_URL . '/device.php');
+    redirect(PLATFORM_URL . (isAdmin() ? '/admin/devices.php' : '/device.php'));
 }
 
-$plan = getUserPlan($user['id']);
+$plan = getUserPlan((int)$device['user_id']);
 
 // Get or create dashboard
 $dashboard = DB::row("SELECT * FROM dashboards WHERE device_id = ?", [$deviceId]);
 if (!$dashboard) {
-    $dbId = DB::insert("INSERT INTO dashboards (device_id, user_id) VALUES (?,?)", [$deviceId, $user['id']]);
+    $dbId = DB::insert("INSERT INTO dashboards (device_id, user_id) VALUES (?,?)", [$deviceId, (int)$device['user_id']]);
     $dashboard = DB::row("SELECT * FROM dashboards WHERE id = ?", [$dbId]);
 }
 
@@ -61,10 +74,22 @@ checkOfflineDevices();
 <div class="app-layout">
   <?php include __DIR__ . '/includes/sidebar.php'; ?>
   <div class="main-content">
+    <?php if (isAdmin() && (int)$device['user_id'] !== (int)$user['id']): ?>
+      <div style="background:linear-gradient(135deg, #f97316 0%, #ea580c 100%);color:#fff;padding:0.55rem 1.25rem;display:flex;align-items:center;justify-content:space-between;font-size:0.85rem;font-weight:600;box-shadow:0 4px 12px rgba(249,115,22,0.25);z-index:50;position:sticky;top:0">
+        <div style="display:flex;align-items:center;gap:0.6rem">
+          <i class="fas fa-shield-alt"></i>
+          <span>Mode Monitor Admin: Melihat perangkat & widget milik <strong><?= sanitize($device['owner_name'] ?? 'User') ?></strong> (<?= sanitize($device['owner_email'] ?? '') ?>)</span>
+        </div>
+        <a href="admin/devices.php" class="btn btn-sm" style="background:#fff;color:#ea580c;font-weight:700;padding:0.25rem 0.75rem;border-radius:var(--radius-sm)">
+          <i class="fas fa-arrow-left"></i> Kembali ke Panel Admin
+        </a>
+      </div>
+    <?php endif; ?>
+
     <!-- TOPBAR -->
     <header class="topbar">
       <div class="topbar-left">
-        <a href="device.php" class="btn btn-secondary btn-sm btn-icon" style="flex-shrink:0" title="Kembali ke Daftar Perangkat"><i class="fas fa-arrow-left"></i></a>
+        <a href="<?= (isAdmin() && (int)$device['user_id'] !== (int)$user['id']) ? 'admin/devices.php' : 'device.php' ?>" class="btn btn-secondary btn-sm btn-icon" style="flex-shrink:0" title="Kembali"><i class="fas fa-arrow-left"></i></a>
         <div style="min-width:0">
           <h1 class="topbar-title" style="font-size:0.95rem;line-height:1.2;margin:0"><?= sanitize($device['name']) ?></h1>
           <div style="font-size:0.72rem;color:var(--text-muted);display:flex;align-items:center;gap:0.4rem;margin-top:2px">

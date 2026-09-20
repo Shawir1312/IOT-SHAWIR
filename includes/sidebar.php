@@ -39,7 +39,7 @@ function navItem(string $href, string $icon, string $label, string $current, str
     <?= navItem($baseUrl . '/admin/index.php', 'chart-pie', 'Dashboard Admin', $currentPage, 'index.php') ?>
     <?= navItem($baseUrl . '/admin/users.php', 'users', 'Manajemen Pengguna', $currentPage, 'users.php') ?>
     <?= navItem($baseUrl . '/admin/credits.php', 'coins', 'Kelola Kredit', $currentPage, 'credits.php') ?>
-    <?= navItem($baseUrl . '/admin/devices.php', 'server', 'Monitor Perangkat', $currentPage, 'devices.php') ?>
+    <?= navItem($baseUrl . '/admin/devices.php', 'server', 'Perangkat & Widget', $currentPage, 'devices.php') ?>
     <?= navItem($baseUrl . '/admin/settings.php', 'cog', 'Pengaturan Platform', $currentPage, 'settings.php') ?>
     <?php endif; ?>
 

@@ -24,10 +24,10 @@ switch ($action) {
     // ========================================================
     case 'create': {
         $dashboardId = (int)($input['dashboard_id'] ?? 0);
-        $dashboard   = DB::row("SELECT * FROM dashboards WHERE id = ? AND user_id = ?", [$dashboardId, $user['id']]);
+        $dashboard   = DB::row("SELECT * FROM dashboards WHERE id = ? " . (isAdmin() ? "" : "AND user_id = ?"), isAdmin() ? [$dashboardId] : [$dashboardId, $user['id']]);
         if (!$dashboard) jsonResponse(false, 'Dashboard tidak ditemukan.', null, 404);
 
-        $plan = getUserPlan($user['id']);
+        $plan = getUserPlan((int)$dashboard['user_id']);
         $widgetCount = DB::count('widgets', 'dashboard_id = ?', [$dashboardId]);
         if ($widgetCount >= $plan['max_widgets_per_device']) {
             jsonResponse(false, "Batas widget paket {$plan['name']} adalah {$plan['max_widgets_per_device']}. Upgrade paket.", null, 403);
@@ -84,8 +84,8 @@ switch ($action) {
     case 'update': {
         $widgetId = (int)($input['widget_id'] ?? 0);
         $widget   = DB::row(
-            "SELECT w.* FROM widgets w JOIN dashboards d ON w.dashboard_id = d.id WHERE w.id = ? AND d.user_id = ?",
-            [$widgetId, $user['id']]
+            "SELECT w.* FROM widgets w JOIN dashboards d ON w.dashboard_id = d.id WHERE w.id = ? " . (isAdmin() ? "" : "AND d.user_id = ?"),
+            isAdmin() ? [$widgetId] : [$widgetId, $user['id']]
         );
         if (!$widget) jsonResponse(false, 'Widget tidak ditemukan.', null, 404);
 
@@ -115,8 +115,8 @@ switch ($action) {
     case 'delete': {
         $widgetId = (int)($input['widget_id'] ?? 0);
         $widget   = DB::row(
-            "SELECT w.id FROM widgets w JOIN dashboards d ON w.dashboard_id = d.id WHERE w.id = ? AND d.user_id = ?",
-            [$widgetId, $user['id']]
+            "SELECT w.id FROM widgets w JOIN dashboards d ON w.dashboard_id = d.id WHERE w.id = ? " . (isAdmin() ? "" : "AND d.user_id = ?"),
+            isAdmin() ? [$widgetId] : [$widgetId, $user['id']]
         );
         if (!$widget) jsonResponse(false, 'Widget tidak ditemukan.', null, 404);
 

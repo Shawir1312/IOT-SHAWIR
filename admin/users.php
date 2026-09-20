@@ -185,7 +185,9 @@ $plans = DB::rows("SELECT * FROM plans WHERE is_active = 1");
                     <strong style="color:var(--accent);font-size:0.95rem"><?= number_format($u['credits']) ?></strong>
                   </td>
                   <td>
-                    <span class="badge badge-primary"><?= $u['device_count'] ?> unit</span>
+                    <a href="devices.php?user_id=<?= $u['id'] ?>" class="badge badge-primary" style="text-decoration:none;display:inline-flex;align-items:center;gap:4px" title="Lihat perangkat & widget milik <?= sanitize($u['name']) ?>">
+                      <i class="fas fa-microchip"></i> <?= $u['device_count'] ?> unit &rarr;
+                    </a>
                   </td>
                   <td>
                     <span class="badge <?= $u['is_active'] ? 'badge-online' : 'badge-offline' ?>">
@@ -195,6 +197,10 @@ $plans = DB::rows("SELECT * FROM plans WHERE is_active = 1");
                   <td style="font-size:0.8rem;color:var(--text-muted)"><?= formatDate($u['created_at'], 'd M Y') ?></td>
                   <td>
                     <div style="display:flex;gap:0.35rem">
+                      <!-- View User Devices & Widgets -->
+                      <a href="devices.php?user_id=<?= $u['id'] ?>" class="btn btn-secondary btn-sm btn-icon" title="Lihat Perangkat & Widget Milik User">
+                        <i class="fas fa-server" style="color:var(--primary-light)"></i>
+                      </a>
                       <!-- Edit Button -->
                       <button class="btn btn-secondary btn-sm btn-icon" title="Edit User"
                         onclick="openEditUser(<?= htmlspecialchars(json_encode($u), ENT_QUOTES) ?>)">
