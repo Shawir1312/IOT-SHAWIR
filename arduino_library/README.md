@@ -3,7 +3,7 @@
 [![Arduino Compatible](https://img.shields.io/badge/Arduino-Compatible-00979C?style=for-the-badge&logo=arduino&logoColor=white)](https://www.arduino.cc/)
 [![ESP32 Supported](https://img.shields.io/badge/ESP32-Supported-E7352C?style=for-the-badge&logo=espressif&logoColor=white)](https://www.espressif.com/)
 [![ESP8266 Supported](https://img.shields.io/badge/ESP8266-Supported-4183C4?style=for-the-badge&logo=espressif&logoColor=white)](https://www.espressif.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![License: All Rights Reserved](https://img.shields.io/badge/License-All_Rights_Reserved-red.svg?style=for-the-badge)](LICENSE)
 [![GitHub release](https://img.shields.io/badge/Release-v1.1.0-blue?style=for-the-badge)](https://github.com/Shawir1312/IOT-LIBLARY)
 
 Koleksi library resmi Arduino / ESP8266 / ESP32 untuk ekosistem platform **ShawirIOT**. Library ini memudahkan integrasi mikrokontroler ke platform ShawirIOT untuk streaming sensor telemetri, kontrol aktuator dua arah, serta konfigurasi WiFi pintar tanpa hardcode password via Captive Portal.
@@ -45,7 +45,7 @@ arduino_library/
 │       ├── ShawirIOT_PlugAndPlay/  # Zero-code config (WiFi + Token via Portal)
 │       ├── Basic/                  # Standalone auto-connect
 │       └── Advanced/               # Custom parameters & callbacks
-├── LICENSE                         # MIT License
+├── LICENSE                         # All Rights Reserved (Proprietary)
 └── README.md                       # Dokumentasi Lengkap
 ```
 
@@ -240,6 +240,26 @@ Kontribusi, perbaikan bug, dan penambahan fitur baru selalu kami sambut dengan h
 
 ---
 
-## 📜 Lisensi
+## 📜 Lisensi & Ketentuan Hak Cipta (All Rights Reserved)
 
-Proyek ini dilisensikan di bawah [Lisensi MIT](LICENSE). Dibuat dengan ❤️ untuk komunitas IoT Indonesia oleh **Mushawir Odegoa** & **ShawirIOT Team**.
+Hak Cipta © 2026 **Mushawir Odegoa** & **ShawirIOT Team**. Seluruh hak cipta dilindungi oleh undang-undang (*All Rights Reserved*).
+
+Seluruh kode sumber, pustaka (*library*), contoh sketsa (*examples*), dan dokumentasi yang terdapat dalam repositori ini adalah perangkat lunak berpemilik (*proprietary*) yang dilindungi oleh undang-undang hak cipta Republik Indonesia dan perjanjian internasional:
+
+### 1. Hak Penggunaan Terbatas (*Permitted Use*)
+- Anda **hanya diizinkan** mengunduh, mengompilasi, dan menggunakan library ini semata-mata untuk menghubungkan mikrokontroler Anda ke platform resmi **ShawirIOT** (`https://iot.shawir.id`) untuk keperluan pribadi, eksperimen, riset, atau tugas pendidikan non-komersial.
+
+### 2. Larangan Keras (*Prohibitions*)
+- 🚫 **Dilarang Mendistribusikan Ulang**: Dilarang mengunggah ulang (*re-upload*), menyebarluaskan, mencerminkan (*mirroring*), atau mempublikasikan kode sumber library ini ke repositori publik/privat lain (seperti GitHub, GitLab, Google Drive, forum, dll.) tanpa izin tertulis resmi dari pemilik hak cipta.
+- 🚫 **Dilarang Mengubah / Membuat Karya Turunan**: Dilarang memodifikasi logika program, mendekompilasi, merekayasa balik (*reverse-engineering*), mengubah merek (*re-branding*), atau membuat versi modifikasi untuk didistribusikan kepada pihak ketiga.
+- 🚫 **Dilarang Mengomersialkan & Menjual**: Dilarang keras memperjualbelikan, menyewakan, melisensikan ulang, atau mengambil keuntungan finansial langsung maupun tidak langsung dari kode ini tanpa Perjanjian Lisensi Komersial resmi dari pengembang.
+- 🚫 **Dilarang Menghapus Identitas Hak Cipta**: Dilarang menghapus, mengaburkan, atau mengubah tulisan hak cipta, nama pembuat (**Mushawir Odegoa**), atau merek **ShawirIOT** pada berkas header (`.h`), kode (`.cpp`), maupun dokumentasi.
+
+### 3. Batasan Tanggung Jawab (*Disclaimer of Warranty*)
+Perangkat lunak ini disediakan *"SEBAGAIMANA ADANYA"* (*AS-IS*) tanpa jaminan apa pun baik tersurat maupun tersirat. Pengembang tidak bertanggung jawab atas segala bentuk kerusakan perangkat keras, kegagalan sistem, kehilangan data, atau kerugian finansial yang timbul dari penggunaan software ini.
+
+### 4. Kontak Perizinan & Lisensi Komersial
+Untuk permohonan izin distribusi, integrasi komersial industri, atau kemitraan, silakan hubungi:
+- 📧 **Email**: [mushawirodegoa@gmail.com](mailto:mushawirodegoa@gmail.com)
+- 🌐 **Website**: [https://iot.shawir.id](https://iot.shawir.id)
+- 🐙 **GitHub**: [https://github.com/Shawir1312/IOT-LIBLARY](https://github.com/Shawir1312/IOT-LIBLARY)

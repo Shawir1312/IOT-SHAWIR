@@ -1,0 +1,56 @@
+HAK CIPTA & LISENSI PERANGKAT LUNAK (ALL RIGHTS RESERVED)
+==========================================================
+
+Hak Cipta (c) 2026 Mushawir Odegoa (ShawirIOT).
+Seluruh hak cipta dilindungi oleh undang-undang. (All Rights Reserved).
+
+PEMBERITAHUAN HUKUM:
+Perangkat lunak ini (termasuk kode sumber C++, file header, pustaka biner, dokumentasi, 
+dan contoh sketsa) adalah milik eksklusif Mushawir Odegoa ("Pemilik Hak Cipta"). 
+
+Dengan mengunduh, menyalin, atau menggunakan perangkat lunak ini, Anda setuju untuk terikat 
+oleh syarat dan ketentuan lisensi berikut:
+
+1. HAK PENGGUNAAN TERBATAS (PERMITTED USE)
+   Pemilik Hak Cipta hanya memberikan izin non-eksklusif dan tidak dapat dialihkan kepada 
+   pengguna perorangan untuk:
+   a. Mengunduh dan mengompilasi kode ini ke dalam mikrokontroler (ESP8266, ESP32, Arduino)
+      milik pribadi.
+   b. Menggunakan perangkat lunak ini semata-mata untuk menghubungkan perangkat ke platform 
+      ShawirIOT (https://iot.shawir.id) untuk keperluan non-komersial, edukasi, atau hobi.
+
+2. LARANGAN DISTRIBUSI ULANG (NO REDISTRIBUTION)
+   Dilarang keras menyalin, mempublikasikan ulang, mengunggah ulang (re-upload), 
+   mencerminkan (mirroring), meminjamkan, atau mendistribusikan ulang kode sumber ini 
+   maupun versi kompilasinya ke repositori publik/privat lain, situs web, forum, 
+   atau media digital/fisik mana pun tanpa persetujuan tertulis resmi dari Pemilik Hak Cipta.
+
+3. LARANGAN MODIFIKASI & PEMBUATAN TURUNAN (NO MODIFICATION OR DERIVATIVES)
+   Dilarang keras memodifikasi, mengubah arsitektur, merekayasa balik (reverse-engineer), 
+   mendekompilasi, membongkar (disassemble), atau membuat produk turunan (derivative works) 
+   berdasarkan perangkat lunak ini untuk tujuan distribusi publik atau komersial.
+
+4. LARANGAN KOMERSIALISASI & PENJUALAN (NO COMMERCIAL USE)
+   Dilarang keras menjual, menyewakan, membebankan biaya, melisensikan ulang (sublicense), 
+   atau mengeksploitasi perangkat lunak ini untuk tujuan komersial atau keuntungan finansial, 
+   baik berdiri sendiri maupun sebagai bagian dari paket perangkat keras/lunak lain, 
+   tanpa adanya Perjanjian Lisensi Komersial Tertulis terpisah dengan Pemilik Hak Cipta.
+
+5. PERLINDUNGAN IDENTITAS & HAK CIPTA (NO REMOVAL OF NOTICES)
+   Dilarang menghapus, mengaburkan, atau mengubah pemberitahuan hak cipta, merek dagang, 
+   logo, atau nama pengembang (Mushawir Odegoa / ShawirIOT) yang tersemat di dalam berkas 
+   perangkat lunak ini.
+
+6. BATASAN TANGGUNG JAWAB (DISCLAIMER OF WARRANTY)
+   PERANGKAT LUNAK INI DISEDIAKAN "SEBAGAIMANA ADANYA" (AS-IS) TANPA JAMINAN APA PUN, 
+   BAIK TERSURAT MAUPUN TERSIRAT, TERMASUK NAMUN TIDAK TERBATAS PADA KELAYAKAN UNTUK 
+   DIPERJUALBELIKAN ATAU KESESUAIAN UNTUK TUJUAN TERTENTU. PEMILIK HAK CIPTA TIDAK DAPAT 
+   DITUNTUT ATAS KLAIM, KERUSAKAN PERANGKAT KERAS, KEHILANGAN DATA, ATAU KERUGIAN FINANSIAL 
+   APA PUN YANG TIMBUL DARI PENGGUNAAN PERANGKAT LUNAK INI.
+
+==========================================================
+KONTAK LISENSI KOMERSIAL & PERIZINAN:
+Email    : mushawirodegoa@gmail.com
+Situs Web: https://iot.shawir.id
+GitHub   : https://github.com/Shawir1312/IOT-LIBLARY
+==========================================================
