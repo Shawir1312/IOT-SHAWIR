@@ -56,8 +56,21 @@
             android:textColor="@color/success"
             android:textSize="11sp"
             android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/btnDeviceOptions"
+            app:layout_constraintEnd_toStartOf="@+id/btnDeviceOptions"
+            app:layout_constraintTop_toTopOf="@+id/btnDeviceOptions" />
+
+        <ImageButton
+            android:id="@+id/btnDeviceOptions"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Opsi Perangkat"
+            android:src="@drawable/ic_more_vert"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/text_secondary" />
 
         <!-- Hardware & Connection chips -->
         <LinearLayout

@@ -19,32 +19,24 @@ class SessionManager(context: Context) {
         private const val KEY_SERVER_URL = "server_url"
         private const val KEY_AUTH_TOKEN = "auth_token"
         private const val KEY_USER_JSON = "user_json"
+        private const val KEY_DARK_MODE = "is_dark_mode"
 
-        // Default: Mengarah langsung ke VPS production
-        const val DEFAULT_SERVER_URL = "https://iot.shawir.id"
+        // Server terpusat aman langsung ke VPS production
+        const val DEFAULT_SERVER_URL = "https://iot.shawir.id/"
     }
 
     /**
-     * Server Base URL (e.g. "http://192.168.1.15/IOT-SHAWIR" or "https://iot.shawir.com")
+     * Preferensi Mode Gelap (Dark Mode) atau Terang (Light Mode)
      */
-    var serverUrl: String
-        get() {
-            var url = prefs.getString(KEY_SERVER_URL, DEFAULT_SERVER_URL) ?: DEFAULT_SERVER_URL
-            if (!url.endsWith("/")) {
-                url += "/"
-            }
-            return url
-        }
-        set(value) {
-            var formatted = value.trim()
-            if (!formatted.startsWith("http://") && !formatted.startsWith("https://")) {
-                formatted = "http://$formatted"
-            }
-            if (!formatted.endsWith("/")) {
-                formatted += "/"
-            }
-            prefs.edit().putString(KEY_SERVER_URL, formatted).apply()
-        }
+    var isDarkMode: Boolean
+        get() = prefs.getBoolean(KEY_DARK_MODE, true)
+        set(value) = prefs.edit().putBoolean(KEY_DARK_MODE, value).apply()
+
+    /**
+     * Server Base URL - Terkunci aman mengarah ke VPS production
+     */
+    val serverUrl: String
+        get() = DEFAULT_SERVER_URL
 
     /**
      * Auth token returned from backend

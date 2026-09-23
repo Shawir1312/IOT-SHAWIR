@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import android.widget.SeekBar
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -21,7 +22,9 @@ import com.shawir.iot.databinding.*
 
 class WidgetAdapter(
     private val onSendPinValue: (pin: String, value: String) -> Unit,
-    private val onLoadChartHistory: (pin: String, callback: (List<PinHistoryPoint>) -> Unit) -> Unit
+    private val onLoadChartHistory: (pin: String, callback: (List<PinHistoryPoint>) -> Unit) -> Unit,
+    private val onEditWidget: (Widget) -> Unit,
+    private val onDeleteWidget: (Widget) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val widgets = mutableListOf<Widget>()
@@ -36,6 +39,8 @@ class WidgetAdapter(
         const val VIEW_TYPE_GAUGE = 6
         const val VIEW_TYPE_CHART = 7
         const val VIEW_TYPE_OTHER = 8
+
+        private const val PAYLOAD_PIN_UPDATE = "PAYLOAD_PIN_UPDATE"
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -56,17 +61,14 @@ class WidgetAdapter(
             }
         }
         if (changed) {
-            // Update individual bound views without disturbing touch interactions
             notifyItemRangeChanged(0, widgets.size, PAYLOAD_PIN_UPDATE)
         }
     }
 
-    private val PAYLOAD_PIN_UPDATE = "PAYLOAD_PIN_UPDATE"
-
     override fun getItemCount(): Int = widgets.size
 
     override fun getItemViewType(position: Int): Int {
-        return when (widgets[position].type) {
+        return when (widgets[position].type.lowercase()) {
             "switch" -> VIEW_TYPE_SWITCH
             "button" -> VIEW_TYPE_BUTTON
             "slider" -> VIEW_TYPE_SLIDER
@@ -94,7 +96,7 @@ class WidgetAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val widget = widgets[position]
-        val currentVal = widget.pin?.let { pinValues[it] } ?: ""
+        val currentVal = pinValues[widget.pin ?: ""] ?: ""
 
         when (holder) {
             is SwitchViewHolder -> holder.bind(widget, currentVal)
@@ -108,10 +110,11 @@ class WidgetAdapter(
         }
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: List<Any>) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
         if (payloads.contains(PAYLOAD_PIN_UPDATE)) {
             val widget = widgets[position]
-            val currentVal = widget.pin?.let { pinValues[it] } ?: ""
+            val currentVal = pinValues[widget.pin ?: ""] ?: ""
+
             when (holder) {
                 is SwitchViewHolder -> holder.updateValue(widget, currentVal)
                 is SliderViewHolder -> holder.updateValue(widget, currentVal)
@@ -126,6 +129,20 @@ class WidgetAdapter(
         }
     }
 
+    private fun showWidgetMenu(view: View, widget: Widget) {
+        val popup = PopupMenu(view.context, view)
+        popup.menu.add(0, 1, 0, "Edit Widget")
+        popup.menu.add(0, 2, 1, "Hapus Widget")
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                1 -> onEditWidget(widget)
+                2 -> onDeleteWidget(widget)
+            }
+            true
+        }
+        popup.show()
+    }
+
     // ----------------------------------------------------
     // VIEW HOLDERS
     // ----------------------------------------------------
@@ -138,6 +155,8 @@ class WidgetAdapter(
         fun bind(widget: Widget, currentValue: String) {
             binding.tvPinBadge.text = widget.pin ?: "V?"
             binding.tvWidgetTitle.text = widget.label
+            binding.btnWidgetMenu.setOnClickListener { showWidgetMenu(it, widget) }
+
             updateValue(widget, currentValue)
 
             binding.switchWidget.setOnCheckedChangeListener { _, isChecked ->
@@ -172,6 +191,7 @@ class WidgetAdapter(
             binding.tvPinBadge.text = widget.pin ?: "V?"
             binding.tvWidgetTitle.text = widget.label
             binding.btnWidgetMomentary.text = widget.label
+            binding.btnWidgetMenu.setOnClickListener { showWidgetMenu(it, widget) }
 
             val onVal = widget.onValue ?: "1"
             val offVal = widget.offValue ?: "0"
@@ -206,6 +226,7 @@ class WidgetAdapter(
         fun bind(widget: Widget, currentValue: String) {
             binding.tvPinBadge.text = widget.pin ?: "V?"
             binding.tvWidgetTitle.text = widget.label
+            binding.btnWidgetMenu.setOnClickListener { showWidgetMenu(it, widget) }
 
             val minVal = widget.minValue.toInt()
             val maxVal = widget.maxValue.toInt().coerceAtLeast(minVal + 1)
@@ -251,6 +272,7 @@ class WidgetAdapter(
             binding.tvPinBadge.text = widget.pin ?: "V?"
             binding.tvWidgetTitle.text = widget.label
             binding.tvValueUnit.text = widget.unit ?: ""
+            binding.btnWidgetMenu.setOnClickListener { showWidgetMenu(it, widget) }
 
             parseColor(widget.color)?.let {
                 binding.tvValueDisplay.setTextColor(it)
@@ -270,6 +292,7 @@ class WidgetAdapter(
         fun bind(widget: Widget, currentValue: String) {
             binding.tvPinBadge.text = widget.pin ?: "V?"
             binding.tvWidgetTitle.text = widget.label
+            binding.btnWidgetMenu.setOnClickListener { showWidgetMenu(it, widget) }
             updateValue(widget, currentValue)
         }
 
@@ -295,6 +318,7 @@ class WidgetAdapter(
         fun bind(widget: Widget, currentValue: String) {
             binding.tvPinBadge.text = widget.pin ?: "V?"
             binding.tvWidgetTitle.text = widget.label
+            binding.btnWidgetMenu.setOnClickListener { showWidgetMenu(it, widget) }
 
             binding.gaugeView.setRange(widget.minValue, widget.maxValue)
             parseColor(widget.color)?.let { binding.gaugeView.setColor(it) }
@@ -316,6 +340,7 @@ class WidgetAdapter(
         fun bind(widget: Widget, currentValue: String) {
             binding.tvPinBadge.text = widget.pin ?: "V?"
             binding.tvWidgetTitle.text = widget.label
+            binding.btnWidgetMenu.setOnClickListener { showWidgetMenu(it, widget) }
 
             setupChart(binding.lineChart, widget)
             updateValue(widget, currentValue)
@@ -341,8 +366,6 @@ class WidgetAdapter(
             chart.setPinchZoom(false)
             chart.setDrawGridBackground(false)
 
-            val color = parseColor(widget.color) ?: Color.parseColor("#6366F1")
-
             chart.xAxis.apply {
                 position = XAxis.XAxisPosition.BOTTOM
                 textColor = Color.parseColor("#64748B")
@@ -351,25 +374,26 @@ class WidgetAdapter(
             }
 
             chart.axisLeft.apply {
-                textColor = Color.parseColor("#94A3B8")
+                textColor = Color.parseColor("#64748B")
+                setDrawGridLines(true)
                 gridColor = Color.parseColor("#1E293B")
-                setDrawZeroLine(false)
             }
-
             chart.axisRight.isEnabled = false
         }
 
         private fun applyChartHistory(chart: LineChart, widget: Widget, points: List<PinHistoryPoint>) {
             if (points.isEmpty()) return
-            val entries = points.mapIndexed { index, p ->
-                Entry(index.toFloat(), p.value)
+
+            val entries = points.mapIndexed { index, pt ->
+                Entry(index.toFloat(), pt.value.toFloat())
             }
 
             val color = parseColor(widget.color) ?: Color.parseColor("#6366F1")
-            val dataSet = LineDataSet(entries, widget.pin).apply {
+
+            val dataSet = LineDataSet(entries, widget.label).apply {
                 this.color = color
-                this.setCircleColor(color)
-                lineWidth = 2.2f
+                setCircleColor(color)
+                lineWidth = 2f
                 circleRadius = 3f
                 setDrawCircleHole(false)
                 setDrawValues(false)
@@ -388,19 +412,20 @@ class WidgetAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(widget: Widget, currentValue: String) {
-            binding.tvWidgetTitle.text = "${widget.label} (${widget.type})"
+            binding.tvWidgetTitle.text = widget.label
             updateValue(widget, currentValue)
         }
 
         fun updateValue(widget: Widget, currentValue: String) {
-            binding.tvWidgetInfo.text = "Pin: ${widget.pin ?: "-"} | Nilai: $currentValue"
+            val display = if (currentValue.isBlank()) "-" else currentValue
+            binding.tvWidgetInfo.text = "Tipe: ${widget.type} · Nilai: $display"
         }
     }
 
     private fun parseColor(hex: String?): Int? {
         if (hex.isNullOrBlank()) return null
         return try {
-            Color.parseColor(hex)
+            Color.parseColor(hex.trim())
         } catch (_: Exception) {
             null
         }

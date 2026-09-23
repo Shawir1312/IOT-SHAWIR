@@ -11,6 +11,18 @@
         android:layout_height="wrap_content"
         android:padding="24dp">
 
+        <!-- Top Right Theme Toggle Button (Light / Dark) -->
+        <ImageButton
+            android:id="@+id/btnThemeToggle"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Ubah Tema"
+            android:src="@drawable/ic_moon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/text_secondary" />
+
         <!-- Header Matching Web register.php -->
         <ImageView
             android:id="@+id/ivLogo"

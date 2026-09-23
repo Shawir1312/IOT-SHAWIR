@@ -126,6 +126,16 @@ switch ($action) {
             jsonResponse(false, 'Akun Anda dinonaktifkan oleh administrator.', null, 403);
         }
 
+        // Cek status verifikasi email
+        $requireVerify = getSetting('require_email_verification', '1') === '1';
+        if ($requireVerify && empty($user['email_verified_at']) && $user['role'] === 'user') {
+            jsonResponse(false, 'Email Anda belum diverifikasi. Silakan masukkan kode OTP yang dikirim ke email Anda.', [
+                'unverified'     => true,
+                'email'          => $user['email'],
+                'require_verify' => true
+            ], 403);
+        }
+
         // Generate token autentikasi mobile
         $token = bin2hex(random_bytes(32));
         DB::query("INSERT INTO user_api_tokens (user_id, token, device_name, last_used_at) VALUES (?, ?, ?, NOW())", [
@@ -169,7 +179,15 @@ switch ($action) {
             jsonResponse(false, $result['message'], null, 400);
         }
 
-        // Ambil user yang baru dibuat
+        // Jika butuh verifikasi email OTP
+        if (!empty($result['require_verify'])) {
+            jsonResponse(true, $result['message'], [
+                'require_verify' => true,
+                'email'          => $email
+            ]);
+        }
+
+        // Ambil user yang baru dibuat jika langsung aktif
         $user = DB::row("SELECT * FROM users WHERE email = ? LIMIT 1", [$email]);
         $token = bin2hex(random_bytes(32));
         DB::query("INSERT INTO user_api_tokens (user_id, token, device_name, last_used_at) VALUES (?, ?, ?, NOW())", [
@@ -179,6 +197,7 @@ switch ($action) {
         $plan = getUserPlan((int)$user['id']);
 
         jsonResponse(true, 'Registrasi berhasil!', [
+            'require_verify' => false,
             'token' => $token,
             'user'  => [
                 'id'        => (int)$user['id'],
@@ -191,6 +210,55 @@ switch ($action) {
                 'avatar'    => $user['avatar'] ?? null,
             ]
         ]);
+        break;
+    }
+
+    // ========================================================
+    // 2.1 VERIFY EMAIL OTP
+    // ========================================================
+    case 'verify_email_otp': {
+        $email   = strtolower(trim($input['email'] ?? ''));
+        $otp     = trim($input['otp_code'] ?? '');
+        $devName = sanitize($input['device_name'] ?? 'Android App');
+
+        $res = verifyEmailOtp($email, $otp);
+        if (!$res['success']) {
+            jsonResponse(false, $res['message'], null, 400);
+        }
+
+        $user = $res['user'] ?? DB::row("SELECT * FROM users WHERE email = ? LIMIT 1", [$email]);
+        $token = bin2hex(random_bytes(32));
+        DB::query("INSERT INTO user_api_tokens (user_id, token, device_name, last_used_at) VALUES (?, ?, ?, NOW())", [
+            $user['id'], $token, $devName
+        ]);
+        $plan = getUserPlan((int)$user['id']);
+
+        jsonResponse(true, $res['message'], [
+            'token' => $token,
+            'user'  => [
+                'id'          => (int)$user['id'],
+                'name'        => $user['name'],
+                'email'       => $user['email'],
+                'role'        => $user['role'],
+                'credits'     => (int)$user['credits'],
+                'plan_name'   => $plan['name'] ?? 'Free',
+                'max_devices' => (int)($plan['max_devices'] ?? 1),
+                'avatar'      => $user['avatar'] ?? null,
+            ]
+        ]);
+        break;
+    }
+
+    // ========================================================
+    // 2.2 RESEND EMAIL OTP
+    // ========================================================
+    case 'resend_email_otp': {
+        $email = strtolower(trim($input['email'] ?? ''));
+        $res = resendVerification($email);
+        if (!$res['success']) {
+            jsonResponse(false, $res['message'], null, 400);
+        }
+        jsonResponse(true, $res['message']);
         break;
     }
 
@@ -407,6 +475,166 @@ switch ($action) {
         break;
     }
 
+    // ========================================================
+    // 10. TAMBAH PERANGKAT (ADD DEVICE)
+    // ========================================================
+    case 'add_device': {
+        $user = requireMobileAuth();
+        $plan = getUserPlan((int)$user['id']);
+        $deviceCount = DB::count('devices', 'user_id = ? AND is_active = 1', [$user['id']]);
+        if ($deviceCount >= ($plan['max_devices'] ?? 5)) {
+            jsonResponse(false, "Batas perangkat untuk paket {$plan['name']} adalah {$plan['max_devices']} perangkat. Upgrade paket untuk menambah lebih.", null, 403);
+        }
+
+        $name = sanitize($input['name'] ?? 'Perangkat Baru');
+        $hw   = sanitize($input['hardware'] ?? 'ESP32');
+        $conn = sanitize($input['connection'] ?? 'wifi');
+        $desc = sanitize($input['description'] ?? '');
+        $token = generateDeviceToken();
+
+        $deviceId = DB::insert(
+            "INSERT INTO devices (user_id, name, hardware, connection, description, token, is_active) VALUES (?,?,?,?,?,?,1)",
+            [$user['id'], $name, $hw, $conn, $desc, $token]
+        );
+        // Buat dashboard otomatis
+        DB::insert("INSERT INTO dashboards (device_id, user_id) VALUES (?,?)", [$deviceId, $user['id']]);
+
+        $newDevice = DB::row("SELECT id, name, description, token, hardware, connection, is_online, last_seen, created_at FROM devices WHERE id = ?", [$deviceId]);
+        $newDevice['id'] = (int)$newDevice['id'];
+        $newDevice['is_online'] = false;
+        $newDevice['widget_count'] = 0;
+
+        jsonResponse(true, "Perangkat \"{$name}\" berhasil ditambahkan!", $newDevice);
+        break;
+    }
+
+    // ========================================================
+    // 11. HAPUS PERANGKAT (DELETE DEVICE)
+    // ========================================================
+    case 'delete_device': {
+        $user = requireMobileAuth();
+        $deviceId = (int)($input['device_id'] ?? 0);
+        $device = DB::row("SELECT * FROM devices WHERE id = ? AND user_id = ?", [$deviceId, $user['id']]);
+        if (!$device) {
+            jsonResponse(false, 'Perangkat tidak ditemukan.', null, 404);
+        }
+        DB::query("UPDATE devices SET is_active = 0 WHERE id = ?", [$deviceId]);
+        jsonResponse(true, "Perangkat \"{$device['name']}\" berhasil dihapus.");
+        break;
+    }
+
+    // ========================================================
+    // 12. TAMBAH WIDGET (ADD WIDGET)
+    // ========================================================
+    case 'add_widget': {
+        $user = requireMobileAuth();
+        $deviceId = (int)($input['device_id'] ?? 0);
+        $dashboard = DB::row("SELECT d.* FROM dashboards d JOIN devices dev ON d.device_id = dev.id WHERE d.device_id = ? AND d.user_id = ? AND dev.is_active = 1", [$deviceId, $user['id']]);
+        if (!$dashboard) {
+            jsonResponse(false, 'Dashboard untuk perangkat ini tidak ditemukan.', null, 404);
+        }
+
+        $dashboardId = (int)$dashboard['id'];
+        $plan = getUserPlan((int)$user['id']);
+        $widgetCount = DB::count('widgets', 'dashboard_id = ?', [$dashboardId]);
+        if ($widgetCount >= ($plan['max_widgets_per_device'] ?? 10)) {
+            jsonResponse(false, "Batas widget paket {$plan['name']} adalah {$plan['max_widgets_per_device']} widget per perangkat.", null, 403);
+        }
+
+        $validTypes = ['switch','button','slider','value_display','led','gauge','line_chart'];
+        $type = sanitize($input['type'] ?? 'switch');
+        if (!in_array($type, $validTypes)) {
+            $type = 'switch';
+        }
+
+        $label = sanitize($input['label'] ?? 'Widget Baru');
+        $pin = strtoupper(sanitize($input['pin'] ?? 'V0'));
+        $color = sanitize($input['color'] ?? '#6366f1');
+        $minVal = (float)($input['min_value'] ?? 0);
+        $maxVal = (float)($input['max_value'] ?? 100);
+        $unit = sanitize($input['unit'] ?? '');
+        $onVal = sanitize($input['on_value'] ?? '1');
+        $offVal = sanitize($input['off_value'] ?? '0');
+
+        $maxBottom = (int)DB::value("SELECT COALESCE(MAX(pos_y + height), 0) FROM widgets WHERE dashboard_id = ?", [$dashboardId]);
+
+        $width = ($type === 'line_chart' || $type === 'gauge') ? 6 : 3;
+        $height = ($type === 'line_chart') ? 3 : (($type === 'gauge') ? 3 : 2);
+
+        $id = DB::insert(
+            "INSERT INTO widgets (dashboard_id, type, label, pin, color, text_color, min_value, max_value, unit, on_value, off_value, pos_x, pos_y, width, height)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            [$dashboardId, $type, $label, $pin, $color, '#ffffff', $minVal, $maxVal, $unit, $onVal, $offVal, 0, $maxBottom, $width, $height]
+        );
+
+        $widget = DB::row("SELECT * FROM widgets WHERE id = ?", [$id]);
+        if ($widget) {
+            $widget['id'] = (int)$widget['id'];
+            $widget['dashboard_id'] = (int)$widget['dashboard_id'];
+            $widget['min_value'] = (float)$widget['min_value'];
+            $widget['max_value'] = (float)$widget['max_value'];
+            $widget['width'] = (int)$widget['width'];
+            $widget['height'] = (int)$widget['height'];
+        }
+
+        jsonResponse(true, 'Widget berhasil ditambahkan!', $widget);
+        break;
+    }
+
+    // ========================================================
+    // 13. EDIT WIDGET (UPDATE WIDGET)
+    // ========================================================
+    case 'update_widget': {
+        $user = requireMobileAuth();
+        $widgetId = (int)($input['widget_id'] ?? 0);
+        $widget = DB::row("SELECT w.* FROM widgets w JOIN dashboards d ON w.dashboard_id = d.id WHERE w.id = ? AND d.user_id = ?", [$widgetId, $user['id']]);
+        if (!$widget) {
+            jsonResponse(false, 'Widget tidak ditemukan.', null, 404);
+        }
+
+        $label = sanitize($input['label'] ?? $widget['label']);
+        $pin = strtoupper(sanitize($input['pin'] ?? $widget['pin']));
+        $color = sanitize($input['color'] ?? $widget['color']);
+        $minVal = isset($input['min_value']) ? (float)$input['min_value'] : (float)$widget['min_value'];
+        $maxVal = isset($input['max_value']) ? (float)$input['max_value'] : (float)$widget['max_value'];
+        $unit = sanitize($input['unit'] ?? $widget['unit']);
+        $onVal = sanitize($input['on_value'] ?? $widget['on_value']);
+        $offVal = sanitize($input['off_value'] ?? $widget['off_value']);
+
+        DB::query("UPDATE widgets SET label=?, pin=?, color=?, min_value=?, max_value=?, unit=?, on_value=?, off_value=? WHERE id=?", [
+            $label, $pin, $color, $minVal, $maxVal, $unit, $onVal, $offVal, $widgetId
+        ]);
+
+        $updated = DB::row("SELECT * FROM widgets WHERE id = ?", [$widgetId]);
+        if ($updated) {
+            $updated['id'] = (int)$updated['id'];
+            $updated['dashboard_id'] = (int)$updated['dashboard_id'];
+            $updated['min_value'] = (float)$updated['min_value'];
+            $updated['max_value'] = (float)$updated['max_value'];
+            $updated['width'] = (int)$updated['width'];
+            $updated['height'] = (int)$updated['height'];
+        }
+
+        jsonResponse(true, 'Widget berhasil diperbarui!', $updated);
+        break;
+    }
+
+    // ========================================================
+    // 14. HAPUS WIDGET (DELETE WIDGET)
+    // ========================================================
+    case 'delete_widget': {
+        $user = requireMobileAuth();
+        $widgetId = (int)($input['widget_id'] ?? 0);
+        $widget = DB::row("SELECT w.* FROM widgets w JOIN dashboards d ON w.dashboard_id = d.id WHERE w.id = ? AND d.user_id = ?", [$widgetId, $user['id']]);
+        if (!$widget) {
+            jsonResponse(false, 'Widget tidak ditemukan.', null, 404);
+        }
+
+        DB::query("DELETE FROM widgets WHERE id = ?", [$widgetId]);
+        jsonResponse(true, 'Widget berhasil dihapus.');
+        break;
+    }
+
     default:
-        jsonResponse(false, "Action '{$action}' tidak dikenali. Tersedia: server_info, login, register, me, devices, device_dashboard, pin_values, control_pin, pin_history.", null, 400);
+        jsonResponse(false, "Action '{$action}' tidak dikenali.", null, 400);
 }

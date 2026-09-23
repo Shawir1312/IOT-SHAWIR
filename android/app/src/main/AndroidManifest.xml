@@ -41,6 +41,11 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <activity
+            android:name=".ui.auth.VerifyOtpActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
         <!-- Device Management & Dashboard -->
         <activity
             android:name=".ui.devices.DeviceListActivity"

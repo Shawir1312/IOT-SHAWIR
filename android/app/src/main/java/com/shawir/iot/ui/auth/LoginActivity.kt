@@ -6,12 +6,15 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.shawir.iot.R
 import com.shawir.iot.data.api.ApiClient
 import com.shawir.iot.data.repository.SessionManager
 import com.shawir.iot.databinding.ActivityLoginBinding
 import com.shawir.iot.ui.devices.DeviceListActivity
-import com.shawir.iot.ui.server.ServerConfigDialog
+import com.shawir.iot.util.ThemeHelper
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import org.json.JSONObject
 
 class LoginActivity : AppCompatActivity() {
 
@@ -24,12 +27,11 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         sessionManager = SessionManager(this)
-        updateServerLabel()
+        updateThemeIcon()
 
-        binding.btnServerConfig.setOnClickListener {
-            ServerConfigDialog.show(this) {
-                updateServerLabel()
-            }
+        binding.btnThemeToggle.setOnClickListener {
+            val isDark = ThemeHelper.toggleTheme(this)
+            updateThemeIcon(isDark)
         }
 
         binding.tvToRegister.setOnClickListener {
@@ -41,8 +43,9 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateServerLabel() {
-        binding.tvCurrentServer.text = "Server: ${sessionManager.serverUrl}"
+    private fun updateThemeIcon(isDark: Boolean = sessionManager.isDarkMode) {
+        val iconRes = if (isDark) R.drawable.ic_sun else R.drawable.ic_moon
+        binding.btnThemeToggle.setImageResource(iconRes)
     }
 
     private fun performLogin() {
@@ -79,9 +82,34 @@ class LoginActivity : AppCompatActivity() {
                 } else {
                     Toast.makeText(this@LoginActivity, response.message ?: "Login gagal", Toast.LENGTH_LONG).show()
                 }
+            } catch (e: HttpException) {
+                setLoading(false)
+                val errorBody = e.response()?.errorBody()?.string()
+                var handled = false
+                if (!errorBody.isNullOrBlank()) {
+                    try {
+                        val json = JSONObject(errorBody)
+                        val isUnverified = json.optJSONObject("data")?.optBoolean("unverified", false) ?: false
+                        val msg = json.optString("message", "Email belum diverifikasi.")
+                        if (isUnverified) {
+                            handled = true
+                            Toast.makeText(this@LoginActivity, msg, Toast.LENGTH_LONG).show()
+                            val verifyIntent = Intent(this@LoginActivity, VerifyOtpActivity::class.java).apply {
+                                putExtra(VerifyOtpActivity.EXTRA_EMAIL, email)
+                            }
+                            startActivity(verifyIntent)
+                        } else {
+                            Toast.makeText(this@LoginActivity, msg, Toast.LENGTH_LONG).show()
+                            handled = true
+                        }
+                    } catch (_: Exception) {}
+                }
+                if (!handled) {
+                    Toast.makeText(this@LoginActivity, "Login gagal: ${e.message()}", Toast.LENGTH_LONG).show()
+                }
             } catch (e: Exception) {
                 setLoading(false)
-                Toast.makeText(this@LoginActivity, "Koneksi error: ${e.localizedMessage ?: "Cek jaringan / URL server"}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@LoginActivity, "Koneksi error: ${e.localizedMessage ?: "Cek jaringan"}", Toast.LENGTH_LONG).show()
             }
         }
     }

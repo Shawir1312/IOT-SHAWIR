@@ -1,9 +1,9 @@
 package com.shawir.iot.ui.devices
 
 import android.content.Context
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -13,7 +13,9 @@ import com.shawir.iot.data.model.Device
 import com.shawir.iot.databinding.ItemDeviceBinding
 
 class DeviceAdapter(
-    private val onDeviceClick: (Device) -> Unit
+    private val onDeviceClick: (Device) -> Unit,
+    private val onCopyToken: (Device) -> Unit,
+    private val onDeleteDevice: (Device) -> Unit
 ) : ListAdapter<Device, DeviceAdapter.DeviceViewHolder>(DiffCallback) {
 
     inner class DeviceViewHolder(private val binding: ItemDeviceBinding) :
@@ -42,6 +44,20 @@ class DeviceAdapter(
 
             binding.cardDevice.setOnClickListener {
                 onDeviceClick(device)
+            }
+
+            binding.btnDeviceOptions.setOnClickListener { view ->
+                val popup = PopupMenu(context, view)
+                popup.menu.add(0, 1, 0, "Salin Token Device")
+                popup.menu.add(0, 2, 1, "Hapus Perangkat")
+                popup.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        1 -> onCopyToken(device)
+                        2 -> onDeleteDevice(device)
+                    }
+                    true
+                }
+                popup.show()
             }
         }
 

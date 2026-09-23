@@ -34,6 +34,16 @@ data class AuthData(
 )
 
 /**
+ * Registration result data (supports email OTP verification)
+ */
+data class RegisterData(
+    @SerializedName("require_verify") val requireVerify: Boolean = false,
+    @SerializedName("email") val email: String? = null,
+    @SerializedName("token") val token: String? = null,
+    @SerializedName("user") val user: User? = null
+)
+
+/**
  * IoT Device model
  */
 data class Device(

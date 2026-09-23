@@ -6,10 +6,12 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.shawir.iot.R
 import com.shawir.iot.data.api.ApiClient
 import com.shawir.iot.data.repository.SessionManager
 import com.shawir.iot.databinding.ActivityRegisterBinding
 import com.shawir.iot.ui.devices.DeviceListActivity
+import com.shawir.iot.util.ThemeHelper
 import kotlinx.coroutines.launch
 
 class RegisterActivity : AppCompatActivity() {
@@ -23,6 +25,12 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         sessionManager = SessionManager(this)
+        updateThemeIcon()
+
+        binding.btnThemeToggle.setOnClickListener {
+            val isDark = ThemeHelper.toggleTheme(this)
+            updateThemeIcon(isDark)
+        }
 
         binding.tvToLogin.setOnClickListener {
             finish()
@@ -31,6 +39,11 @@ class RegisterActivity : AppCompatActivity() {
         binding.btnRegister.setOnClickListener {
             performRegister()
         }
+    }
+
+    private fun updateThemeIcon(isDark: Boolean = sessionManager.isDarkMode) {
+        val iconRes = if (isDark) R.drawable.ic_sun else R.drawable.ic_moon
+        binding.btnThemeToggle.setImageResource(iconRes)
     }
 
     private fun performRegister() {
@@ -61,14 +74,27 @@ class RegisterActivity : AppCompatActivity() {
                 setLoading(false)
 
                 if (response.success && response.data != null) {
-                    val authData = response.data
-                    sessionManager.saveSession(authData.token, authData.user)
-                    Toast.makeText(this@RegisterActivity, "Pendaftaran berhasil!", Toast.LENGTH_SHORT).show()
+                    val regData = response.data
+                    if (regData.requireVerify) {
+                        Toast.makeText(this@RegisterActivity, response.message ?: "Kode verifikasi telah dikirim ke email.", Toast.LENGTH_LONG).show()
+                        val verifyIntent = Intent(this@RegisterActivity, VerifyOtpActivity::class.java).apply {
+                            putExtra(VerifyOtpActivity.EXTRA_EMAIL, email)
+                        }
+                        startActivity(verifyIntent)
+                        finish()
+                    } else if (regData.token != null && regData.user != null) {
+                        sessionManager.saveSession(regData.token, regData.user)
+                        Toast.makeText(this@RegisterActivity, "Pendaftaran berhasil!", Toast.LENGTH_SHORT).show()
 
-                    val intent = Intent(this@RegisterActivity, DeviceListActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                    finish()
+                        val intent = Intent(this@RegisterActivity, DeviceListActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        }
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        Toast.makeText(this@RegisterActivity, response.message ?: "Pendaftaran berhasil, silakan login.", Toast.LENGTH_LONG).show()
+                        finish()
+                    }
                 } else {
                     Toast.makeText(this@RegisterActivity, response.message ?: "Registrasi gagal", Toast.LENGTH_LONG).show()
                 }
