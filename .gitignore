@@ -25,3 +25,15 @@ yarn-error.log*
 # Uploads
 /uploads/*
 !/uploads/.gitkeep
+
+# Android Build & IDE files
+.gradle/
+**/build/
+*.iml
+.idea/
+local.properties
+captures/
+.externalNativeBuild
+.cxx/
+*.apk
+*.aab

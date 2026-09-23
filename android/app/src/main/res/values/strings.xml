@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ShawirIOT</string>
+    <string name="app_tagline">Platform IoT &amp; Monitoring Real-Time</string>
+
+    <!-- Auth -->
+    <string name="login_title">Masuk ke Akun</string>
+    <string name="login_subtitle">Kelola dan monitor perangkat IoT Anda</string>
+    <string name="email_hint">Alamat Email</string>
+    <string name="password_hint">Kata Sandi</string>
+    <string name="name_hint">Nama Lengkap</string>
+    <string name="btn_login">Masuk</string>
+    <string name="btn_register">Daftar Akun Baru</string>
+    <string name="register_title">Buat Akun Baru</string>
+    <string name="register_subtitle">Mulai hubungkan sensor &amp; mikrokontroler Anda</string>
+    <string name="already_have_account">Sudah punya akun? Masuk</string>
+    <string name="dont_have_account">Belum punya akun? Daftar</string>
+
+    <!-- Devices -->
+    <string name="devices_title">Perangkat Saya</string>
+    <string name="device_online">Terhubung</string>
+    <string name="device_offline">Terputus</string>
+    <string name="no_devices">Belum ada perangkat IoT.\nSilakan tambahkan perangkat melalui web panel.</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">Dashboard Monitoring</string>
+    <string name="last_update">Pembaruan: -</string>
+    <string name="no_widgets">Belum ada widget pada perangkat ini.\nTambahkan widget melalui dashboard web.</string>
+
+    <!-- Server Configuration -->
+    <string name="server_settings">Pengaturan Server</string>
+    <string name="server_url_hint">Contoh: http://192.168.1.10/IOT-SHAWIR</string>
+    <string name="btn_save">Simpan</string>
+    <string name="btn_cancel">Batal</string>
+    <string name="btn_test_connection">Uji Koneksi</string>
+    <string name="server_connection_success">Koneksi ke server berhasil!</string>
+    <string name="server_connection_failed">Gagal terhubung ke server. Periksa URL dan koneksi WiFi.</string>
+</resources>

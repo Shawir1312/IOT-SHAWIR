@@ -1,0 +1,16 @@
+<resources>
+    <style name="Theme.ShawirIOT" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/primary_light</item>
+        <item name="android:windowBackground">@color/bg_main</item>
+        <item name="android:statusBarColor">@color/bg_topbar</item>
+        <item name="android:navigationBarColor">@color/bg_main</item>
+    </style>
+
+    <style name="Theme.ShawirIOT.Splash" parent="Theme.ShawirIOT">
+        <item name="android:windowBackground">@color/bg_main</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+</resources>
