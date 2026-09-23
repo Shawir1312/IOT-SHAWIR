@@ -23,39 +23,30 @@
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/text_secondary" />
 
-        <!-- Header -->
+        <!-- Header Matching Web login.php -->
         <ImageView
             android:id="@+id/ivLogo"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_marginTop="32dp"
-            android:src="@drawable/ic_iot_chip"
+            android:layout_width="260dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="28dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/logo"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/primary" />
-
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/login_title"
-            android:textColor="@color/text_primary"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ivLogo" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tvSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/login_subtitle"
+            android:layout_marginTop="8dp"
+            android:text="Masuk ke Platform IoT Anda"
             android:textColor="@color/text_secondary"
             android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+            app:layout_constraintTop_toBottomOf="@+id/ivLogo" />
 
         <!-- Input Fields -->
         <TextView
@@ -153,7 +144,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            android:text="Server: http://10.0.2.2/IOT-SHAWIR"
+            android:text="Server: https://iot.shawir.id"
             android:textColor="@color/text_muted"
             android:textSize="11sp"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -20,8 +20,8 @@ class SessionManager(context: Context) {
         private const val KEY_AUTH_TOKEN = "auth_token"
         private const val KEY_USER_JSON = "user_json"
 
-        // Default: jika dijalankan di emulator Android mengarah ke localhost mesin host Mac
-        const val DEFAULT_SERVER_URL = "http://10.0.2.2/IOT-SHAWIR"
+        // Default: Mengarah langsung ke VPS production
+        const val DEFAULT_SERVER_URL = "https://iot.shawir.id"
     }
 
     /**
